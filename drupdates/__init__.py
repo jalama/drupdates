@@ -1,27 +1,18 @@
 #!/usr/bin/env python
 
-import requests
-import subprocess
+from . import utils
+from . import drush
+from pmtools import *
+from repotools import *
 import git
-import json
 import os
 import shutil
-import datetime
-
-try:
-  from html import escape  # py3
-except ImportError:
-  from cgi import escape
 
 from git import *
 
 '''
 Requirements:
 Python v2.6+
-Python Modules:
-requests, GitPython, PyYAML
-To install pip on CentOS:
-sudo yum install python-pip
 '''
 
 """
@@ -33,143 +24,6 @@ plan laid out at
 I had issues getting the request module to load after I loaded it with pip
 @see http://stackoverflow.com/questions/25276329/cant-load-python-modules-installed-via-pip-from-site-packages-directory
 """
-
-'''
-Note: you need an ssh key set up with Stash to make this script work
-'''
-
-# This should get replaced by a generic plugin for PM VCS systems
-def apiCall (uri, name, method = 'get', **kwargs):
-  #user = '', pword = ''):
-  """ Perform and API call, expecting a JSON response.  Largely a wrapper
-  around the request module
-
-  Keyword arguments:
-  uri -- the uri of the Restful Web Service (required)
-  name -- the human readable label for the service being called (required)
-  method -- HTTP method to use (defaul = 'get')
-  kwargs -- dictionary of arguments passed directly to requests module method
-
-  """
-  # FIXME: need to HTML escape passwords
-  func = getattr(requests, method)
-  args = {}
-  for key, value in kwargs.iteritems():
-    args[key] = value
-  # if not user == '' and not pword == '':
-  #   args.append("auth=(user, pword)")
-  print (args)
-  r = func(uri, **args)
-  responseDictionary = r.json()
-  #If API call errors out print the error and quit the script
-  if r.status_code != 200:
-    if 'errors' in responseDictionary:
-      errors = responseDictionary.pop('errors')
-      firstError = errors.pop()
-    elif 'error' in responseDictionary:
-      firstError = responseDictionary.pop('error')
-    else:
-      firstError['message'] = "No error message provided by response"
-    print("{0} returned an error, exiting the script.\n   Status Code: {1} \n Error: {2}".format(name, r.status_code , firstError['message']))
-    return False
-  else:
-    return responseDictionary
-
-def readUpdateReport(lst, updates = []):
-  for x in lst:
-    # build list of updates in a list,
-    # when you hit a blank line you are done
-    # note: if there are no updates the first line will be blank
-    if not x == '':
-      updates += x
-    else:
-      break
-
-  return updates
-
-def callDrush(commands, alias = '', jsonRet = False):
-  """ Run a drush comand and return a list/dictionary of the results
-
-  Keyword arguments:
-  commands -- list containing command, arguments and options
-  alias -- drush site alias of site where "commands" to run on
-  json -- binary deermining if the given command can/should return json
-
-  """
-  # https://github.com/dsnopek/python-drush/, threw errors calling Drush()
-  # consider --strict=no
-  if not alias == '':
-    commands.insert(0, '@' + alias)
-  if jsonRet:
-    commands.append('--format=json')
-  commands.insert(0, 'drush')
-  # run the command
-  print commands
-  popen = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  stdout, stderr = popen.communicate()
-  if jsonRet:
-    ret = json.loads(stdout)
-  else:
-    ret = stdout.split('\n')
-
-  return ret
-
-def importDrush(alias):
-  """ Import a SQL dump using drush sqlc
-
-  alias -- A Drush alias
-
-  """
-  commands = ['drush', '@' + alias, 'sqlc']
-  popen = subprocess.Popen(cmds, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-  out, stderr = popen.communicate(file(backportDir + siteName + '.sql').read())
-  if not stderr == '':
-    print alias + " DB import error: " + stderr
-    return False
-
-  return True
-
-def nextFriday():
-  # Get the data string for the following Friday
-  today = datetime.date.today()
-  if datetime.datetime.today().weekday() == 4:
-    friday = str(today + datetime.timedelta( (3-today.weekday())%7+1 ))
-  else:
-    friday = str(today + datetime.timedelta( (4-today.weekday()) % 7 ))
-  return friday
-
-def getAtTaskSession():
-  # Get a session ID from AtTask
-  atParams = {'username': pmUser, 'password': pmPword}
-  response = apiCall(pmURL, pmLabel, 'post', params = atParams)
-  if response == False:
-    return response
-  else:
-    sessionID = responseDictionary['data']['sessionID']
-    return sessionID
-
-
-def submitAtTaskDeploy(env, description, targetDate, sessionID):
-  """ Submit a Deployment request to AtTask
-
-  env -- the Name of the environment to deploy to
-  description -- the description test to go in the task
-  targetDate -- the date to put in the lable fo the ticket
-  sessionID -- The session ID form AtTask that authenticates this submission
-
-  """
-  sessparam = {'SessionID': sessionID}
-  title = env + ' Deployment for ' + siteName +' w.e. ' + targetDate
-  atParams = {'name': title, 'projectID': webMaintProjectID, 'teamID': webOpsTeamID, 'description': description}
-  response = apiCall(pmURL, pmLabel, 'post', params = atParams, headers = sessparam)
-  # r = requests.post('baseAtTaskUrl+taskAtTaskURL', params = params2, headers = sessparam)
-  return response
-
-def gitRepos():
-  #Get list of Stash repos in the Rain Project.
-  r = apiCall(gitRepoURL, gitRepoName, 'get', auth=(user, pword))
-  repos = r['values']
-  return repos
 
 def main():
   repos = gitRepos()
