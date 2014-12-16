@@ -1,6 +1,8 @@
 import subprocess
 import json
 
+settings = Settings()
+
 def readUpdateReport(lst, updates = []):
   for x in lst:
     # build list of updates in a list,
@@ -46,9 +48,11 @@ def importDrush(alias):
   alias -- A Drush alias
 
   """
+  workingDir = settings.get('workingDir')
+  backportDir = workingDir + settings.get('backupDir')
   commands = ['drush', '@' + alias, 'sqlc']
-  popen = subprocess.Popen(cmds, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-  out, stderr = popen.communicate(file(backportDir + siteName + '.sql').read())
+  popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+  out, stderr = popen.communicate(file(backportDir + alias + '.sql').read())
   if not stderr == '':
     print alias + " DB import error: " + stderr
     return False
