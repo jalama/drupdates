@@ -2,8 +2,6 @@ from drupdates.utils import *
 
 # 'https://git.highlights.com/rest/api/1.0/projects/rain/repos'
 
-settings = Settings()
-
 '''
 Note: you need an ssh key set up with Stash to make this script work
 '''

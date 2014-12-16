@@ -2,8 +2,6 @@ from drupdates.utils import *
 
 #Work with AtTask
 
-settings = Settings()
-
 def getAtTaskSession():
   # Get a session ID from AtTask
   pmUser = settings.get('pmUser')

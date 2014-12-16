@@ -26,9 +26,6 @@ I had issues getting the request module to load after I loaded it with pip
 @see http://stackoverflow.com/questions/25276329/cant-load-python-modules-installed-via-pip-from-site-packages-directory
 """
 
-# Load variables:
-settings = Settings()
-
 def main():
   workingDir = settings.get('workingDir')
   backportDir = workingDir + settings.get('backupDir')

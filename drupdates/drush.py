@@ -2,8 +2,6 @@ import subprocess
 import json
 from drupdates.utils import *
 
-settings = Settings()
-
 def readUpdateReport(lst, updates = []):
   for x in lst:
     # build list of updates in a list,

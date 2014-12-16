@@ -50,7 +50,7 @@ def apiCall (uri, name, method = 'get', **kwargs):
 
 
 class Settings:
-    
+
 	__localFile = expanduser("~") + '/.drupdates/main.yaml'
 
 	def __init__(self):
@@ -62,4 +62,5 @@ class Settings:
 	def get(self, setting):
 		return self.__settings[setting]['value']
 
-
+# Load variables:
+settings = Settings()
