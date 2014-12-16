@@ -4,7 +4,6 @@ from drupdates.utils import *
 from drupdates.drush import *
 from drupdates.attask import *
 from drupdates.stash import *
-from drupdates.settings import *
 import git
 import os
 import shutil
@@ -38,6 +37,7 @@ def main():
   blacklist = settings.get('blacklist')
   subprocess.call(['drush', 'cache-clear', 'drush'])
   for siteName, ssh in repos.iteritems():
+    # Check to see if this site is in the user's blacklist
     if siteName in blacklist:
       continue
     siteDir = workingDir + '/' + siteName

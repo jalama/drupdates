@@ -1,5 +1,4 @@
 from drupdates.utils import *
-from drupdates.settings import *
 
 # 'https://git.highlights.com/rest/api/1.0/projects/rain/repos'
 

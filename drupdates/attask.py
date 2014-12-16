@@ -1,5 +1,4 @@
 from drupdates.utils import *
-from drupdates.settings import *
 
 #Work with AtTask
 

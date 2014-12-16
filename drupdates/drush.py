@@ -1,6 +1,6 @@
 import subprocess
 import json
-from drupdates.settings import *
+from drupdates.utils import *
 
 settings = Settings()
 

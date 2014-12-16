@@ -1,5 +1,8 @@
 import datetime
 import requests
+import os
+from os.path import expanduser
+import yaml
 
 def nextFriday():
   # Get the data string for the following Friday
@@ -44,3 +47,19 @@ def apiCall (uri, name, method = 'get', **kwargs):
     return False
   else:
     return responseDictionary
+
+
+class Settings:
+    
+	__localFile = expanduser("~") + '/.drupdates/main.yaml'
+
+	def __init__(self):
+		if os.path.isfile(self.__localFile):
+			stream = open(self.__localFile, 'r')
+			self.__settings =  yaml.load(stream)
+			stream.close()
+
+	def get(self, setting):
+		return self.__settings[setting]['value']
+
+
