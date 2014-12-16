@@ -8,6 +8,7 @@ import git
 import os
 import shutil
 
+
 from git import *
 
 '''
@@ -27,7 +28,7 @@ I had issues getting the request module to load after I loaded it with pip
 
 def main():
   repos = gitRepos()
-  report = []
+  report = {}
   subprocess.call(['drush', 'cache-clear', 'drush'])
   for repo in repos:
     siteName = repo['slug']
@@ -91,10 +92,3 @@ def main():
           data = prod['data']
           report[siteName]['production'] = "The Production deploy ticket is {0}task/view/?ID={1}".format(baseAtTaskUrl, data['ID'])
   print (report)
-
-"""
-Example: https://highlights.cr1.attasksandbox.com/task/view?ID=548cb1470000090f9d24bf983a32fa9e
->>> print response
-{u'data': {u'status': u'NEW', u'workRequired': 0, u'name': u'test task by jim', u'plannedStartDate': u'2013-11-21T09:00:00:000-0500', u'progressStatus': u'LT', u'taskNumber': 702, u'objCode': u'TASK', u'projectedStartDate': u'2014-12-15T09:00:00:000-0500', u'wbs': u'588', u'priority': 0, u'percentComplete': 0.0, u'projectedCompletionDate': u'2014-12-15T09:00:00:000-0500', u'ID': u'548cb1470000090f9d24bf983a32fa9e', u'plannedCompletionDate': u'2013-11-21T09:00:00:000-0500'}}
-
-"""
