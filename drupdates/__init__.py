@@ -35,8 +35,11 @@ def main():
   backportDir = workingDir + settings.get('backupDir')
   repos = gitRepos()
   report = {}
+  blacklist = settings.get('blacklist')
   subprocess.call(['drush', 'cache-clear', 'drush'])
   for siteName, ssh in repos.iteritems():
+    if siteName in blacklist:
+      continue
     siteDir = workingDir + '/' + siteName
     os.chdir(workingDir)
     if os.path.isdir(siteName):
