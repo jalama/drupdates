@@ -61,7 +61,8 @@ def main():
     if not importDB:
       continue
     # Run Drush up to update the site
-    upCmds = ['up', '-y', '--security-only', '--no-backup']
+    upCmds = upCmds = settings.get('upCmds')
+    upCmds.insert(0, 'up')
     drush = callDrush(upCmds, siteName)
     updates = readUpdateReport(drush)
     # If there are no updates move to the next repo
