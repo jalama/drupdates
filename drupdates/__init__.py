@@ -28,7 +28,9 @@ I had issues getting the request module to load after I loaded it with pip
 
 def main():
   workingDir = settings.get('workingDir')
-  backportDir = workingDir + settings.get('backupDir')
+  backportDir = settings.get('backupDir')
+  # FIXME: this is assuming the site alias and site directory are one in the same
+  # our vagrant install populates the sa list based on the direcotry being populated
   repos = gitRepos()
   report = {}
   blacklist = settings.get('blacklist')
@@ -43,8 +45,10 @@ def main():
       shutil.rmtree(siteName)
     # Build Git repository
     # http://nullege.com/codes/search/git.add
+    # FIXME: this is backwards as you would usually choose the target directory based on the drush site alias target directory
     repository = Repo.clone_from(ssh, siteDir)
     git = repository.git
+    # FIXME: Need to be able to have per repo working branch
     git.checkout(b = settings.get('workingBranch'))
     stCmds = ['st']
     repoStatus = callDrush(stCmds, siteName, True)
@@ -58,6 +62,7 @@ def main():
     if not importDB:
       continue
     # Run Drush up to update the site
+    # TODO: Make sure update module is enabled
     upCmds = upCmds = settings.get('upCmds')
     upCmds.insert(0, 'up')
     drush = callDrush(upCmds, siteName)

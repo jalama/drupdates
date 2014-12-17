@@ -1,0 +1,41 @@
+userAtTask:
+  value: ""
+pmPword:
+  value: ""
+pmUser:
+  value: ""
+pmURL:
+  value: ""
+pmLabel:
+  value: ""
+LoginAtTaskUrl:
+  value: ""
+taskAtTaskURL:
+  value: ""
+webMaintProjectID:
+  value: ""
+webOpsTeamID:
+  value: ""
+gitRepoURL:
+  value: ""
+gitRepoName:
+  value: ""
+uname:
+  value: ""
+pword:
+  value: ""
+workingBranch:
+  value: ""
+commitAuthor:
+  value: ""
+workingDir:
+  value: /var/www/
+backupDir:
+  value: ""
+blacklist:
+  value: ""
+upCmds:
+  value:
+    - -y
+    - --security-only
+    - --no-backup
