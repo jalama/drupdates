@@ -2,6 +2,12 @@ try:
 	from setuptools import setup
 except ImportError:
 	from distutils.core import setup
+import sys
+
+# Ensure Python verison is >= 2.6
+if not sys.version_info[0] < 2 and sys.version_info[1] < 7:
+    print "Sorry, Python 3 is not supported (yet)"
+    sys.exit(1) # return non-zero value for failure
 
 config = {
 	'description': 'Drupal updates scripts',
