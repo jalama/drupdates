@@ -8,7 +8,6 @@ import git
 import os
 import shutil
 
-
 from git import *
 
 '''
@@ -62,7 +61,8 @@ def main():
     if not importDB:
       continue
     # Run Drush up to update the site
-    # TODO: Make sure update module is enabled
+    # Make sure update module is enabled
+    callDrush(['en', 'update', '-y'], siteName)
     upCmds = upCmds = settings.get('upCmds')
     upCmds.insert(0, 'up')
     drush = callDrush(upCmds, siteName)
