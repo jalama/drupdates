@@ -47,7 +47,6 @@ def main():
     # FIXME: this is backwards as you would usually choose the target directory based on the drush site alias target directory
     repository = Repo.clone_from(ssh, siteDir)
     git = repository.git
-    # FIXME: Need to be able to have per repo working branch
     git.checkout(b = settings.get('workingBranch'))
     stCmds = ['st']
     repoStatus = callDrush(stCmds, siteName, True)

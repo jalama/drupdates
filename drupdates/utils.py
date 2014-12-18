@@ -60,6 +60,7 @@ class Settings:
     default.close()
     path = __name__
     localFile = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
+    # if there is an override file in the home dir (ex ~/.drupdates/util.yaml)
     if os.path.isfile(localFile):
       local = open(localFile, 'r')
       self.__local =  yaml.load(local)

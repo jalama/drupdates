@@ -9,7 +9,7 @@ config = {
 	'url': 'URL to get it at.',
 	'download_url': 'https://github.com/jalama/drupdates',
 	'author_email': 'jim@rootyhollow.com',
-	'version': '0.1',
+	'version': '0.2',
 	'install_requires': ['nose'],
 	'packages': ['drupdates'],
 	'package_dir': {'drupdates': 'drupdates'},
