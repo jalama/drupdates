@@ -51,17 +51,17 @@ def apiCall (uri, name, method = 'get', **kwargs):
 
 class Settings:
 
-  __localFile = expanduser("~") + '/.drupdates/main.yaml'
-
   def __init__(self):
     self.__settings = {}
     self.__model()
     currentDir = os.path.dirname(os.path.realpath(__file__))
-    default = open(currentDir + "/settings/default.yaml", 'r')
+    default = open(currentDir + '/settings/default.yaml', 'r')
     self.__settings =  yaml.load(default)
     default.close()
-    if os.path.isfile(self.__localFile):
-      local = open(self.__localFile, 'r')
+    path = __name__
+    localFile = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
+    if os.path.isfile(localFile):
+      local = open(localFile, 'r')
       self.__local =  yaml.load(local)
       local.close()
       self.__settings = dict(self.__settings.items() + self.__local.items())
