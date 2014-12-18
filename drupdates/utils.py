@@ -54,6 +54,8 @@ class Settings:
   __localFile = expanduser("~") + '/.drupdates/main.yaml'
 
   def __init__(self):
+    self.__settings = {}
+    self.__model()
     currentDir = os.path.dirname(os.path.realpath(__file__))
     default = open(currentDir + "/settings/default.yaml", 'r')
     self.__settings =  yaml.load(default)
@@ -62,10 +64,20 @@ class Settings:
       local = open(self.__localFile, 'r')
       self.__local =  yaml.load(local)
       local.close()
-      self.__settings = dict( self.__settings + self.__local.items())
+      self.__settings = dict(self.__settings.items() + self.__local.items())
+
+  def __model(self):
+    model = {}
+    model['default'] = ''
+    model['value'] = ''
+    model['prompt'] = ''
+    model['format'] = ''
+    self.__model = model
 
   def get(self, setting):
-    return self.__settings[setting]['value']
+    if setting in self.__settings:
+      setting = dict(self.__model.items() + self.__settings[setting].items())
+    return setting['value']
 
 # Load variables:
 settings = Settings()
