@@ -2,8 +2,8 @@
 
 from drupdates.utils import *
 from drupdates.drush import *
-from drupdates.attask import *
-from drupdates.stash import *
+from drupdates.repos import *
+from drupdates.pmtools import *
 import git
 import os
 import shutil
@@ -30,8 +30,9 @@ def main():
   backportDir = settings.get('backupDir')
   # FIXME: this is assuming the site alias and site directory are one in the same
   # our vagrant install populates the sa list based on the direcotry being populated
-  repos = gitRepos()
   report = {}
+  repoTool = repos()
+  repos = repoTool.get()
   blacklist = settings.get('blacklist')
   subprocess.call(['drush', 'cache-clear', 'drush'])
   for siteName, ssh in repos.iteritems():
@@ -87,15 +88,13 @@ def main():
     descriptionList.append("drush @" + siteName +" updb -y \n")
     description = '\n'.join(descriptionList)
     friday = nextFriday()
-    sessionID = getAtTaskSession()
+    pmTool = pmtools()
     # Staging Ticket
-    staging = submitAtTaskDeploy(siteName, 'Staging', description, friday, sessionID)
+    staging = pmtool.deploy(siteName, 'Staging', description, friday, commitHash)
     if staging:
-      data = staging['data']
-      report[siteName]['staging'] = "The Staging deploy ticket is {0}task/view/?ID={1}".format(baseAtTaskUrl, data['ID'])
+      report[siteName] = staging
     #Production Ticket
-    production = submitAtTaskDeploy(siteName, 'Production', description, friday, sessionID)
+    production = pmtool.deploy(siteName, 'Production', description, friday, commitHash)
     if production:
-      data = prod['data']
-      report[siteName]['production'] = "The Production deploy ticket is {0}task/view/?ID={1}".format(baseAtTaskUrl, data['ID'])
+      report[siteName] = production
   print (report)

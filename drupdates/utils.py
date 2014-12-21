@@ -1,8 +1,10 @@
 import datetime
 import requests
 import os
+import imp
 from os.path import expanduser
 import yaml
+from drupdates.plugins import *
 
 def nextFriday():
   # Get the data string for the following Friday
@@ -48,6 +50,26 @@ def apiCall (uri, name, method = 'get', **kwargs):
   else:
     return responseDictionary
 
+"""
+Simple Plugin system shamelessly based on:
+http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
+"""
+PluginFolder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
+MainModule = "__init__"
+
+def getPlugins():
+  plugins = {}
+  possibleplugins = os.listdir(PluginFolder)
+  for i in possibleplugins:
+    location = os.path.join(PluginFolder, i)
+    if not os.path.isdir(location) or not MainModule + ".py" in os.listdir(location):
+      continue
+    info = imp.find_module(MainModule, [location])
+    plugins[i] = ({"name": i, "info": info})
+  return plugins
+
+def loadPlugin(plugin):
+  return imp.load_module(MainModule, *plugin["info"])
 
 class Settings:
 
@@ -60,7 +82,7 @@ class Settings:
     default.close()
     path = __name__
     localFile = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
-    # if there is an override file in the home dir (ex ~/.drupdates/util.yaml)
+    # If there is an override file in the home dir (ex. ~/.drupdates/utils.yaml)
     if os.path.isfile(localFile):
       local = open(localFile, 'r')
       self.__local =  yaml.load(local)
@@ -82,3 +104,8 @@ class Settings:
 
 # Load variables:
 settings = Settings()
+
+class Plugin(Settings):
+
+  def name(self):
+    return "name"
