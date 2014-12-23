@@ -1,29 +1,4 @@
-userAtTask:
-  value: ""
-pmPword:
-  value: ""
-pmUser:
-  value: ""
-pmURL:
-  value: ""
-pmLabel:
-  value: ""
-LoginAtTaskUrl:
-  value: ""
-taskAtTaskURL:
-  value: ""
-webMaintProjectID:
-  value: ""
-webOpsTeamID:
-  value: ""
-gitRepoURL:
-  value: ""
-gitRepoName:
-  value: ""
-uname:
-  value: ""
-pword:
-  value: ""
+# YAML
 workingBranch:
   value: ""
 commitAuthor:

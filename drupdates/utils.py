@@ -4,7 +4,6 @@ import os
 import imp
 from os.path import expanduser
 import yaml
-from drupdates.plugins import *
 
 def nextFriday():
   # Get the data string for the following Friday
@@ -71,11 +70,10 @@ def getPlugins():
 def loadPlugin(plugin):
   return imp.load_module(MainModule, *plugin["info"])
 
-class Settings:
+class Settings(object):
 
   def __init__(self):
     self.__settings = {}
-    self.__model()
     currentDir = os.path.dirname(os.path.realpath(__file__))
     default = open(currentDir + '/settings/default.yaml', 'r')
     self.__settings =  yaml.load(default)
@@ -89,23 +87,31 @@ class Settings:
       local.close()
       self.__settings = dict(self.__settings.items() + self.__local.items())
 
-  def __model(self):
+  @property
+  def _settings(self):
+    return self.__settings
+
+  @property
+  def _model(self):
     model = {}
     model['default'] = ''
     model['value'] = ''
     model['prompt'] = ''
     model['format'] = ''
-    self.__model = model
+    return model
 
   def get(self, setting):
-    if setting in self.__settings:
-      setting = dict(self.__model.items() + self.__settings[setting].items())
+    if setting in self._settings:
+      setting = dict(self._model.items() + self._settings[setting].items())
     return setting['value']
 
 # Load variables:
 settings = Settings()
 
 class Plugin(Settings):
+
+  # def __init__(self):
+    # super(Plugin, self).__init__()
 
   def name(self):
     return "name"

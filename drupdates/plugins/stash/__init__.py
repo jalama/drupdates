@@ -3,14 +3,19 @@ from drupdates.utils import *
 '''
 Note: you need an ssh key set up with Stash to make this script work
 '''
-class stash:
+class stash(Plugin):
+
+  # def __init__(self):
+    # super(stash, self).__init__()
 
   def gitRepos(self):
     #Get list of Stash repos in the Rain Project.
-    gitRepoURL = settings.get('gitRepoURL')
+    print self._settings
+
+    stashURL = settings.get('gitRepoURL')
     gitRepoName = settings.get('gitRepoName')
-    uname = settings.get('uname')
-    pword = settings.get('pword')
+    stashUser = settings.get('uname')
+    stashPword = settings.get('pword')
     r = apiCall(gitRepoURL, gitRepoName, 'get', auth=(uname, pword))
     reposRaw = r['values']
     repos = self.__parseRepos(reposRaw)

@@ -1,0 +1,21 @@
+# YAML
+Name:
+  value: AtTask
+attaskLoginUrl:
+  value: login
+attaskTaskURL:
+  value: task
+attaskAPIVersion:
+  value: v4.0
+attaskUser:
+  value: ""
+attaskPword:
+  value: ""
+attaskBaseURL:
+  value: ""
+attaskAPIURL:
+  value: ""
+webMaintProjectID:
+  value: ""
+webOpsTeamID:
+  value: ""

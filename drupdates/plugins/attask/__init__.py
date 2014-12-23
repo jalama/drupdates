@@ -1,22 +1,25 @@
 from drupdates.utils import *
 
 # Work with AtTask
-class attask:
+class attask(Plugin):
 
-  def __init__(self):
+  @property
+  def _sessionID(self):
+      return self.__sessionID
+  @_sessionID.setter
+  def _sessionID(self, value):
     # Get a session ID from AtTask
-    pmUser = settings.get('pmUser')
-    pmPword = settings.get('pmPword')
-    pmURL = settings.get('pmURL')
+    attaskPword = settings.get('attaskPword')
+    attaskPword = settings.get('attaskPword')
+    attaskAPIURL = settings.get('attaskAPIURL')
     pmLabel = settings.get('pmLabel')
 
-    atParams = {'username': pmUser, 'password': pmPword}
-    response = apiCall(pmURL, pmLabel, 'post', params = atParams)
+    atParams = {'username': attaskUser, 'password': attaskPword}
+    response = apiCall(attaskAPIURL, pmLabel, 'post', params = atParams)
     if response == False:
-      return response
+      self.__sessionID = False
     else:
       self.__sessionID = responseDictionary['data']['sessionID']
-
 
   def submitDeployTicket(self, site, env, description, targetDate):
     """ Submit a Deployment request to AtTask
@@ -28,13 +31,17 @@ class attask:
     """
     webMaintProjectID = settings.get('webMaintProjectID')
     webOpsTeamID = settings.get('webOpsTeamID')
-    pmURL = settings.get('pmURL')
+    attaskAPIURL = settings.get('attaskAPIURL')
     pmLabel = settings.get('pmLabel')
-    baseURL = settings.get('basePmURL')
-    sessparam = {'SessionID': self.__sessionID}
+    attaskBaseURL = settings.get('attaskBaseURL')
+    sessparam = {}
+    if self._sessionID
+      sessparam['SessionID'] =self._sessionID}
+    else
+      return False
     title = env + ' Deployment for ' + siteName +' w.e. ' + targetDate
     atParams = {'name': title, 'projectID': webMaintProjectID, 'teamID': webOpsTeamID, 'description': description}
-    response = apiCall(pmURL, pmLabel, 'post', params = atParams, headers = sessparam)
+    response = apiCall(attaskAPIURL, pmLabel, 'post', params = atParams, headers = sessparam)
     data = response['data']
-    message = "The Staging deploy ticket is {0}task/view/?ID={1}".format(baseUrl, data['ID'])
+    message = "The Staging deploy ticket is {0}task/view/?ID={1}".format(attaskBaseURL, data['ID'])
     return message

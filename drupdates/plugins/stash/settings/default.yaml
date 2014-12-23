@@ -1,0 +1,9 @@
+# YAML
+name:
+  value: Stash
+stashURL:
+  value: ""
+stashUser:
+  value: ""
+stashPword:
+  value: ""
