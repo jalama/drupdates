@@ -9,13 +9,19 @@ attaskAPIVersion:
   value: v4.0
 attaskUser:
   value: ""
+  prompt: What is your AtTask user name?
 attaskPword:
   value: ""
+  prompt: What is your AtTask password?
 attaskBaseURL:
   value: ""
-attaskAPIURL:
+  prompt: What is the AtTask URL?
+targetDate:
   value: ""
-webMaintProjectID:
+  prompt: What date should the deployment ticket target?
+attaskAssigneeType:
+  value: TeamID
+attaskProjectID:
   value: ""
-webOpsTeamID:
+devOpsTeamID:
   value: ""

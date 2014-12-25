@@ -10,16 +10,16 @@ class stash(Plugin):
 
   def gitRepos(self):
     #Get list of Stash repos in the Rain Project.
-    print self._settings
-
-    stashURL = settings.get('gitRepoURL')
+    stashURL = settings.get('stashURL')
     gitRepoName = settings.get('gitRepoName')
-    stashUser = settings.get('uname')
-    stashPword = settings.get('pword')
-    r = apiCall(gitRepoURL, gitRepoName, 'get', auth=(uname, pword))
-    reposRaw = r['values']
-    repos = self.__parseRepos(reposRaw)
-    return repos
+    stashUser = settings.get('stashUser')
+    stashPword = settings.get('stashPword')
+    r = apiCall(stashURL, gitRepoName, 'get', auth=(stashUser, stashPword))
+    if not r == False:
+      repos = self.__parseRepos(r['values'])
+      return repos
+    else:
+      return {}
 
   def __parseRepos(self, raw):
   	repos = {}

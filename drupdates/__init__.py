@@ -7,23 +7,7 @@ from drupdates.pmtools import *
 import git
 import os
 import shutil
-
 from git import *
-
-'''
-Requirements:
-Python v2.6+
-'''
-
-"""
-plan laid out at
-@see https://www.evernote.com/l/AAIYsOFoMVlOVZsz6f-5SEL4s4SIRS2GfOY
-"""
-
-"""
-I had issues getting the request module to load after I loaded it with pip
-@see http://stackoverflow.com/questions/25276329/cant-load-python-modules-installed-via-pip-from-site-packages-directory
-"""
 
 def main():
   workingDir = settings.get('workingDir')
@@ -69,32 +53,21 @@ def main():
     updates = readUpdateReport(drush)
     # If there are no updates move to the next repo
     if len(updates) == 0:
-      report[siteName]['status']= "{0} did not have any updates to apply".format(siteName)
+      report[siteName]['status']= "Did not have any updates to apply"
       continue
     # Commit and push updates to remote repo
     # FIXME: Need to rebuild the Make file to reflect the new module versions
-    # maybe using generate-makefile or simply search/replace
+    # maybe using generate-makefile or simply search/replace?
     git.add('./')
     msg = '\n'.join(updates)
     git.commit(m=msg, author=commitAuthor)
     commitHash = git.rev_parse('head')
     push = git.push(remote="origin", branches=workingBranch, dry_run=False)
-    report[siteName]['status'] = "{0} applied the following update {1}".format(siteName, msg)
+    report[siteName]['status'] = "The following updates were applied \n {0}".format(msg)
     report[siteName]['commit'] = "The commit hash is {0}".format(commitHash)
     # AtTask Deployment ticket submission
-    descriptionList = []
-    descriptionList.append("Git Hash = <" + commitHash + "> \n")
-    descriptionList.append("Post deplayment steps: \n")
-    descriptionList.append("drush @" + siteName +" updb -y \n")
-    description = '\n'.join(descriptionList)
-    friday = nextFriday()
-    pmTool = pmtools()
-    # Staging Ticket
-    staging = pmtool.deploy(siteName, 'Staging', description, friday, commitHash)
-    if staging:
-      report[siteName] = staging
-    #Production Ticket
-    production = pmtool.deploy(siteName, 'Production', description, friday, commitHash)
-    if production:
-      report[siteName] = production
+    pmTool = pmtools(siteName)
+    tickets = ['Staging', 'Production']
+    deploys = pmTool.deployTicket(tickets, commitHash)
+    report.append(deploys)
   print (report)

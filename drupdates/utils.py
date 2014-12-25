@@ -5,15 +5,6 @@ import imp
 from os.path import expanduser
 import yaml
 
-def nextFriday():
-  # Get the data string for the following Friday
-  today = datetime.date.today()
-  if datetime.datetime.today().weekday() == 4:
-    friday = str(today + datetime.timedelta( (3-today.weekday())%7+1 ))
-  else:
-    friday = str(today + datetime.timedelta( (4-today.weekday()) % 7 ))
-  return friday
-
 def apiCall (uri, name, method = 'get', **kwargs):
   #user = '', pword = ''):
   """ Perform and API call, expecting a JSON response.  Largely a wrapper
@@ -49,30 +40,17 @@ def apiCall (uri, name, method = 'get', **kwargs):
   else:
     return responseDictionary
 
-"""
-Simple Plugin system shamelessly based on:
-http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
-"""
-PluginFolder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
-MainModule = "__init__"
-
-def getPlugins():
-  plugins = {}
-  possibleplugins = os.listdir(PluginFolder)
-  for i in possibleplugins:
-    location = os.path.join(PluginFolder, i)
-    if not os.path.isdir(location) or not MainModule + ".py" in os.listdir(location):
-      continue
-    info = imp.find_module(MainModule, [location])
-    plugins[i] = ({"name": i, "info": info})
-  return plugins
-
-def loadPlugin(plugin):
-  return imp.load_module(MainModule, *plugin["info"])
-
 class Settings(object):
 
   def __init__(self):
+    self._settings = {}
+    self._model = {}
+
+  @property
+  def _settings(self):
+      return self.__settings
+  @_settings.setter
+  def _settings(self, value = {}):
     self.__settings = {}
     currentDir = os.path.dirname(os.path.realpath(__file__))
     default = open(currentDir + '/settings/default.yaml', 'r')
@@ -88,30 +66,71 @@ class Settings(object):
       self.__settings = dict(self.__settings.items() + self.__local.items())
 
   @property
-  def _settings(self):
-    return self.__settings
-
-  @property
   def _model(self):
-    model = {}
-    model['default'] = ''
-    model['value'] = ''
-    model['prompt'] = ''
-    model['format'] = ''
-    return model
+      return self.__model
+  @_model.setter
+  def _model(self, value = {}):
+    value['default'] = ''
+    value['value'] = ''
+    value['prompt'] = ''
+    value['format'] = ''
+    self.__model = value
 
   def get(self, setting):
     if setting in self._settings:
       setting = dict(self._model.items() + self._settings[setting].items())
-    return setting['value']
+      return setting['value']
+    else:
+      return ""
 
 # Load variables:
 settings = Settings()
 
 class Plugin(Settings):
 
-  # def __init__(self):
-    # super(Plugin, self).__init__()
+  def __init__(self):
+    self.PluginFolder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
+    self.MainModule = "__init__"
+    self._plugins = ""
 
-  def name(self):
+  @property
+  def PluginFolder(self):
+      return self._PluginFolder
+  @PluginFolder.setter
+  def PluginFolder(self, value):
+      self._PluginFolder = value
+
+  @property
+  def MainModule(self):
+      return self._MainModule
+  @MainModule.setter
+  def MainModule(self, value):
+      self._MainModule = value
+
+  @property
+  def _plugins(self):
+      return self.__plugins
+  @_plugins.setter
+  def _plugins(self, value):
+      self.__plugins = self.getPlugins()
+
+  """
+  Simple Plugin system shamelessly based on:
+  http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
+  """
+  def getPlugins(self):
+    plugins = {}
+    possibleplugins = os.listdir(self.PluginFolder)
+    for i in possibleplugins:
+      location = os.path.join(self.PluginFolder, i)
+      if not os.path.isdir(location) or not self.MainModule + ".py" in os.listdir(location):
+        continue
+      info = imp.find_module(self.MainModule, [location])
+      plugins[i] = ({"name": i, "info": info})
+    return plugins
+
+  def loadPlugin(self, plugin):
+    return imp.load_module(self.MainModule, *plugin["info"])
+
+  def propName(self):
     return "name"
