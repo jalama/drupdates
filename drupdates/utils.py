@@ -42,18 +42,19 @@ def apiCall (uri, name, method = 'get', **kwargs):
 
 class Settings(object):
 
-  def __init__(self):
-    self._settings = {}
+  def __init__(self, currentDir = ""):
+    if not currentDir:
+      currentDir = os.path.dirname(os.path.realpath(__file__))
+    self._settings = currentDir
     self._model = {}
 
   @property
   def _settings(self):
       return self.__settings
   @_settings.setter
-  def _settings(self, value = {}):
+  def _settings(self, value):
     self.__settings = {}
-    currentDir = os.path.dirname(os.path.realpath(__file__))
-    default = open(currentDir + '/settings/default.yaml', 'r')
+    default = open(value + '/settings/default.yaml', 'r')
     self.__settings =  yaml.load(default)
     default.close()
     path = __name__
@@ -82,9 +83,6 @@ class Settings(object):
       return setting['value']
     else:
       return ""
-
-# Load variables:
-settings = Settings()
 
 class Plugin(Settings):
 
@@ -131,6 +129,3 @@ class Plugin(Settings):
 
   def loadPlugin(self, plugin):
     return imp.load_module(self.MainModule, *plugin["info"])
-
-  def propName(self):
-    return "name"

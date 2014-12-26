@@ -1,10 +1,13 @@
 from drupdates.utils import *
+import abc
 
 class repos(Plugin):
 
   def __init__(self):
+    # load the Plugin _plugins property
     Plugin.__init__(self)
-    self._tool = settings.get('gitRepoName').lower()
+    self.localsettings = Settings()
+    self._tool = self.localsettings.get('gitRepoName').lower()
     self._plugin = self._tool
 
   @property
@@ -26,6 +29,14 @@ class repos(Plugin):
     class_ = getattr(self._plugin, self._tool)
     instance = class_()
     return instance.gitRepos()
+
+class repoTool(object):
+  __metaclass__ = abc.ABCMeta
+
+  @abc.abstractmethod
+  def gitRepos(self):
+    """retrieve a list of repos"""
+    return
 
 
 

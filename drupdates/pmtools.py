@@ -1,11 +1,15 @@
 from drupdates.utils import *
+import abc
 
 class pmtools(Plugin):
 
   def __init__(self, siteName):
-    self._tool = settings.get('pmName').lower()
+    Plugin.__init__(self)
+    self.localsettings = Settings()
+    self._tool = self.localsettings.get('pmName').lower()
     self._plugin = self._tool
     self._site = siteName
+    self._targetDate = self.localsettings.get('targetDate')
 
   @property
   def _tool(self):
@@ -19,7 +23,8 @@ class pmtools(Plugin):
     return self.__plugin
   @_plugin.setter
   def _plugin(self, value):
-    self.__plugin = loadPlugin(self._plugins[value])
+    plugins = self._plugins
+    self.__plugin = self.loadPlugin(plugins[value])
 
   @property
   def _site(self):
@@ -34,8 +39,7 @@ class pmtools(Plugin):
   @_targetDate.setter
   def _targetDate(self, value):
     # Get the data string for the following Friday
-    targetDate = settings.get('targetDate')
-    if not targetDate:
+    if not value:
       today = datetime.date.today()
       # Today is a Friday, we skip to next Friday
       if datetime.datetime.today().weekday() == 4:
@@ -43,18 +47,31 @@ class pmtools(Plugin):
       else:
         friday = str(today + datetime.timedelta( (4-today.weekday()) % 7 ))
       self.__targetDate = friday
+    else:
+        self.__targetDate = value
 
-  def descriptionText(self, commitHash):
+  @property
+  def _description(self):
+      return self.__description
+  @_description.setter
+  def _description(self, value):
     descriptionList = []
-    descriptionList.append("Git Hash = <" + commitHash + "> \n")
-    descriptionList.append("Post deployment steps: \n")
-    descriptionList.append("drush @" + self._site +" updb -y \n")
-    description = '\n'.join(descriptionList)
-    self.__description = description
+    descriptionList.append("Git Hash = <" + value + ">")
+    descriptionList.append("Post deployment steps:")
+    descriptionList.append("drush @" + self._site +" updb -y")
+    self.__description = '\n'.join(descriptionList)
 
   def deployTicket(self, env, commitHash):
     # Load the Plugin
-    description = descriptionText(commitHash)
+    self._description = commitHash
     class_ = getattr(self._plugin, self._tool)
     instance = class_()
-    return instance.submitDeployTicket(self._site, env, description, self._targetDate)
+    return instance.submitDeployTicket(self._site, env, self._description, self._targetDate)
+
+class pmTool(object):
+  __metaclass__ = abc.ABCMeta
+
+  @abc.abstractmethod
+  def submitDeployTicket(self, site, environments, description, targetDate):
+    """Submit a Deployment ticket"""
+    return

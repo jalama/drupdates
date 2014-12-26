@@ -9,6 +9,10 @@ backupDir:
   value: ""
 blacklist:
   value: ""
+deploymentTickets:
+  value:
+    - Staging
+    - Production
 upCmds:
   value:
     - -y

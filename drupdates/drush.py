@@ -47,6 +47,7 @@ def importDrush(alias):
   alias -- A Drush alias
 
   """
+  settings = Settings()
   workingDir = settings.get('workingDir')
   backportDir = workingDir + settings.get('backupDir')
   commands = ['drush', '@' + alias, 'sqlc']

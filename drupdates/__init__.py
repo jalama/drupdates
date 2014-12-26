@@ -10,6 +10,7 @@ import shutil
 from git import *
 
 def main():
+  settings = Settings()
   workingDir = settings.get('workingDir')
   backportDir = settings.get('backupDir')
   # FIXME: this is assuming the site alias and site directory are one in the same
@@ -67,7 +68,7 @@ def main():
     report[siteName]['commit'] = "The commit hash is {0}".format(commitHash)
     # AtTask Deployment ticket submission
     pmTool = pmtools(siteName)
-    tickets = ['Staging', 'Production']
+    tickets = settings.get('deploymentTickets')
     deploys = pmTool.deployTicket(tickets, commitHash)
     report.append(deploys)
   print (report)

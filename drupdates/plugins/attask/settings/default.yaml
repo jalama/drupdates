@@ -18,9 +18,9 @@ attaskBaseURL:
   prompt: What is the AtTask URL?
 targetDate:
   value: ""
-  prompt: What date should the deployment ticket target?
+  prompt: What date should the deployment ticket(s) target?
 attaskAssigneeType:
-  value: TeamID
+  value: teamID
 attaskProjectID:
   value: ""
 devOpsTeamID:
