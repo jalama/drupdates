@@ -7,10 +7,6 @@ class attask(pmTool, Settings):
   def __init__(self):
     currentDir = os.path.dirname(os.path.realpath(__file__))
     self.localsettings = Settings(currentDir)
-    API = self.localsettings.get('attaskAPIVersion')
-    self._attaskAPIURL = API
-    self._pmLabel = self.localsettings.get('pmName')
-    self._sessionID = ""
 
   @property
   def _attaskAPIURL(self):
@@ -33,6 +29,9 @@ class attask(pmTool, Settings):
   @_sessionID.setter
   def _sessionID(self, value):
     # Get a session ID from AtTask
+    API = self.localsettings.get('attaskAPIVersion')
+    self._attaskAPIURL = API
+    self._pmLabel = self.localsettings.get('pmName')
     attaskPword = self.localsettings.get('attaskPword')
     attaskUser = self.localsettings.get('attaskUser')
     atParams = {'username': attaskUser, 'password': attaskPword}
@@ -53,6 +52,7 @@ class attask(pmTool, Settings):
 
     """
     sessparam = {}
+    self._sessionID = ""
     # Make sure you can get a Session ID
     if self._sessionID:
       sessparam['SessionID'] = self._sessionID
