@@ -14,7 +14,7 @@ class repolist(repoTool):
   def gitRepos(self):
     #Get list of Stash repos in the Rain Project.
     repoDict = self.localsettings.get('repoDict')
-    if not repoDict:
+    if (not repoDict) or (type(repoDict) is not dict):
       return {}
     else:
       return repoDict
