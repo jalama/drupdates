@@ -17,6 +17,7 @@ def main():
   # our vagrant install populates the sa list based on the direcotry being populated
   report = {}
   repoTool = repos()
+  drush = drush()
   repos = repoTool.get()
   blacklist = settings.get('blacklist')
   subprocess.call(['drush', 'cache-clear', 'drush'])
@@ -35,7 +36,7 @@ def main():
     git = repository.git
     git.checkout(b = settings.get('workingBranch'))
     stCmds = ['st']
-    repoStatus = callDrush(stCmds, siteName, True)
+    repoStatus = drush.call(stCmds, siteName, True)
     status = repoStatus.get('drupal-version', False)
     # If this is not a Drupal repo move to the next repo
     if status == False:
@@ -47,11 +48,11 @@ def main():
       continue
     # Run Drush up to update the site
     # Make sure update module is enabled
-    callDrush(['en', 'update', '-y'], siteName)
+    drush.call(['en', 'update', '-y'], siteName)
     upCmds = upCmds = settings.get('upCmds')
     upCmds.insert(0, 'up')
-    drush = callDrush(upCmds, siteName)
-    updates = readUpdateReport(drush)
+    updates = drush.call(upCmds, siteName)
+    updates = readUpdateReport(updates)
     # If there are no updates move to the next repo
     if len(updates) == 0:
       report[siteName]['status']= "Did not have any updates to apply"

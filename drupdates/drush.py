@@ -2,59 +2,65 @@ import subprocess
 import json
 from drupdates.utils import *
 
-def readUpdateReport(lst, updates = []):
-  for x in lst:
-    # build list of updates in a list,
-    # when you hit a blank line you are done
-    # note: if there are no updates the first line will be blank
-    if not x == '':
-      updates += x
+class drush(Settings):
+
+  def __init(self):
+    self.localsettings = Settings()
+
+  def readUpdateReport(self, lst, updates = []):
+    for x in lst:
+      # build list of updates in a list,
+      # when you hit a blank line you are done
+      # note: if there are no updates the first line will be blank
+      if not x == '':
+        updates += x
+      else:
+        break
+
+    return updates
+
+  def call(self, commands, alias = '', jsonRet = False):
+    """ Run a drush comand and return a list/dictionary of the results
+
+    Keyword arguments:
+    commands -- list containing command, arguments and options
+    alias -- drush site alias of site where "commands" to run on
+    json -- binary deermining if the given command can/should return json
+
+    """
+    # https://github.com/dsnopek/python-drush/, threw errors calling Drush()
+    # consider --strict=no
+    if not alias == '':
+      commands.insert(0, '@' + alias)
+    if jsonRet:
+      commands.append('--format=json')
+    commands.insert(0, 'drush')
+    # run the command
+    print commands
+    popen = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = popen.communicate()
+    if jsonRet:
+      try:
+        ret = json.loads(stdout)
+      except ValueError:
+        ret =  "No JSON returned for status, though it was requested"
     else:
-      break
+      ret = stdout.split('\n')
+    return ret
 
-  return updates
+  def importDrush(self, alias):
+    """ Import a SQL dump using drush sqlc
 
-def callDrush(commands, alias = '', jsonRet = False):
-  """ Run a drush comand and return a list/dictionary of the results
+    alias -- A Drush alias
 
-  Keyword arguments:
-  commands -- list containing command, arguments and options
-  alias -- drush site alias of site where "commands" to run on
-  json -- binary deermining if the given command can/should return json
+    """
+    workingDir = self.localsettings.get('workingDir')
+    backportDir = workingDir + self.localsettings.get('backupDir')
+    commands = ['drush', '@' + alias, 'sqlc']
+    popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, stderr = popen.communicate(file(backportDir + alias + '.sql').read())
+    if not stderr == '':
+      print alias + " DB import error: " + stderr
+      return False
 
-  """
-  # https://github.com/dsnopek/python-drush/, threw errors calling Drush()
-  # consider --strict=no
-  if not alias == '':
-    commands.insert(0, '@' + alias)
-  if jsonRet:
-    commands.append('--format=json')
-  commands.insert(0, 'drush')
-  # run the command
-  print commands
-  popen = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  stdout, stderr = popen.communicate()
-  if jsonRet:
-    ret = json.loads(stdout)
-  else:
-    ret = stdout.split('\n')
-
-  return ret
-
-def importDrush(alias):
-  """ Import a SQL dump using drush sqlc
-
-  alias -- A Drush alias
-
-  """
-  settings = Settings()
-  workingDir = settings.get('workingDir')
-  backportDir = workingDir + settings.get('backupDir')
-  commands = ['drush', '@' + alias, 'sqlc']
-  popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-  out, stderr = popen.communicate(file(backportDir + alias + '.sql').read())
-  if not stderr == '':
-    print alias + " DB import error: " + stderr
-    return False
-
-  return True
+    return True
