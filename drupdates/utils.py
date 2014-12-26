@@ -4,6 +4,7 @@ import os
 import imp
 from os.path import expanduser
 import yaml
+import urlparse
 
 def apiCall (uri, name, method = 'get', **kwargs):
   #user = '', pword = ''):
@@ -17,6 +18,10 @@ def apiCall (uri, name, method = 'get', **kwargs):
   kwargs -- dictionary of arguments passed directly to requests module method
 
   """
+  # Ensure uri is valid
+  if not bool(urlparse.urlparse(uri).netloc):
+    print("Error: {0} is not a valid url").format(uri)
+    return False
   # FIXME: need to HTML escape passwords
   func = getattr(requests, method)
   args = {}
