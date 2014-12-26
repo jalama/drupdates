@@ -66,10 +66,11 @@ class attask(pmTool, Settings):
     taskURL = self._attaskAPIURL + self.localsettings.get('attaskTaskURL')
     message = {}
     message[site] = {}
+    utils = drupdates.utils()
     for environment in environments:
       title = environment + ' Deployment for ' + site +' w.e. ' + targetDate
       atParams = {'name': title, 'projectID': attaskProjectID, attaskAssigneeType: devOpsTeamID, 'description': description}
-      response = apiCall(taskURL, self._pmLabel, 'post', params = atParams, headers = sessparam)
+      response = utils.apiCall(taskURL, self._pmLabel, 'post', params = atParams, headers = sessparam)
       if not response == False:
         data = response['data']
         message[site][environment] = "The " + environment + " deploy ticket is {0}task/view?ID={1}".format(attaskBaseURL, data['ID'])
