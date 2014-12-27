@@ -1,0 +1,3 @@
+recursive-include drupdates/plugins *.py
+recursive-include drupdates/plugins *.yaml
+recursive-include drupdates/settings *.yaml

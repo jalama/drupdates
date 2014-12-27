@@ -1,7 +1,7 @@
 try:
-	from setuptools import setup
+	from setuptools import setup, find_packages
 except ImportError:
-	from distutils.core import setup
+	from distutils.core import setup, find_packages
 import sys
 
 # Ensure Python verison is >= 2.6
@@ -18,8 +18,10 @@ config = {
 	'author_email': 'jim@rootyhollow.com',
 	'version': '0.2',
 	'install_requires': ['nose'],
-	'packages': ['drupdates'],
-	'package_dir': {'drupdates': 'drupdates'},
+	'packages': find_packages(),
+  'include_package_data':True,
+	# 'packages': ['drupdates'],
+	# 'package_dir': {'drupdates': 'drupdates'},
 	'install_requires': ['gitpython', 'requests', 'pyyaml'],
 	'name': 'Drupdates'
 }
