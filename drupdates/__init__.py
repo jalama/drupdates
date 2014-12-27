@@ -32,9 +32,19 @@ def main():
     # Build Git repository
     # http://nullege.com/codes/search/git.add
     # FIXME: this is backwards as you would usually choose the target directory based on the drush site alias target directory
-    repository = Repo.clone_from(ssh, siteDir)
+    try:
+      repository = Repo.clone_from(ssh, siteDir)
+    except GitCommandError as e:
+      print "Git could not clone the repo. \n Error: {0}".format(e)
+      continue
     git = repository.git
-    git.checkout(b = settings.get('workingBranch'))
+    workingBranch = settings.get('workingBranch')
+    try:
+      git.checkout(workingBranch)
+    except GitCommandError as e:
+      print "Git could could not checkout the {0} branch. \n Error: {1}".format(workingBranch, e)
+      continue
+    git = repository.git
     stCmds = ['st']
     repoStatus = drush.call(stCmds, siteName, True)
     status = repoStatus.get('drupal-version', False)
