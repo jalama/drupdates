@@ -26,8 +26,8 @@ while($dir_handle->valid()) {
         'default' => array(
           'default' => array(
             'driver' => $driver,
-            'username' => $user,
-            'password' => $pass,
+            'username' => $basename . '_user',
+            'password' => $basename . '_pass',
             'port' => $port,
             'host' => $host,
             'database' => $basename,

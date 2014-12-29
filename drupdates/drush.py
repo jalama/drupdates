@@ -8,6 +8,44 @@ class drush(Settings):
 
   def __init__(self):
     self.localsettings = Settings()
+    aliases = self.localsettings.get('drushAliasFile')
+
+  @property
+  def aliases(self):
+      return self._aliases
+  @aliases.setter
+  def aliases(self, value):
+    ret = False
+    aliasFileName = value
+    drushFolder = expanduser('~') + '/.drush'
+    drushFile = drushFolder + "/" + aliasFile
+    if os.path.isfile(drushFile):
+      ret = True
+    else:
+      if not os.path.isdir(drushFolder):
+        try:
+          os.makedirs(drushFolder)
+          reet = True
+        except OSError as e:
+          print "Could not create ~/.drush folder \n Error: {0}".format(e.strerror)
+      currentDir = os.path.dirname(os.path.realpath(__file__))
+      # Symlink the Drush aliases file
+      src = currentDir + "/scripts/" + aliasFileName
+      try:
+        os.symlink(src, drushFile)
+        ret = True
+      except OSError as e:
+        print "Could not create Drush alias file \n Error: {0}".format(e.strerror)
+      # Symlink the settings file used by above Drush aliases file
+      src = currentDir + "/scripts/settings.py"
+      dst = drushFolder + "/settings.py"
+      try:
+        os.symlink(src, dst)
+        ret = True
+      except OSError as e:
+        print "Could not create settings.py file \n Error: {0}".format(e.strerror)
+    self._aliases = ret
+
 
   def readUpdateReport(self, lst, updates = []):
     for x in lst:
@@ -38,7 +76,6 @@ class drush(Settings):
       commands.append('--format=json')
     commands.insert(0, 'drush')
     # run the command
-    print commands
     popen = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = popen.communicate()
     if jsonRet:
@@ -67,33 +104,4 @@ class drush(Settings):
 
     return True
 
-  def aliases(self):
-    ret = False
-    drushFolder = expanduser('~') + '/.drush'
-    if not os.path.isdir(drushFolder):
-      try:
-        os.makedirs(drushFolder)
-        reet = True
-      except OSError as e:
-        print "Could not create ~/.drush folder \n Error: {0}".format(e.strerror)
-    currentDir = os.path.dirname(os.path.realpath(__file__))
-    # Symlink the Drush aliases file
-    aliasFile = self.localsettings.get('drushAliasFile')
-    src = currentDir + "/scripts/" + aliasFile
-    dst = drushFolder + "/" + aliasFile
-    try:
-      os.symlink(src, dst)
-      ret = True
-    except OSError as e:
-      print "Could not create Drush alias file \n Error: {0}".format(e.strerror)
-    # Symlink the settings file used by above Drush aliases file
-    src = currentDir + "/scripts/settings.py"
-    dst = drushFolder + "/settings.py"
-    try:
-      os.symlink(src, dst)
-      ret = True
-    except OSError as e:
-      print "Could not create settings.py file \n Error: {0}".format(e.strerror)
-
-    return ret
 

@@ -1,0 +1,21 @@
+#YAML
+Name:
+  value: MySQL
+mysqlSettingsFile:
+  value: /.my.cnf
+mysqlSettings:
+  value:
+    - mysql
+    - client
+datastoreSuperUser:
+  value: root
+  prompt: Name of the database super user, who has CREATE DATABASE, DROP DATABASE and GRANTS access
+datastoreSuperPword:
+  value:  ""
+  prompt: Super User password
+datastorePort:
+  value:  3306
+  prompt: Datastore (ie database) port
+datastoreHost:
+  value: localhost
+  prompt: Datastore (ie database) host

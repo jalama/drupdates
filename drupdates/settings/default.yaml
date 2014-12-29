@@ -22,16 +22,6 @@ upCmds:
     - --no-backup
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
-datastore:
-  value: sql
 datastoreDriver:
   value: mysql
-datastoreSuperUser:
-  value: root
-datastoreSuperPword:
-  value:  ""
-datastorePort:
-  value:  3306
-datastoreHost:
-  value: localhost
 
