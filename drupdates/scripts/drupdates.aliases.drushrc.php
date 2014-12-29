@@ -1,5 +1,5 @@
 <?php
-// Grab the "Global" settings from drupdates
+// Grab the datastore settings from drupdates
 $result = json_decode(exec('python ~/.drush/settings.py'), true);
 $path = $result['workingDir']['value'];
 $driver = $result['datastoreDriver']['value'];
