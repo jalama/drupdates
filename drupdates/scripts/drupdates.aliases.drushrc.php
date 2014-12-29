@@ -18,7 +18,7 @@ while($dir_handle->valid()) {
   if($dir_handle->isDir() && !$dir_handle->isDot()) {
     $basename = $dir_handle->getBasename();
     $root = $dir_handle->getPathname();
-    $root = $webroot = "" ? $root : $root . $webroot;
+    $root = $webroot != "" ? $root : $root . $webroot;
     $aliases[$basename] = array(
       'uri' => 'http://localhost/' . $basename,
       'root' => $root,
