@@ -89,14 +89,23 @@ class Settings(object):
     value['value'] = ''
     value['prompt'] = ''
     value['format'] = ''
+    value['null'] = ''
     self.__model = value
 
   def get(self, setting):
     if setting in self._settings:
-      setting = dict(self._model.items() + self._settings[setting].items())
-      return setting['value']
+      settingComplete = dict(self._model.items() + self._settings[setting].items())
+      # FIXME: need format parsing (ie integars, boolean, dictionary, lists etc...)
+      if not settingComplete['value'] and not settingComplete['null']:
+        value = raw_input(settingComplete['prompt'] + ":")
+        self.set(setting, value)
+      else:
+        return settingComplete['value']
     else:
       return ""
+
+  def set(self, setting, value):
+    self.__settings[setting]['value'] = value
 
 class Plugin(Settings):
 

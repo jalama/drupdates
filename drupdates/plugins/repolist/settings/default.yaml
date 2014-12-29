@@ -1,5 +1,6 @@
 # YAML
 Name:
-  value: AtTask
+  value: Manaul Repo List
 repoDict:
   value: ""
+  format: dict

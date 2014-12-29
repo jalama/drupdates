@@ -3,7 +3,11 @@ name:
   value: Stash
 stashURL:
   value: ""
+  prompt: What is the Satsh url
+  format: url
 stashUser:
   value: ""
+  prompt: What is your Stash user name
 stashPword:
   value: ""
+  prompt: What is you Stash password

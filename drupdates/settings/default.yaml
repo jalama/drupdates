@@ -1,10 +1,13 @@
 # YAML
 workingBranch:
   value: ""
+  prompt: What is the default Git working branch
 commitAuthor:
   value: ""
+  prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
 workingDir:
   value: /var/www/
+  prompt: What is the working director (default: /var/www/)
 backupDir:
   value: ""
 webrootDir:
@@ -15,13 +18,17 @@ deploymentTickets:
   value:
     - Staging
     - Production
+  prompt: What are environments are you deploying to (default: Staging, Production)
+  format: list
 upCmds:
   value:
     - -y
     - --security-only
     - --no-backup
+  format: list
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
 datastoreDriver:
   value: mysql
+  prompt: What is the default datastore (i.e. database) driver (default: mysql)
 

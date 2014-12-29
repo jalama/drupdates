@@ -16,12 +16,17 @@ attaskPword:
 attaskBaseURL:
   value: ""
   prompt: What is the AtTask URL?
+  format: url
 targetDate:
   value: ""
   prompt: What date should the deployment ticket(s) target?
+  null: True
 attaskAssigneeType:
   value: teamID
+  prompt: Assignments do to teamID or assigneeID
 attaskProjectID:
   value: ""
+  prompt: What is the ID of the project to submit tickets to (note: is typically a long hash)
 devOpsTeamID:
   value: ""
+  prompt: What is the ID of the devOps team to submit tickets to (note: is typically a long hash)

@@ -7,15 +7,17 @@ mysqlSettings:
   value:
     - mysql
     - client
+  format: list
 datastoreSuperUser:
   value: root
   prompt: Name of the database super user, who has CREATE DATABASE, DROP DATABASE and GRANTS access
 datastoreSuperPword:
   value:  ""
   prompt: Super User password
+  null: true
 datastorePort:
   value:  3306
-  prompt: Datastore (ie database) port
+  prompt: Datastore (ie database) port (default: 3306)
 datastoreHost:
   value: localhost
-  prompt: Datastore (ie database) host
+  prompt: Datastore (ie database) host (default: localhost)
