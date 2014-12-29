@@ -1,8 +1,8 @@
 import datetime
 import requests
 import os
-import imp
 from os.path import expanduser
+import imp
 import yaml
 import urlparse
 
@@ -61,9 +61,16 @@ class Settings(object):
   @_settings.setter
   def _settings(self, value):
     self.__settings = {}
-    default = open(value + '/settings/default.yaml', 'r')
-    self.__settings =  yaml.load(default)
-    default.close()
+    packageDefaultYaml = os.path.dirname(os.path.realpath(__file__))
+    packageDefault = open(packageDefaultYaml + '/settings/default.yaml', 'r')
+    self.__settings =  yaml.load(packageDefault)
+    packageDefault.close()
+    ## this will load a Plugins default settings
+    if not packageDefaultYaml == value:
+      default = open(value + '/settings/default.yaml', 'r')
+      self.__plugin =  yaml.load(default)
+      default.close()
+      self.__settings = dict(self.__settings.items() + self.__plugin.items())
     path = __name__
     localFile = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
     # If there is an override file in the home dir (ex. ~/.drupdates/utils.yaml)
