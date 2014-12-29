@@ -95,16 +95,21 @@ class Settings(object):
   def get(self, setting):
     if setting in self._settings:
       settingComplete = dict(self._model.items() + self._settings[setting].items())
-      # FIXME: need format parsing (ie integars, boolean, dictionary, lists etc...)
       if not settingComplete['value'] and not settingComplete['null']:
         value = raw_input(settingComplete['prompt'] + ":")
-        self.set(setting, value)
+        self.set(setting, value, settingComplete)
       else:
         return settingComplete['value']
     else:
       return ""
 
-  def set(self, setting, value):
+  def set(self, setting, value, complete):
+    # FIXME: need better format parsing (ie int, boolean, dict, list etc...)
+    if complete['format'] == 'list':
+      value = value.split()
+    elif complete['format'] == 'dict':
+      import json
+      value = son.loads(value)
     self.__settings[setting]['value'] = value
 
 class Plugin(Settings):

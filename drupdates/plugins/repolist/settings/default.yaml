@@ -4,3 +4,4 @@ Name:
 repoDict:
   value: ""
   format: dict
+  prompt: 'Dictionary of repos (ie. {"foo":"bar", "foo2":"bar2"})''
