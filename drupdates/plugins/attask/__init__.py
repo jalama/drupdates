@@ -2,7 +2,7 @@ from drupdates.utils import *
 from drupdates.pmtools import *
 
 # Work with AtTask
-class attask(pmTool, Settings):
+class attask(pmTool):
 
   def __init__(self):
     currentDir = os.path.dirname(os.path.realpath(__file__))

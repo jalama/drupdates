@@ -6,6 +6,8 @@ class pmtools(Plugin):
   def __init__(self, siteName):
     Plugin.__init__(self)
     self.localsettings = Settings()
+    self._tool = self.localsettings.get('pmName').lower()
+    self._plugin = self._tool
     self._site = siteName
 
   @property
@@ -62,7 +64,6 @@ class pmtools(Plugin):
     # Load the Plugin
     self._description = commitHash
     self._targetDate = self.localsettings.get('targetDate')
-    self.localsettings = Settings()
     class_ = getattr(self._plugin, self._tool)
     instance = class_()
     return instance.submitDeployTicket(self._site, env, self._description, self._targetDate)
