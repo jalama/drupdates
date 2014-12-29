@@ -20,8 +20,6 @@ config = {
 	'install_requires': ['nose'],
 	'packages': find_packages(),
   'include_package_data':True,
-	# 'packages': ['drupdates'],
-	# 'package_dir': {'drupdates': 'drupdates'},
 	'install_requires': ['gitpython', 'requests', 'pyyaml'],
 	'name': 'Drupdates'
 }

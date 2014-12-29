@@ -1,10 +1,12 @@
 import subprocess
 import json
+import os
+from os.path import expanduser
 from drupdates.utils import *
 
 class drush(Settings):
 
-  def __init(self):
+  def __init__(self):
     self.localsettings = Settings()
 
   def readUpdateReport(self, lst, updates = []):
@@ -64,3 +66,34 @@ class drush(Settings):
       return False
 
     return True
+
+  def aliases(self):
+    ret = False
+    drushFolder = expanduser('~') + '/.drush'
+    if not os.path.isdir(drushFolder):
+      try:
+        os.makedirs(drushFolder)
+        reet = True
+      except OSError as e:
+        print "Could not create ~/.drush folder \n Error: {0}".format(e.strerror)
+    currentDir = os.path.dirname(os.path.realpath(__file__))
+    # Symlink the Drush aliases file
+    aliasFile = self.localsettings.get('drushAliasFile')
+    src = currentDir + "/scripts/" + aliasFile
+    dst = drushFolder + "/" + aliasFile
+    try:
+      os.symlink(src, dst)
+      ret = True
+    except OSError as e:
+      print "Could not create Drush alias file \n Error: {0}".format(e.strerror)
+    # Symlink the settings file used by above Drush aliases file
+    src = currentDir + "/scripts/settings.py"
+    dst = drushFolder + "/settings.py"
+    try:
+      os.symlink(src, dst)
+      ret = True
+    except OSError as e:
+      print "Could not create settings.py file \n Error: {0}".format(e.strerror)
+
+    return ret
+

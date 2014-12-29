@@ -7,6 +7,8 @@ workingDir:
   value: /var/www/
 backupDir:
   value: ""
+webrootDir:
+  value: ""
 blacklist:
   value: ""
 deploymentTickets:
@@ -18,3 +20,18 @@ upCmds:
     - -y
     - --security-only
     - --no-backup
+drushAliasFile:
+  value: drupdates.aliases.drushrc.php
+datastore:
+  value: sql
+datastoreDriver:
+  value: mysql
+datastoreSuperUser:
+  value: root
+datastoreSuperPword:
+  value:  ""
+datastorePort:
+  value:  3306
+datastoreHost:
+  value: localhost
+
