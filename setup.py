@@ -16,7 +16,7 @@ config = {
 	'url': 'URL to get it at.',
 	'download_url': 'https://github.com/jalama/drupdates',
 	'author_email': 'jim@rootyhollow.com',
-	'version': '0.2',
+	'version': '0.4',
 	'install_requires': ['nose'],
 	'packages': find_packages(),
   'include_package_data':True,
