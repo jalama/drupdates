@@ -3,12 +3,11 @@ import abc
 
 class pmtools(Plugin):
 
-  def __init__(self, siteName):
+  def __init__(self):
     Plugin.__init__(self)
     self.localsettings = Settings()
     self._tool = self.localsettings.get('pmName').lower()
     self._plugin = self._tool
-    self._site = siteName
     self._instance = ""
 
   @property
@@ -35,13 +34,6 @@ class pmtools(Plugin):
     self.__instance = class_()
 
   @property
-  def _site(self):
-    return self.__site
-  @_site.setter
-  def _site(self, value):
-    self.__site = value
-
-  @property
   def _targetDate(self):
     return self.__targetDate
   @_targetDate.setter
@@ -58,21 +50,17 @@ class pmtools(Plugin):
     else:
         self.__targetDate = value
 
-  @property
-  def _description(self):
-      return self.__description
-  @_description.setter
-  def _description(self, value):
+  def _description(self, site, gitHash):
     descriptionList = []
-    descriptionList.append("Git Hash = <" + value + ">")
+    descriptionList.append("Git Hash = <" + gitHash + ">")
     descriptionList.append("Post deployment steps:")
-    descriptionList.append("drush @" + self._site +" updb -y")
+    descriptionList.append("drush @" + site +" updb -y")
     self.__description = '\n'.join(descriptionList)
 
-  def deployTicket(self, env, commitHash):
-    self._description = commitHash
+  def deployTicket(self, site, env, commitHash):
+    description = self._description(site, commitHash)
     self._targetDate = self.localsettings.get('targetDate')
-    return self._instance.submitDeployTicket(self._site, env, self._description, self._targetDate)
+    return self._instance.submitDeployTicket(site, env, description, self._targetDate)
 
 class pmTool(object):
   __metaclass__ = abc.ABCMeta

@@ -24,6 +24,7 @@ def main():
   repoTool = repos()
   sites = repoTool.get()
   db = datastores()
+  pmTool = pmtools()
   blacklist = settings.get('blacklist')
   for siteName, ssh in sites.iteritems():
     # Check to see if this site is in the user's blacklist
@@ -119,9 +120,8 @@ def main():
     report[siteName]['status'] = "The following updates were applied \n {0}".format(msg)
     report[siteName]['commit'] = "The commit hash is {0}".format(commitHash)
 
-    # AtTask Deployment ticket submission
-    pmTool = pmtools(siteName)
+    # Deployment ticket submission
     tickets = settings.get('deploymentTickets')
-    deploys = pmTool.deployTicket(tickets, commitHash)
+    deploys = pmTool.deployTicket(siteName, tickets, commitHash)
     report[siteName]['pmtool'] = deploys
   print (report)
