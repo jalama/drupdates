@@ -24,7 +24,11 @@ def main():
   db = datastores()
   pmTool = pmtools()
   blacklist = settings.get('blacklist')
+  singleSite = settings.get('singleSite')
+  if singleSite:
+    sites = {singleSite : sites[singleSite]}
   for siteName, ssh in sites.iteritems():
+    report[siteName] = {}
     # Check to see if this site is in the user's blacklist
     if siteName in blacklist:
       continue
@@ -75,7 +79,6 @@ def main():
 
     # Run Drush up to update the site
     # Make sure update module is enabled
-    report[siteName] = {}
     dd = dr.call(['dd', '@drupdates.' + siteName])
     siteWebroot = dd[0]
     os.chdir (siteWebroot)
@@ -123,7 +126,9 @@ def main():
     report[siteName]['commit'] = "The commit hash is {0}".format(commitHash)
 
     # Deployment ticket submission
-    tickets = settings.get('deploymentTickets')
-    deploys = pmTool.deployTicket(siteName, tickets, commitHash)
-    report[siteName]['pmtool'] = deploys
+    submitDeployTicket = settings.get('submitDeployTicket')
+    if submitDeployTicket:
+      tickets = settings.get('deploymentTickets')
+      deploys = pmTool.deployTicket(siteName, tickets, commitHash)
+      report[siteName]['pmtool'] = deploys
   print (report)

@@ -31,13 +31,11 @@ class attask(pmTool):
     # Get a session ID from AtTask
     API = self.localsettings.get('attaskAPIVersion')
     self._attaskAPIURL = API
-    print self._attaskAPIURL
     self._pmLabel = self.localsettings.get('pmName')
     attaskPword = self.localsettings.get('attaskPword')
     attaskUser = self.localsettings.get('attaskUser')
     atParams = {'username': attaskUser, 'password': attaskPword}
     loginURL = self._attaskAPIURL + self.localsettings.get('attaskLoginUrl')
-    print loginURL
     response = utils.apiCall(loginURL, self._pmLabel, 'post', params = atParams)
     if response == False:
       self.__sessionID = False
