@@ -41,8 +41,6 @@ datastoreDriver:
   prompt: What is the default datastore (i.e. database) driver (default mysql)
 singleSite:
   value: ""
-  null: True
 submitDeployTicket:
   value: True
   prompt: Do yo want to submit a deployment ticket?
-  null: True

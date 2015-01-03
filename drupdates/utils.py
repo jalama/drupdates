@@ -42,6 +42,20 @@ class utils(object):
     else:
       return responseDictionary
 
+  @staticmethod
+  def merge(a, b, path=None):
+    "merges b into a"
+    if path is None: path = []
+    for key in b:
+      if key in a:
+        if isinstance(a[key], dict) and isinstance(b[key], dict):
+          utils.merge(a[key], b[key], path + [str(key)])
+        else:
+          a[key] = b[key]
+      else:
+        a[key] = b[key]
+    return a
+
 class Settings(object):
 
   def __init__(self, currentDir = ""):
@@ -65,7 +79,7 @@ class Settings(object):
       default = open(value + '/settings/default.yaml', 'r')
       self.__plugin =  yaml.load(default)
       default.close()
-      self.__settings = dict(self.__settings.items() + self.__plugin.items())
+      self.__settings = utils.merge(self.__settings, self.__plugin)
     path = __name__
     localFile = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
     # If there is an override file in the home dir (ex. ~/.drupdates/utils.yaml)
@@ -73,7 +87,8 @@ class Settings(object):
       local = open(localFile, 'r')
       self.__local =  yaml.load(local)
       local.close()
-      self.__settings = dict(self.__settings.items() + self.__local.items())
+      self.__settings = utils.merge(self.__settings, self.__local)
+
 
   @property
   def _model(self):
@@ -84,13 +99,13 @@ class Settings(object):
     value['value'] = ''
     value['prompt'] = ''
     value['format'] = ''
-    value['null'] = ''
+    value['required'] = ''
     self.__model = value
 
   def get(self, setting):
     if setting in self._settings:
-      settingComplete = dict(self._model.items() + self._settings[setting].items())
-      if not settingComplete['value'] and not settingComplete['null']:
+      settingComplete = utils.merge(self._model, self._settings[setting])
+      if not settingComplete['value'] and settingComplete['required']:
         value = raw_input(settingComplete['prompt'] + ":")
         self.set(setting, value, settingComplete)
       else:

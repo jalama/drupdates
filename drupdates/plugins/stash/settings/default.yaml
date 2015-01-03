@@ -5,9 +5,12 @@ stashURL:
   value: ""
   prompt: What is the Satsh url
   format: url
+  required: True
 stashUser:
   value: ""
   prompt: What is your Stash user name
+  required: True
 stashPword:
   value: ""
   prompt: What is you Stash password
+  required: True

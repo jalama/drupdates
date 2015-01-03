@@ -1,14 +1,9 @@
+import distutils.core, tempfile, os, shutil, git, copy
 from drupdates.utils import *
 from drupdates.drush import *
 from drupdates.repos import *
 from drupdates.pmtools import *
 from drupdates.datastores import *
-import distutils.core
-import tempfile
-import os
-import shutil
-import git
-import copy
 from git import *
 
 def main():

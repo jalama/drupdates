@@ -10,17 +10,19 @@ attaskAPIVersion:
 attaskUser:
   value: ""
   prompt: What is your AtTask user name?
+  required: True
 attaskPword:
   value: ""
   prompt: What is your AtTask password?
+  required: True
 attaskBaseURL:
   value: ""
   prompt: What is the AtTask URL?
   format: url
+  required: True
 targetDate:
   value: ""
   prompt: What date should the deployment ticket(s) target?
-  null: True
 attaskAssigneeType:
   value: teamID
   prompt: Assignments do to teamID or assigneeID

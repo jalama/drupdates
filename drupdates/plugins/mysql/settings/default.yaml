@@ -15,7 +15,6 @@ datastoreSuperUser:
 datastoreSuperPword:
   value:  ""
   prompt: Super User password
-  null: true
 datastorePort:
   value:  3306
   prompt: Datastore (ie database) port (default 3306)
