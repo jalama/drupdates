@@ -2,7 +2,7 @@
 Name:
   value: MySQL
 mysqlSettingsFile:
-  value: /.my.cnf
+  value: .my.cnf
 mysqlSettings:
   value:
     - mysql
@@ -20,5 +20,5 @@ datastorePort:
   value:  3306
   prompt: Datastore (ie database) port (default 3306)
 datastoreHost:
-  value: localhost
+  value: 127.0.0.1
   prompt: Datastore (ie database) host (default localhost)

@@ -16,6 +16,12 @@ blacklist:
   value: ""
   format: list
   prompt: name of site alias(es) you want ignored (seperate with spaces)
+drushSiFiles:
+  value:
+    - sites/default/settings.php
+    - sites/default/default.settings.php
+    - sites/default
+    - sites/default/files/.htaccess
 deploymentTickets:
   value:
     - Staging

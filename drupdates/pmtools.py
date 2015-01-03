@@ -9,6 +9,7 @@ class pmtools(Plugin):
     self._tool = self.localsettings.get('pmName').lower()
     self._plugin = self._tool
     self._site = siteName
+    self._instance = ""
 
   @property
   def _tool(self):
@@ -26,6 +27,14 @@ class pmtools(Plugin):
     self.__plugin = self.loadPlugin(plugins[value])
 
   @property
+  def _instance(self):
+    return self.__instance
+  @_instance.setter
+  def _instance(self, value):
+    class_ = getattr(self._plugin, self._tool)
+    self.__instance = class_()
+
+  @property
   def _site(self):
     return self.__site
   @_site.setter
@@ -37,10 +46,10 @@ class pmtools(Plugin):
     return self.__targetDate
   @_targetDate.setter
   def _targetDate(self, value):
-    # Get the data string for the following Friday
+    # Get the date string for the following Friday
     if not value:
       today = datetime.date.today()
-      # Today is a Friday, we skip to next Friday
+      # If today is a Friday, we skip to next Friday
       if datetime.datetime.today().weekday() == 4:
         friday = str(today + datetime.timedelta( (3-today.weekday())%7+1 ))
       else:
@@ -61,17 +70,12 @@ class pmtools(Plugin):
     self.__description = '\n'.join(descriptionList)
 
   def deployTicket(self, env, commitHash):
-    # Load the Plugin
     self._description = commitHash
     self._targetDate = self.localsettings.get('targetDate')
-    class_ = getattr(self._plugin, self._tool)
-    instance = class_()
-    return instance.submitDeployTicket(self._site, env, self._description, self._targetDate)
+    return self._instance.submitDeployTicket(self._site, env, self._description, self._targetDate)
 
 class pmTool(object):
   __metaclass__ = abc.ABCMeta
 
   @abc.abstractmethod
-  def submitDeployTicket(self, site, environments, description, targetDate):
-    """Submit a Deployment ticket"""
-    return
+  def submitDeployTicket(self, site, environments, description, targetDate): pass

@@ -1,15 +1,10 @@
-import datetime
-import requests
-import os
+import datetime, requests, os, imp, yaml, urlparse
 from os.path import expanduser
-import imp
-import yaml
-import urlparse
 
 class utils(object):
 
-  def apiCall (self, uri, name, method = 'get', **kwargs):
-    #user = '', pword = ''):
+  @staticmethod
+  def apiCall (uri, name, method = 'get', **kwargs):
     """ Perform and API call, expecting a JSON response.  Largely a wrapper
     around the request module
 
@@ -109,7 +104,7 @@ class Settings(object):
       value = value.split()
     elif complete['format'] == 'dict':
       import json
-      value = son.loads(value)
+      value = json.loads(value)
     self.__settings[setting]['value'] = value
 
 class Plugin(Settings):

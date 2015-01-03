@@ -9,6 +9,7 @@ class repos(Plugin):
     self.localsettings = Settings()
     self._tool = self.localsettings.get('gitRepoName').lower()
     self._plugin = self._tool
+    self._instance = ""
 
   @property
   def _tool(self):
@@ -25,18 +26,22 @@ class repos(Plugin):
     plugins = self._plugins
     self.__plugin = self.loadPlugin(plugins[value])
 
-  def get(self):
+  @property
+  def _instance(self):
+    return self.__instance
+  @_instance.setter
+  def _instance(self, value):
     class_ = getattr(self._plugin, self._tool)
-    instance = class_()
-    return instance.gitRepos()
+    self.__instance = class_()
+
+  def get(self):
+    return self._instance.gitRepos()
 
 class repoTool(object):
   __metaclass__ = abc.ABCMeta
 
   @abc.abstractmethod
-  def gitRepos(self):
-    """retrieve a list of repos"""
-    return
+  def gitRepos(self): pass
 
 
 

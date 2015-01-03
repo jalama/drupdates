@@ -5,8 +5,8 @@ from drupdates.pmtools import *
 class attask(pmTool):
 
   def __init__(self):
-    currentDir = os.path.dirname(os.path.realpath(__file__))
-    self.localsettings = Settings(currentDir)
+    self.currentDir = os.path.dirname(os.path.realpath(__file__))
+    self.localsettings = Settings(self.currentDir)
 
   @property
   def _attaskAPIURL(self):
@@ -31,12 +31,14 @@ class attask(pmTool):
     # Get a session ID from AtTask
     API = self.localsettings.get('attaskAPIVersion')
     self._attaskAPIURL = API
+    print self._attaskAPIURL
     self._pmLabel = self.localsettings.get('pmName')
     attaskPword = self.localsettings.get('attaskPword')
     attaskUser = self.localsettings.get('attaskUser')
     atParams = {'username': attaskUser, 'password': attaskPword}
     loginURL = self._attaskAPIURL + self.localsettings.get('attaskLoginUrl')
-    response = apiCall(loginURL, self._pmLabel, 'post', params = atParams)
+    print loginURL
+    response = utils.apiCall(loginURL, self._pmLabel, 'post', params = atParams)
     if response == False:
       self.__sessionID = False
     else:
@@ -64,9 +66,9 @@ class attask(pmTool):
     attaskBaseURL = self.localsettings.get('attaskBaseURL')
     attaskAssigneeType = self.localsettings.get('attaskAssigneeType')
     taskURL = self._attaskAPIURL + self.localsettings.get('attaskTaskURL')
+    print taskURL
     message = {}
     message[site] = {}
-    utils = drupdates.utils()
     for environment in environments:
       title = environment + ' Deployment for ' + site +' w.e. ' + targetDate
       atParams = {'name': title, 'projectID': attaskProjectID, attaskAssigneeType: devOpsTeamID, 'description': description}

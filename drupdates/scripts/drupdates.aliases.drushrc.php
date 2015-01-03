@@ -19,22 +19,24 @@ while($dir_handle->valid()) {
     $basename = $dir_handle->getBasename();
     $root = $dir_handle->getPathname();
     $root = $webroot != "" ? $root : $root . $webroot;
-    $aliases[$basename] = array(
-      'uri' => 'http://localhost/' . $basename,
-      'root' => $root,
-      'databases' => array(
-        'default' => array(
+    if(file_exists($root . '/sites/default/default.settings.php')) {
+      $aliases[$basename] = array(
+        'uri' => 'http://localhost/' . $basename,
+        'root' => $root,
+        'databases' => array(
           'default' => array(
-            'driver' => $driver,
-            'username' => $basename . '_user',
-            'password' => $basename . '_pass',
-            'port' => $port,
-            'host' => $host,
-            'database' => $basename,
+            'default' => array(
+              'driver' => $driver,
+              'username' => $basename . '_user',
+              'password' => $basename . '_pass',
+              'port' => $port,
+              'host' => $host,
+              'database' => $basename,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
   $dir_handle->next();
 }

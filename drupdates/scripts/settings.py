@@ -4,7 +4,7 @@ import json
 from drupdates.utils import *
 from drupdates.datastores import *
 
-data = datastores('')
+data = datastores()
 settings = data.dbSettings()
 
 print json.dumps(settings._settings)
