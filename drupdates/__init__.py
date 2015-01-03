@@ -17,8 +17,6 @@ def main():
   backportDir = settings.get('backupDir')
   upCmds = settings.get('upCmds')
   upCmds.insert(0, 'up')
-  # FIXME: this is assuming the site alias and site directory are one in the same
-  # our vagrant install populates the sa list based on the direcotry being populated
   report = {}
   dr = drush()
   repoTool = repos()
@@ -109,14 +107,18 @@ def main():
       gitRepo.checkout('FETCH_HEAD', b='dev')
     except git.exc.GitCommandError as e:
       gitRepo.checkout('dev')
-    distutils.dir_util.copy_tree(tempDir + '/' + siteName, siteDir)
+    distutils.dir_util.copy_tree(tempDir + '/' + siteName, siteWebroot)
     shutil.rmtree(tempDir)
-    # FIXME: gitRep.set_config_option('core.fileMode', 'false')
+    os.chdir (siteWebroot)
+    g=git.Git('.')
+    fileMode = g.config("core.fileMode")
+    g.config("core.fileMode", "false")
     gitRepo.add('./')
     commitAuthor = settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
     commitHash = gitRepo.rev_parse('head')
     push = gitRepo.push(siteName)
+    g.config("core.fileMode", fileMode)
     report[siteName]['status'] = "The following updates were applied \n {0}".format(msg)
     report[siteName]['commit'] = "The commit hash is {0}".format(commitHash)
 
