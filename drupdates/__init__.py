@@ -14,8 +14,7 @@ def main():
   upCmds.insert(0, 'up')
   report = {}
   dr = drush()
-  repoTool = repos()
-  sites = repoTool.get()
+  sites = repos().get()
   db = datastores()
   pmTool = pmtools()
   blacklist = settings.get('blacklist')

@@ -7,7 +7,7 @@ commitAuthor:
   prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
 workingDir:
   value: /var/www/
-  prompt: What is the working director (default /var/www/)
+  prompt: What is the working directory (default /var/www/)
 backupDir:
   value: ""
 webrootDir:

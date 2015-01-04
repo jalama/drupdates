@@ -64,7 +64,6 @@ class attask(pmTool):
     attaskBaseURL = self.localsettings.get('attaskBaseURL')
     attaskAssigneeType = self.localsettings.get('attaskAssigneeType')
     taskURL = self._attaskAPIURL + self.localsettings.get('attaskTaskURL')
-    print taskURL
     message = {}
     message[site] = {}
     for environment in environments:

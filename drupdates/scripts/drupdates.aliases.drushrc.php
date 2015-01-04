@@ -18,7 +18,9 @@ while($dir_handle->valid()) {
   if($dir_handle->isDir() && !$dir_handle->isDot()) {
     $basename = $dir_handle->getBasename();
     $root = $dir_handle->getPathname();
-    $root = $webroot != "" ? $root : $root . $webroot;
+    if(strlen($webroot) > 0) {
+      $root .= '/' . $webroot;
+    }
     if(file_exists($root . '/sites/default/default.settings.php')) {
       $aliases[$basename] = array(
         'uri' => 'http://localhost/' . $basename,
