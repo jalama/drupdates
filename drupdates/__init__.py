@@ -8,10 +8,6 @@ from git import *
 
 def main():
   settings = Settings()
-  workingDir = settings.get('workingDir')
-  backportDir = settings.get('backupDir')
-  upCmds = settings.get('upCmds')
-  upCmds.insert(0, 'up')
   report = {}
   dr = drush()
   sites = repos().get()
@@ -19,6 +15,11 @@ def main():
   pmTool = pmtools()
   blacklist = settings.get('blacklist')
   singleSite = settings.get('singleSite')
+  workingBranch = settings.get('workingBranch')
+  workingDir = settings.get('workingDir')
+  backportDir = settings.get('backupDir')
+  upCmds = settings.get('upCmds')
+  upCmds.insert(0, 'up')
   if singleSite:
     sites = {singleSite : sites[singleSite]}
   for siteName, ssh in sites.iteritems():
@@ -40,7 +41,6 @@ def main():
           continue
       repository = Repo.init(siteDir)
       remote = git.Remote.create(repository, siteName, ssh)
-      workingBranch = settings.get('workingBranch')
       try:
         remote.fetch(workingBranch)
       except git.exc.GitCommandError as e:
@@ -73,6 +73,7 @@ def main():
       importDB = dr.dbImport(siteName)
       if not importDB:
         continue
+
     if settings.get('runUpdates'):
       # Run Drush up to update the site
       # Make sure update module is enabled
@@ -85,7 +86,7 @@ def main():
       updatesRet = dr.call(upCmdsCopy, siteName)
       updates = dr.readUpdateReport(updatesRet)
       # If there are no updates move to the next repo
-      if len(updates) == 0:
+      if len(updates) == 1:
         report[siteName]['status']= "Did not have any updates to apply"
         continue
       else:
@@ -106,11 +107,15 @@ def main():
       try:
         gitRepo.checkout('FETCH_HEAD', b='dev')
       except git.exc.GitCommandError as e:
-        gitRepo.checkout('dev')
-      distutils.dir_util.copy_tree(tempDir + '/' + siteName, siteWebroot)
+        gitRepo.checkout(workingBranch)
+      try:
+        distutils.dir_util.copy_tree(tempDir + '/' + siteName, siteWebroot)
+      except IOError as e:
+        print "Could not copy updates Drupal directory fomr temp to {0} \n Error: {1}".format(siteWebroot, e.strerror)
+        continue
       shutil.rmtree(tempDir)
       os.chdir (siteWebroot)
-      g=git.Git('.')
+      g = git.Git('.')
       fileMode = g.config("core.fileMode")
       g.config("core.fileMode", "false")
       gitRepo.add('./')
@@ -127,4 +132,5 @@ def main():
       tickets = settings.get('deploymentTickets')
       deploys = pmTool.deployTicket(siteName, tickets, commitHash)
       report[siteName]['pmtool'] = deploys
+  dr.deleteFiles()
   print (report)

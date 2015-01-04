@@ -42,11 +42,21 @@ class mysql(datastore):
       ret = True
     return ret
 
+  def deleteFiles (self):
+    myFile = self.localsettings.get('mysqlSettingsFile')
+    localFile = expanduser('~') + '/' + myFile
+    if os.path.isfile(localFile):
+      os.remove(localFile)
+      return True
+    else:
+      return False
+
   def create(self, site):
     if self.writeMyCnf():
       dr = drush()
       createCmds = ['sql-create', '-y', '--db-su=' + self.localsettings.get('datastoreSuperUser') ]
       dr.call(createCmds, site)
+      self.deleteFiles()
     return True
 
   def driverSettings(self):

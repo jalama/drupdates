@@ -43,7 +43,7 @@ class drush(Settings):
         ret = True
       except OSError as e:
         print "Could not create settings.py file \n Error: {0}".format(e.strerror)
-    self._aliases = ret
+    self._aliases = {"folder" : drushFolder, "file" : drushFile}
 
 
   def readUpdateReport(self, lst, updates = []):
@@ -107,5 +107,15 @@ class drush(Settings):
       return False
 
     return True
+
+  def deleteFiles(self):
+    if os.path.isfile(self._aliases['file']):
+      os.remove(self._aliases['file'])
+      os.remove(self._aliases['folder'] + "/settings.py")
+      return True
+    else:
+      return False
+
+
 
 
