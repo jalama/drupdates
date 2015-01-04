@@ -42,5 +42,11 @@ datastoreDriver:
 singleSite:
   value: ""
 submitDeployTicket:
-  value: True
-  prompt: Do yo want to submit a deployment ticket?
+  value: Yes
+  prompt: Do yo want to submit a deployment ticket
+buildRepos:
+  value: Yes
+  prompt: Do you want to (re)build the site directories
+runUpdates:
+  value: Yes
+  prompt: Do you want to run the site update(s)
