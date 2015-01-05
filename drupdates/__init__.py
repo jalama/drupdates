@@ -32,10 +32,9 @@ def main():
       # Build Git repository
       # http://nullege.com/codes/search/git.add
       siteDir = workingDir + siteName
-      os.chdir(workingDir)
-      if os.path.isdir(siteName):
+      if os.path.isdir(siteDir):
         try:
-          shutil.rmtree(siteName)
+          shutil.rmtree(siteDir)
         except OSError as e:
           print "Cannot remove the site directory\n Error: {0}".format(e.strerror)
           continue
@@ -48,20 +47,19 @@ def main():
         continue
       gitRepo = repository.git
       gitRepo.checkout('FETCH_HEAD')
-      # Re-build database if it fails go to the next repo
-      buildDB = db.build(siteName)
-      if not buildDB:
-        continue
       stCmds = ['st']
       repoStatus = dr.call(stCmds, siteName, True)
-      status = repoStatus.get('drupal-version', "")
+      drupalSite = repoStatus.get('drupal-version', "")
       # If this is not a Drupal repo move to the next repo
-      if not status:
+      if not drupalSite:
         continue
-      os.chdir (siteDir)
       bootstrap = repoStatus.get('bootstrap', "")
       if not bootstrap:
-       # Perform Drush site-install to get a base settings.php file
+        # Re-build database if it fails go to the next repo
+        buildDB = db.build(siteName)
+        if not buildDB:
+          continue
+        # Perform Drush site-install to get a base settings.php file
         siCmds = ['si', 'minimal', '-y']
         install = dr.call(siCmds, siteName)
         dd = dr.call(['dd', '@drupdates.' + siteName])
@@ -69,10 +67,11 @@ def main():
         siFiles = settings.get('drushSiFiles')
         for f in siFiles:
           os.chmod(siteWebroot + f, 0777)
-      # Import the backup file
-      importDB = dr.dbImport(siteName)
-      if not importDB:
-        continue
+      if settings.get('importBackup'):
+        # Import the backup file
+        importDB = dr.dbImport(siteName)
+        if not importDB:
+          continue
 
     if settings.get('runUpdates'):
       # Run Drush up to update the site
@@ -129,8 +128,7 @@ def main():
 
     # Deployment ticket submission
     if settings.get('submitDeployTicket'):
-      tickets = settings.get('deploymentTickets')
-      deploys = pmTool.deployTicket(siteName, tickets, commitHash)
+      deploys = pmTool.deployTicket(siteName, commitHash)
       report[siteName]['pmtool'] = deploys
   dr.deleteFiles()
   print (report)

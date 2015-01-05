@@ -50,3 +50,6 @@ buildRepos:
 runUpdates:
   value: Yes
   prompt: Do you want to run the site update(s)
+importBackup:
+  value: Yes
+  prompt: Do you want to import a backup

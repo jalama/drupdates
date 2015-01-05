@@ -57,10 +57,11 @@ class pmtools(Plugin):
     descriptionList.append("drush @" + site +" updb -y")
     self.__description = '\n'.join(descriptionList)
 
-  def deployTicket(self, site, env, commitHash):
+  def deployTicket(self, site, commitHash):
     description = self._description(site, commitHash)
+    environments = settings.get('deploymentTickets')
     self._targetDate = self.localsettings.get('targetDate')
-    return self._instance.submitDeployTicket(site, env, description, self._targetDate)
+    return self._instance.submitDeployTicket(site, environments, description, self._targetDate)
 
 class pmTool(object):
   __metaclass__ = abc.ABCMeta
