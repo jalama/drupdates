@@ -10,8 +10,10 @@ workingDir:
   prompt: What is the working directory (default /var/www/)
 backupDir:
   value: ""
+  prompt: Directory where one can find database backups (ie /var/www/backups)
 webrootDir:
   value: ""
+  prompt: Any directory below the base site directory that acts as the web root
 blacklist:
   value: ""
   format: list
@@ -22,6 +24,7 @@ drushSiFiles:
     - sites/default/default.settings.php
     - sites/default
     - sites/default/files/.htaccess
+  prompt: What files will drush si set to file mode 0444
 deploymentTickets:
   value:
     - Staging
@@ -34,6 +37,7 @@ upCmds:
     - --security-only
     - --no-backup
   format: list
+  prompt: Arguments and options for the drush pm-update command
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
 datastoreDriver:
@@ -41,6 +45,7 @@ datastoreDriver:
   prompt: What is the default datastore (i.e. database) driver (default mysql)
 singleSite:
   value: ""
+  prompt: Do you want to run the script on a single site (which alias)
 submitDeployTicket:
   value: Yes
   prompt: Do yo want to submit a deployment ticket
