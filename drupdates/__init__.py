@@ -3,7 +3,7 @@ from drupdates.utils import *
 from drupdates.drush import *
 from drupdates.repos import *
 from drupdates.pmtools import *
-from drupdates.datastores import *
+from drupdates.sitebuild import *
 from git import *
 
 def main():
@@ -11,13 +11,9 @@ def main():
   report = {}
   dr = drush()
   sites = repos().get()
-  db = datastores()
   pmTool = pmtools()
   blacklist = settings.get('blacklist')
   singleSite = settings.get('singleSite')
-  workingBranch = settings.get('workingBranch')
-  workingDir = settings.get('workingDir')
-  backportDir = settings.get('backupDir')
   upCmds = settings.get('upCmds')
   upCmds.insert(0, 'up')
   if singleSite:
@@ -29,53 +25,13 @@ def main():
       continue
 
     if settings.get('buildRepos'):
-      # Build Git repository
-      # http://nullege.com/codes/search/git.add
-      siteDir = workingDir + siteName
-      if os.path.isdir(siteDir):
-        try:
-          shutil.rmtree(siteDir)
-        except OSError as e:
-          print "Cannot remove the site directory\n Error: {0}".format(e.strerror)
-          continue
-      repository = Repo.init(siteDir)
-      remote = git.Remote.create(repository, siteName, ssh)
-      try:
-        remote.fetch(workingBranch)
-      except git.exc.GitCommandError as e:
-        print "Git could could not checkout the {0} branch. \n Error: {1}".format(workingBranch, e)
-        continue
-      gitRepo = repository.git
-      gitRepo.checkout('FETCH_HEAD')
-      stCmds = ['st']
-      repoStatus = dr.call(stCmds, siteName, True)
-      drupalSite = repoStatus.get('drupal-version', "")
-      # If this is not a Drupal repo move to the next repo
-      if not drupalSite:
-        continue
-      bootstrap = repoStatus.get('bootstrap', "")
-      if not bootstrap:
-        # Re-build database if it fails go to the next repo
-        buildDB = db.build(siteName)
-        if not buildDB:
-          continue
-        # Perform Drush site-install to get a base settings.php file
-        siCmds = ['si', 'minimal', '-y']
-        install = dr.call(siCmds, siteName)
-        dd = dr.call(['dd', '@drupdates.' + siteName])
-        siteWebroot = dd[0]
-        siFiles = settings.get('drushSiFiles')
-        for f in siFiles:
-          os.chmod(siteWebroot + f, 0777)
-      if settings.get('importBackup'):
-        # Import the backup file
-        importDB = dr.dbImport(siteName)
-        if not importDB:
-          continue
+      builder = sitebuild(siteName, ssh)
+      builder.build()
 
     if settings.get('runUpdates'):
       # Run Drush up to update the site
       # Make sure update module is enabled
+      siteDir = settings.get('workingDir') + siteName
       dd = dr.call(['dd', '@drupdates.' + siteName])
       siteWebroot = dd[0]
       os.chdir (siteWebroot)
