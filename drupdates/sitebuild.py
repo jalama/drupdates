@@ -1,4 +1,4 @@
-from drupdates.utils import *
+from drupdates.updates import *
 from drupdates.drush import *
 from drupdates.datastores import *
 import git, shutil
@@ -7,7 +7,8 @@ from git import *
 class sitebuild():
 
   def __init__(self, siteName, ssh):
-    self.settings = Settings()
+    self.currentDir = os.path.dirname(os.path.realpath(__file__))
+    self.settings = Settings(self.currentDir)
     self.workingDir = self.settings.get('workingDir')
     self.workingBranch = self.settings.get('workingBranch')
     self.siteName = siteName
@@ -75,9 +76,9 @@ class sitebuild():
     if not drupalSite:
       return False
     bootstrap = repoStatus.get('bootstrap', "")
+    # FIXME: Need to pull this code into it's own method
     if not bootstrap:
       # Re-build database if it fails go to the next repo
-
       buildDB = datastores().build(self.siteName)
       if not buildDB:
         return False
@@ -89,6 +90,7 @@ class sitebuild():
       siFiles = self.settings.get('drushSiFiles')
       for f in siFiles:
         os.chmod(siteWebroot + f, 0777)
+    # FIXME: Need to pull this code into it's own method
     if self.settings.get('importBackup'):
       # Import the backup file
       importDB = dr.dbImport(self.siteName)

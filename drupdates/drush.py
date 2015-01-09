@@ -8,43 +8,6 @@ class drush(Settings):
 
   def __init__(self):
     self.localsettings = Settings()
-    self.aliases = self.localsettings.get('drushAliasFile')
-
-  @property
-  def aliases(self):
-      return self._aliases
-  @aliases.setter
-  def aliases(self, value):
-    ret = False
-    aliasFileName = value
-    drushFolder = expanduser('~') + '/.drush'
-    drushFile = drushFolder + "/" + aliasFileName
-    if os.path.isfile(drushFile):
-      ret = True
-    else:
-      if not os.path.isdir(drushFolder):
-        try:
-          os.makedirs(drushFolder)
-        except OSError as e:
-          print "Could not create ~/.drush folder \n Error: {0}".format(e.strerror)
-      currentDir = os.path.dirname(os.path.realpath(__file__))
-      # Symlink the Drush aliases file
-      src = currentDir + "/scripts/" + aliasFileName
-      try:
-        os.symlink(src, drushFile)
-        ret = True
-      except OSError as e:
-        print "Could not create Drush alias file \n Error: {0}".format(e.strerror)
-      # Symlink the settings file used by above Drush aliases file
-      src = currentDir + "/scripts/settings.py"
-      dst = drushFolder + "/settings.py"
-      try:
-        os.symlink(src, dst)
-        ret = True
-      except OSError as e:
-        print "Could not create settings.py file \n Error: {0}".format(e.strerror)
-    self._aliases = {"folder" : drushFolder, "file" : drushFile}
-
 
   def readUpdateReport(self, lst, updates = []):
     updates = []
@@ -99,7 +62,7 @@ class drush(Settings):
     """
     workingDir = self.localsettings.get('workingDir')
     backportDir = self.localsettings.get('backupDir')
-    commands = ['drush', '@' + alias, 'sqlc']
+    commands = ['drush', '@drupdates.' + alias, 'sqlc']
     popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     out, stderr = popen.communicate(file(backportDir + alias + '.sql').read())
     if stderr:
@@ -107,14 +70,6 @@ class drush(Settings):
       return False
 
     return True
-
-  def deleteFiles(self):
-    if os.path.isfile(self._aliases['file']):
-      os.remove(self._aliases['file'])
-      os.remove(self._aliases['folder'] + "/settings.py")
-      return True
-    else:
-      return False
 
 
 

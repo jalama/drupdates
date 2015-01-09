@@ -33,6 +33,7 @@ deploymentTickets:
   format: list
 upCmds:
   value:
+    - up
     - -y
     - --security-only
     - --no-backup
