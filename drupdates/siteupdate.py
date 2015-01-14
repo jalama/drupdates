@@ -57,6 +57,13 @@ class siteupdate():
   def ssh(self, value):
       self._ssh = value
 
+  @property
+  def siteWebRoot(self):
+      return self._siteWebRoot
+  @siteWebRoot.setter
+  def siteWebRoot(self, value):
+      self._siteWebRoot = value
+
   def update(self):
     # Run Drush up to update the site
     dr = drush()
@@ -69,9 +76,9 @@ class siteupdate():
     if len(updates) <= 1:
       return False
     dd = dr.call(['dd', '@drupdates.' + self.siteName])
-    siteWebroot = dd[0]
+    self.siteWebroot = dd[0]
     tempDir = tempfile.mkdtemp(self.siteName)
-    shutil.move(siteWebroot, tempDir)
+    shutil.move(self.siteWebroot, tempDir)
     # Commit and push updates to remote repo
     # FIXME: Need to rebuild any make file to reflect the new module versions
     # maybe using generate-makefile or simply search/replace?
@@ -89,12 +96,12 @@ class siteupdate():
     except git.exc.GitCommandError as e:
       gitRepo.checkout(self.workingBranch)
     try:
-      distutils.dir_util.copy_tree(tempDir + '/' + self.siteName, siteWebroot)
+      distutils.dir_util.copy_tree(tempDir + '/' + self.siteName, self.siteWebroot)
     except IOError as e:
-      print "Could not copy updates Drupal directory from temp to {0} \n Error: {1}".format(siteWebroot, e.strerror)
+      print "Could not copy updates Drupal directory from temp to {0} \n Error: {1}".format(self.siteWebroot, e.strerror)
       return False
     shutil.rmtree(tempDir)
-    os.chdir (siteWebroot)
+    os.chdir (self.siteWebroot)
     g = git.Git('.')
     fileMode = g.config("core.fileMode")
     g.config("core.fileMode", "false")
@@ -102,11 +109,12 @@ class siteupdate():
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
     commitHash = gitRepo.rev_parse('head')
-    push = gitRepo.push(self.siteName)
+    push = gitRepo.push(self.siteName, self.workingBranch)
     g.config("core.fileMode", fileMode)
     report = {}
     report['status'] = "The following updates were applied \n {0}".format(msg)
     report['commit'] = "The commit hash is {0}".format(commitHash)
+    report['hash'] = commitHash
     return report
 
 
