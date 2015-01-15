@@ -7,7 +7,7 @@ from os.path import expanduser
 class mysql(datastore):
 
   def __init__(self):
-    # FIXME: class get re-instantiated each time db is cvalled
+    # FIXME: class get re-instantiated each time db is called
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
     self.localsettings = Settings(self.currentDir)
 
