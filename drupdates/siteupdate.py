@@ -67,6 +67,7 @@ class siteupdate():
 
   def update(self):
     # Run Drush up to update the site
+    report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
     dr = drush()
     # Make sure update module is enabled
@@ -76,7 +77,8 @@ class siteupdate():
     updates = dr.readUpdateReport(updatesRet)
     # If there are no updates move to the next repo
     if len(updates) <= 1:
-      return False
+      report['status'] = "Did not have any updates to apply"
+      return report
     dd = dr.call(['dd', '@drupdates.' + self.siteName])
     self.siteWebroot = dd[0]
     tempDir = tempfile.mkdtemp(self.siteName)
@@ -113,7 +115,6 @@ class siteupdate():
     commitHash = gitRepo.rev_parse('head')
     push = gitRepo.push(self.siteName, self.workingBranch)
     g.config("core.fileMode", fileMode)
-    report = {}
     report['status'] = "The following updates were applied \n {0}".format(msg)
     report['commit'] = "The commit hash is {0}".format(commitHash)
     report['hash'] = commitHash

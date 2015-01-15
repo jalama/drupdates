@@ -32,14 +32,13 @@ class Drupdates():
       if self.settings.get('runUpdates'):
         updater = siteupdate(siteName, ssh)
         update = updater.update()
-        if not update:
-          report[siteName] = "Did not have any updates to apply"
-          continue
-        else:
-          report[siteName] = update
+        report[siteName] = update
 
       if self.settings.get('submitDeployTicket'):
         deploys = pmTool.deployTicket(siteName, commitHash)
         report[siteName]['pmtool'] = deploys
     utilities.deleteFiles()
-    print (report)
+    for x in report:
+      print (x)
+      for y in report[x]:
+        print "{0} : {1}".format(y,report[x][y])
