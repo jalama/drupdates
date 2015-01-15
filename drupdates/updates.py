@@ -1,6 +1,7 @@
 from drupdates.utils import *
 from drupdates.repos import *
 from drupdates.pmtools import *
+from drupdates.reports import *
 from drupdates.sitebuild import *
 from drupdates.siteupdate import *
 
@@ -38,7 +39,5 @@ class Drupdates():
         deploys = pmTool.deployTicket(siteName, commitHash)
         report[siteName]['pmtool'] = deploys
     utilities.deleteFiles()
-    for x in report:
-      print (x)
-      for y in report[x]:
-        print "{0} : {1}".format(y,report[x][y])
+    reporting = reports()
+    reporting.send(report)

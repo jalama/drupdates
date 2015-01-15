@@ -61,3 +61,5 @@ importBackup:
   prompt: Do you want to import a backup
 postBuildCmds:
   value: ""
+reportingTool:
+  value: "sendmail"
