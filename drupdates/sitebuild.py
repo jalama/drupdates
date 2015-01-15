@@ -14,6 +14,7 @@ class sitebuild():
     self.siteName = siteName
     self.siteDir = self.workingDir + siteName
     self.ssh = ssh
+    self.dr = drush()
 
   @property
   def workingDir(self):
@@ -50,10 +51,16 @@ class sitebuild():
   def ssh(self, value):
       self._ssh = value
 
+  @property
+  def siteWebRoot(self):
+      return self._siteWebRoot
+  @siteWebRoot.setter
+  def siteWebRoot(self, value):
+      self._siteWebRoot = value
+
   def build(self):
     # Build Git repository
     # http://nullege.com/codes/search/git.add
-    dr = drush()
     if os.path.isdir(self.siteDir):
       try:
         shutil.rmtree(self.siteDir)
@@ -68,32 +75,37 @@ class sitebuild():
       print "Git could could not checkout the {0} branch. \n Error: {1}".format(self.workingBranch, e)
       return False
     gitRepo = repository.git
-    gitRepo.checkout('FETCH_HEAD')
+    gitRepo.checkout('FETCH_HEAD', b=self.workingBranch)
     stCmds = ['st']
-    repoStatus = dr.call(stCmds, self.siteName, True)
+    repoStatus = self.dr.call(stCmds, self.siteName, True)
     drupalSite = repoStatus.get('drupal-version', "")
     # If this is not a Drupal repo move to the next repo
     if not drupalSite:
       return False
     bootstrap = repoStatus.get('bootstrap', "")
-    # FIXME: Need to pull this code into it's own method
+    ret = True
     if not bootstrap:
       # Re-build database if it fails go to the next repo
-      buildDB = datastores().build(self.siteName)
-      if not buildDB:
-        return False
-      # Perform Drush site-install to get a base settings.php file
-      siCmds = ['si', 'minimal', '-y']
-      install = dr.call(siCmds, self.siteName)
-      dd = dr.call(['dd', '@drupdates.' + self.siteName])
-      siteWebroot = dd[0]
-      siFiles = self.settings.get('drushSiFiles')
-      for f in siFiles:
-        os.chmod(siteWebroot + f, 0777)
-    # FIXME: Need to pull this code into it's own method
-    if self.settings.get('importBackup'):
+      ret = self.constructSite()
+    if ret and self.settings.get('importBackup'):
       # Import the backup file
-      importDB = dr.dbImport(self.siteName)
-      if not importDB:
-        return False
+      ret = self.importBackup()
+    return ret
+
+  def constructSite(self):
+    buildDB = datastores().build(self.siteName)
+    if not buildDB:
+      return False
+    # Perform Drush site-install to get a base settings.php file
+    siCmds = ['si', 'minimal', '-y']
+    install = self.dr.call(siCmds, self.siteName)
+    dd = self.dr.call(['dd', '@drupdates.' + self.siteName])
+    self.siteWebroot = dd[0]
+    siFiles = self.settings.get('drushSiFiles')
+    for f in siFiles:
+      os.chmod(self.siteWebroot + f, 0777)
     return True
+
+  def importBackup(self):
+    importDB = self.dr.dbImport(self.siteName)
+    return importDB
