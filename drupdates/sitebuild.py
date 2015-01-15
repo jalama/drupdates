@@ -67,6 +67,7 @@ class sitebuild():
       except OSError as e:
         print "Cannot remove the site directory\n Error: {0}".format(e.strerror)
         return False
+    sysCommands(self, 'preBuildCmds')
     repository = Repo.init(self.siteDir)
     remote = git.Remote.create(repository, self.siteName, self.ssh)
     try:

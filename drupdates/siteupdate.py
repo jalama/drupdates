@@ -66,6 +66,7 @@ class siteupdate():
 
   def update(self):
     # Run Drush up to update the site
+    sysCommands(self, 'preUpdateCmds')
     dr = drush()
     # Make sure update module is enabled
     dr.call(['en', 'update', '-y'], self.siteName)
@@ -115,6 +116,7 @@ class siteupdate():
     report['status'] = "The following updates were applied \n {0}".format(msg)
     report['commit'] = "The commit hash is {0}".format(commitHash)
     report['hash'] = commitHash
+    sysCommands(self, 'postUpdateCmds')
     return report
 
 
