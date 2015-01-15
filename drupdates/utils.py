@@ -71,6 +71,7 @@ class utils(object):
 
     Keyword arguments:
     phase -- the phase the script is at when sysCommands is called (default "")
+    object -- the object the call to sysCommand is housed within
     """
     commands = self.settings.get(phase)
     if commands and type(commands) is list:
@@ -96,6 +97,14 @@ class utils(object):
           continue
 
   def aliases(self):
+    """ Build a Drush alias file in $HOME/.drush, with alises to be used later
+
+    Notes:
+    The file name is controlled by the drushAliasFile settings
+    All of the aliases will be prefixed with "drupdates" if he default file name
+      is retained
+    """
+
     ret = False
     aliasFileName = self.settings.get('drushAliasFile')
     drushFolder = expanduser('~') + '/.drush'
@@ -127,6 +136,9 @@ class utils(object):
     self._aliases = {"folder" : drushFolder, "file" : drushFile}
 
   def deleteFiles(self):
+    """ Clean-up the alias files crreated by aliases method
+
+    """
     if os.path.isfile(self._aliases['file']):
       os.remove(self._aliases['file'])
       os.remove(self._aliases['folder'] + "/settings.py")
@@ -135,6 +147,11 @@ class utils(object):
       return False
 
 class Plugin(Settings):
+
+  """
+  Simple Plugin system shamelessly based on:
+  http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
+  """
 
   def __init__(self):
     self.PluginFolder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
@@ -162,10 +179,6 @@ class Plugin(Settings):
   def _plugins(self, value):
       self.__plugins = self.getPlugins()
 
-  """
-  Simple Plugin system shamelessly based on:
-  http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
-  """
   def getPlugins(self):
     plugins = {}
     possibleplugins = os.listdir(self.PluginFolder)

@@ -14,6 +14,7 @@ class siteupdate():
     self.siteDir = self.workingDir + siteName
     self.upCmds = self.settings.get('upCmds')
     self.ssh = ssh
+    self.utilities = utils()
 
   @property
   def workingDir(self):
@@ -66,7 +67,7 @@ class siteupdate():
 
   def update(self):
     # Run Drush up to update the site
-    sysCommands(self, 'preUpdateCmds')
+    self.utilities.sysCommands(self, 'preUpdateCmds')
     dr = drush()
     # Make sure update module is enabled
     dr.call(['en', 'update', '-y'], self.siteName)
@@ -116,7 +117,7 @@ class siteupdate():
     report['status'] = "The following updates were applied \n {0}".format(msg)
     report['commit'] = "The commit hash is {0}".format(commitHash)
     report['hash'] = commitHash
-    sysCommands(self, 'postUpdateCmds')
+    self.utilities.sysCommands(self, 'postUpdateCmds')
     return report
 
 

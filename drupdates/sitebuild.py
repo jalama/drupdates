@@ -15,6 +15,7 @@ class sitebuild():
     self.siteDir = self.workingDir + siteName
     self.ssh = ssh
     self.dr = drush()
+    self.utilities = utils()
 
   @property
   def workingDir(self):
@@ -67,7 +68,7 @@ class sitebuild():
       except OSError as e:
         print "Cannot remove the site directory\n Error: {0}".format(e.strerror)
         return False
-    sysCommands(self, 'preBuildCmds')
+    self.utilities.sysCommands(self, 'preBuildCmds')
     repository = Repo.init(self.siteDir)
     remote = git.Remote.create(repository, self.siteName, self.ssh)
     try:
@@ -91,7 +92,7 @@ class sitebuild():
     if ret and self.settings.get('importBackup'):
       # Import the backup file
       ret = self.importBackup()
-    sysCommands(self, 'postBuildCmds')
+    self.utilities.sysCommands(self, 'postBuildCmds')
     return ret
 
   def constructSite(self):
