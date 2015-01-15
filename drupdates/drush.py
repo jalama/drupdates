@@ -12,8 +12,7 @@ class drush(Settings):
   def readUpdateReport(self, lst, updates = []):
     updates = []
     for x in lst:
-      # build list of updates in a list,
-      # when you hit a blank line you are done
+      # build list of updates, when you hit a blank line you are done
       # note: if there are no updates the first line will be blank
       if x:
         updates.append(x)
@@ -43,7 +42,7 @@ class drush(Settings):
     try:
       popen = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError as e:
-      print "Cannot run drush.call(), most likely because python can't find drush\n Error: ".format(e.strerror)
+      print "Cannot run drush.call(), most likely because python can't find drush\n Error: {0}".format(e.strerror)
     stdout, stderr = popen.communicate()
     if jsonRet:
       try:
