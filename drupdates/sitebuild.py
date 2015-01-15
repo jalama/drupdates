@@ -90,6 +90,7 @@ class sitebuild():
     if ret and self.settings.get('importBackup'):
       # Import the backup file
       ret = self.importBackup()
+    sysCommands(self, 'postBuildCmds')
     return ret
 
   def constructSite(self):

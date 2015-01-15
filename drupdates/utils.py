@@ -48,7 +48,7 @@ class utils(object):
     else:
       return responseDictionary
 
-  def sysCommands(self, phase = ''):
+  def sysCommands(self, object, phase = ''):
     """ Run a system command based on the subprocess.popen method.
     For example maybe you want a symbolic link, on a unix box,
     from /opt/drupal to /var/www/drupal you would add the command(s)
@@ -65,21 +65,33 @@ class utils(object):
             - /var/www/drupal
             - /opt/drupal
 
+    Note: You can refer to an attribute in the calling class, assuming they are
+    set, by prefixing them with "att_" in the settings yaml above,
+    ex. att_siteDir would pass the sitebuild.siteDir attribute
+
     Keyword arguments:
     phase -- the phase the script is at when sysCommands is called (default "")
     """
     commands = self.settings.get(phase)
-    print commands
     if commands and type(commands) is list:
       for command in commands:
         if type(command) is list:
+          # Find list items that match the string after "att_",
+          # these are names names of attribute in the calling class
+          for key, item in enumerate(command):
+            if item[:4] == 'att_':
+              attribute = item[4:]
+              try:
+                command[key] = getattr(object, attribute)
+              except AttributeError:
+                continue
           try:
             popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
           except OSError as e:
             print "Cannot run {0} the command doesn't exist, \n Error: {1}".format(command.pop(0), e.strerror)
           stdout, stderr = popen.communicate()
           if stderr:
-            print "There was and issue running {0}, \n Error: {1}".format(command, e.stderr)
+            print "There was and issue running {0}, \n Error: {1}".format(command, stderr)
         else:
           continue
 
