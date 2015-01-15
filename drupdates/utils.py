@@ -1,4 +1,4 @@
-import datetime, requests, os, imp, yaml, urlparse
+import datetime, requests, os, imp, yaml, urlparse, subprocess
 from drupdates.settings import *
 from os.path import expanduser
 
@@ -47,6 +47,41 @@ class utils(object):
       return False
     else:
       return responseDictionary
+
+  def sysCommands(self, phase = ''):
+    """ Run a system command based on the subprocess.popen method.
+    For example maybe you want a symbolic link, on a unix box,
+    from /opt/drupal to /var/www/drupal you would add the command(s)
+    to the appropriate phase setting in you yaml settings files.
+
+    Note: the format of the setting is a multi-dimensional list
+
+    Example (form sitebuild.build():
+      postBuildCmds:
+        value:
+          -
+            - ln
+            - -s
+            - /var/www/drupal
+            - /opt/drupal
+
+    Keyword arguments:
+    phase -- the phase the script is at when sysCommands is called (default "")
+    """
+    commands = self.settings.get(phase)
+    print commands
+    if commands and type(commands) is list:
+      for command in commands:
+        if type(command) is list:
+          try:
+            popen = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+          except OSError as e:
+            print "Cannot run {0} the command doesn't exist, \n Error: {1}".format(command.pop(0), e.strerror)
+          stdout, stderr = popen.communicate()
+          if stderr:
+            print "There was and issue running {0}, \n Error: {1}".format(command, e.stderr)
+        else:
+          continue
 
   def aliases(self):
     ret = False
