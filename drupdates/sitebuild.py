@@ -1,4 +1,4 @@
-from drupdates.updates import *
+from drupdates.utils import *
 from drupdates.drush import *
 from drupdates.datastores import *
 import git, shutil
