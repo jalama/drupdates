@@ -30,8 +30,6 @@ class utils(object):
     args = {}
     for key, value in kwargs.iteritems():
       args[key] = value
-    # if not user == '' and not pword == '':
-    #   args.append("auth=(user, pword)")
     r = func(uri, **args)
     try:
       responseDictionary = r.json()
