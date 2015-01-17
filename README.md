@@ -16,7 +16,7 @@ Requirements
 ============
 Drush (preferably Drush 7)
 Git 1.7+
-sendmail (there is an issue for SMTP support)
+sendmail (there is an issue filed for SMTP support)
 
 Assumptions
 ===========
