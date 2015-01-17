@@ -65,14 +65,13 @@ class attask(pmTool):
     attaskAssigneeType = self.localsettings.get('attaskAssigneeType')
     taskURL = self._attaskAPIURL + self.localsettings.get('attaskTaskURL')
     message = {}
-    message[site] = {}
     for environment in environments:
       title = environment + ' Deployment for ' + site +' w.e. ' + targetDate
       atParams = {'name': title, 'projectID': attaskProjectID, attaskAssigneeType: devOpsTeamID, 'description': description}
       response = utils.apiCall(taskURL, self._pmLabel, 'post', params = atParams, headers = sessparam)
       if not response == False:
         data = response['data']
-        message[site][environment] = "The " + environment + " deploy ticket is {0}task/view?ID={1}".format(attaskBaseURL, data['ID'])
+        message[environment] = "The " + environment + " deploy ticket is <{0}task/view?ID={1}>".format(attaskBaseURL, data['ID'])
       else:
-        message[site][environment] = "The " + environment + " deploy ticket did not submit to AtTask properly"
+        message[environment] = "The " + environment + " deploy ticket did not submit to AtTask properly"
     return message

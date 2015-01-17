@@ -34,7 +34,7 @@ class Drupdates():
         updater = siteupdate(siteName, ssh)
         update = updater.update()
         report[siteName] = update
-        if self.settings.get('submitDeployTicket'):
+        if self.settings.get('submitDeployTicket') and updater.commitHash:
           deploys = pmTool.deployTicket(siteName, updater.commitHash)
           report[siteName]['pmtool'] = deploys
 

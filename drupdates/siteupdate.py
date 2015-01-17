@@ -84,6 +84,7 @@ class siteupdate():
     updates = dr.readUpdateReport(updatesRet)
     # If there are no updates move to the next repo
     if len(updates) <= 1:
+      self.commitHash = ""
       report['status'] = "Did not have any updates to apply"
       return report
     dd = dr.call(['dd', '@drupdates.' + self.siteName])

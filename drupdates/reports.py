@@ -34,12 +34,17 @@ class reports(Plugin):
     class_ = getattr(self._plugin, self._tool)
     self.__instance = class_()
 
-  def send(self, report):
-    reportText = ""
+  def formatReport(self, report, text = ""):
     for x in report:
-      reportText += "{0} \n".format(x)
-      for y in report[x]:
-        reportText += "  {0} : {1} \n".format(y,report[x][y])
+      if isinstance(report[x], dict):
+        text += "{0} \n".format(x)
+        text = self.formatReport(report[x], text)
+      else:
+        text += "\t{0} : {1} \n".format(x, report[x])
+    return text
+
+  def send(self, report):
+    reportText = self.formatReport(report)
     return self._instance.sendMessage(reportText)
 
 class datastore(object):
