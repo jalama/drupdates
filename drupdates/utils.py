@@ -33,7 +33,10 @@ class utils(object):
     # if not user == '' and not pword == '':
     #   args.append("auth=(user, pword)")
     r = func(uri, **args)
-    responseDictionary = r.json()
+    try:
+      responseDictionary = r.json()
+    except ValueError:
+      return r
     #If API call errors out print the error and quit the script
     if r.status_code != 200:
       if 'errors' in responseDictionary:

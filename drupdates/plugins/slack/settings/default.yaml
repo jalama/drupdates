@@ -1,0 +1,10 @@
+#YAML
+slackURL:
+  value: ""
+slackUser:
+  value: "drupdates"
+slackChannel:
+  value: ""
+slackRecipient:
+  value: ""
+  prompt: 'Use @ for direct messages and # for channels'
