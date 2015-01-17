@@ -65,6 +65,13 @@ class siteupdate():
   def siteWebRoot(self, value):
       self._siteWebRoot = value
 
+  @property
+  def commitHash(self):
+      return self._commitHash
+  @commitHash.setter
+  def commitHash(self, value):
+      self._commitHash = value
+
   def update(self):
     # Run Drush up to update the site
     report = {}
@@ -112,12 +119,11 @@ class siteupdate():
     gitRepo.add('./')
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
-    commitHash = gitRepo.rev_parse('head')
+    self.commitHash = gitRepo.rev_parse('head')
     push = gitRepo.push(self.siteName, self.workingBranch)
     g.config("core.fileMode", fileMode)
     report['status'] = "The following updates were applied \n {0}".format(msg)
-    report['commit'] = "The commit hash is {0}".format(commitHash)
-    report['hash'] = commitHash
+    report['commit'] = "The commit hash is {0}".format(self.commitHash)
     self.utilities.sysCommands(self, 'postUpdateCmds')
     return report
 

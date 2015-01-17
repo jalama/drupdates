@@ -34,10 +34,10 @@ class Drupdates():
         updater = siteupdate(siteName, ssh)
         update = updater.update()
         report[siteName] = update
+        if self.settings.get('submitDeployTicket'):
+          deploys = pmTool.deployTicket(siteName, updater.commitHash)
+          report[siteName]['pmtool'] = deploys
 
-      if self.settings.get('submitDeployTicket'):
-        deploys = pmTool.deployTicket(siteName, commitHash)
-        report[siteName]['pmtool'] = deploys
     utilities.deleteFiles()
     reporting = reports()
     reporting.send(report)

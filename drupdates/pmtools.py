@@ -59,7 +59,7 @@ class pmtools(Plugin):
 
   def deployTicket(self, site, commitHash):
     description = self._description(site, commitHash)
-    environments = settings.get('deploymentTickets')
+    environments = self.localsettings.get('deploymentTickets')
     self._targetDate = self.localsettings.get('targetDate')
     return self._instance.submitDeployTicket(site, environments, description, self._targetDate)
 
