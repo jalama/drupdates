@@ -9,27 +9,19 @@ class sitebuild():
   def __init__(self, siteName, ssh):
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
     self.settings = Settings(self.currentDir)
-    self.workingDir = self.settings.get('workingDir')
-    self.workingBranch = self.settings.get('workingBranch')
-    self.siteName = siteName
-    self.siteDir = self.workingDir + siteName
+    self._workingBranch = self.settings.get('workingBranch')
+    self._siteName = siteName
+    self.siteDir = self.settings.get('workingDir') + self._siteName
     self.ssh = ssh
     self.dr = drush()
     self.utilities = utils()
 
   @property
-  def workingDir(self):
-      return self._workingDir
-  @workingDir.setter
-  def workingDir(self, value):
-      self._workingDir = value
-
-  @property
-  def siteName(self):
-      return self._siteName
-  @siteName.setter
-  def siteName(self, value):
-      self._siteName = value
+  def _siteName(self):
+      return self.__siteName
+  @_siteName.setter
+  def _siteName(self, value):
+      self.__siteName = value
 
   @property
   def siteDir(self):
@@ -39,11 +31,11 @@ class sitebuild():
     self._siteDir = value
 
   @property
-  def workingBranch(self):
-      return self._workingBranch
-  @workingBranch.setter
-  def workingBranch(self, value):
-      self._workingBranch = value
+  def _workingBranch(self):
+      return self.__workingBranch
+  @_workingBranch.setter
+  def _workingBranch(self, value):
+      self.__workingBranch = value
 
   @property
   def ssh(self):
@@ -70,16 +62,16 @@ class sitebuild():
         return False
     self.utilities.sysCommands(self, 'preBuildCmds')
     repository = Repo.init(self.siteDir)
-    remote = git.Remote.create(repository, self.siteName, self.ssh)
+    remote = git.Remote.create(repository, self._siteName, self.ssh)
     try:
-      remote.fetch(self.workingBranch)
+      remote.fetch(self._workingBranch)
     except git.exc.GitCommandError as e:
-      print "Git could could not checkout the {0} branch. \n Error: {1}".format(self.workingBranch, e)
+      print "Git could could not checkout the {0} branch. \n Error: {1}".format(self._workingBranch, e)
       return False
     gitRepo = repository.git
-    gitRepo.checkout('FETCH_HEAD', b=self.workingBranch)
+    gitRepo.checkout('FETCH_HEAD', b=self._workingBranch)
     stCmds = ['st']
-    repoStatus = self.dr.call(stCmds, self.siteName, True)
+    repoStatus = self.dr.call(stCmds, self._siteName, True)
     drupalSite = repoStatus.get('drupal-version', "")
     # If this is not a Drupal repo move to the next repo
     if not drupalSite:
@@ -96,13 +88,13 @@ class sitebuild():
     return ret
 
   def constructSite(self):
-    buildDB = datastores().build(self.siteName)
+    buildDB = datastores().build(self._siteName)
     if not buildDB:
       return False
     # Perform Drush site-install to get a base settings.php file
     siCmds = ['si', 'minimal', '-y']
-    install = self.dr.call(siCmds, self.siteName)
-    dd = self.dr.call(['dd', '@drupdates.' + self.siteName])
+    install = self.dr.call(siCmds, self._siteName)
+    dd = self.dr.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
     siFiles = self.settings.get('drushSiFiles')
     for f in siFiles:
@@ -110,5 +102,5 @@ class sitebuild():
     return True
 
   def importBackup(self):
-    importDB = self.dr.dbImport(self.siteName)
+    importDB = self.dr.dbImport(self._siteName)
     return importDB

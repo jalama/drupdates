@@ -24,10 +24,10 @@ class attask(pmTool):
     self.__pmLabel = value
 
   @property
-  def _sessionID(self):
-    return self.__sessionID
-  @_sessionID.setter
-  def _sessionID(self, value):
+  def sessionID(self):
+    return self._sessionID
+  @sessionID.setter
+  def sessionID(self, value):
     # Get a session ID from AtTask
     API = self.settings.get('attaskAPIVersion')
     self._attaskAPIURL = API
@@ -38,9 +38,9 @@ class attask(pmTool):
     loginURL = self._attaskAPIURL + self.settings.get('attaskLoginUrl')
     response = utils.apiCall(loginURL, self._pmLabel, 'post', params = atParams)
     if response == False:
-      self.__sessionID = False
+      self._sessionID = False
     else:
-      self.__sessionID = response['data']['sessionID']
+      self._sessionID = response['data']['sessionID']
 
   def submitDeployTicket(self, site, environments, description, targetDate):
     """ Submit a Deployment request to AtTask
@@ -52,10 +52,10 @@ class attask(pmTool):
 
     """
     sessparam = {}
-    self._sessionID = ""
+    self.sessionID = ""
     # Make sure you can get a Session ID
-    if self._sessionID:
-      sessparam['SessionID'] = self._sessionID
+    if self.sessionID:
+      sessparam['SessionID'] = self.sessionID
     else:
       return False
     # Set-up AtTask request

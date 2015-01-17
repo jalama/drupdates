@@ -155,23 +155,23 @@ class Plugin(Settings):
   """
 
   def __init__(self):
-    self.PluginFolder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
-    self.MainModule = "__init__"
+    self._pluginFolder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
+    self._mainModule = "__init__"
     self._plugins = ""
 
   @property
-  def PluginFolder(self):
-      return self._PluginFolder
-  @PluginFolder.setter
-  def PluginFolder(self, value):
-      self._PluginFolder = value
+  def _pluginFolder(self):
+      return self.__pluginFolder
+  @_pluginFolder.setter
+  def _pluginFolder(self, value):
+      self.__pluginFolder = value
 
   @property
-  def MainModule(self):
-      return self._MainModule
-  @MainModule.setter
-  def MainModule(self, value):
-      self._MainModule = value
+  def _mainModule(self):
+      return self.__mainModule
+  @_mainModule.setter
+  def _mainModule(self, value):
+      self.__mainModule = value
 
   @property
   def _plugins(self):
@@ -182,14 +182,14 @@ class Plugin(Settings):
 
   def getPlugins(self):
     plugins = {}
-    possibleplugins = os.listdir(self.PluginFolder)
+    possibleplugins = os.listdir(self._pluginFolder)
     for i in possibleplugins:
-      location = os.path.join(self.PluginFolder, i)
-      if not os.path.isdir(location) or not self.MainModule + ".py" in os.listdir(location):
+      location = os.path.join(self._pluginFolder, i)
+      if not os.path.isdir(location) or not self._mainModule + ".py" in os.listdir(location):
         continue
-      info = imp.find_module(self.MainModule, [location])
+      info = imp.find_module(self._mainModule, [location])
       plugins[i] = ({"name": i, "info": info})
     return plugins
 
   def loadPlugin(self, plugin):
-    return imp.load_module(self.MainModule, *plugin["info"])
+    return imp.load_module(self._mainModule, *plugin["info"])

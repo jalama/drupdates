@@ -8,27 +8,19 @@ class siteupdate():
   def __init__(self, siteName, ssh):
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
     self.settings = Settings(self.currentDir)
-    self.workingDir = self.settings.get('workingDir')
     self.workingBranch = self.settings.get('workingBranch')
-    self.siteName = siteName
-    self.siteDir = self.workingDir + siteName
+    self._siteName = siteName
+    self.siteDir = self.settings.get('workingDir') + self._siteName
     self.upCmds = self.settings.get('upCmds')
     self.ssh = ssh
     self.utilities = utils()
 
   @property
-  def workingDir(self):
-      return self._workingDir
-  @workingDir.setter
-  def workingDir(self, value):
-      self._workingDir = value
-
-  @property
-  def siteName(self):
-      return self._siteName
-  @siteName.setter
-  def siteName(self, value):
-      self._siteName = value
+  def _siteName(self):
+      return self.__siteName
+  @_siteName.setter
+  def _siteName(self, value):
+      self.__siteName = value
 
   @property
   def siteDir(self):
@@ -78,18 +70,18 @@ class siteupdate():
     self.utilities.sysCommands(self, 'preUpdateCmds')
     dr = drush()
     # Make sure update module is enabled
-    dr.call(['en', 'update', '-y'], self.siteName)
+    dr.call(['en', 'update', '-y'], self._siteName)
     # upCmdsCopy = copy.copy(upCmds)
-    updatesRet = dr.call(self.upCmds, self.siteName)
+    updatesRet = dr.call(self.upCmds, self._siteName)
     updates = dr.readUpdateReport(updatesRet)
     # If there are no updates move to the next repo
     if len(updates) <= 1:
       self.commitHash = ""
       report['status'] = "Did not have any updates to apply"
       return report
-    dd = dr.call(['dd', '@drupdates.' + self.siteName])
+    dd = dr.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
-    tempDir = tempfile.mkdtemp(self.siteName)
+    tempDir = tempfile.mkdtemp(self._siteName)
     shutil.move(self.siteWebroot, tempDir)
     # Commit and push updates to remote repo
     # FIXME: Need to rebuild any make file to reflect the new module versions
@@ -97,10 +89,10 @@ class siteupdate():
     msg = '\n'.join(updates)
     repository = Repo.init(self.siteDir)
     try:
-      remote = git.Remote.create(repository, self.siteName, self.ssh)
+      remote = git.Remote.create(repository, self._siteName, self.ssh)
     except git.exc.GitCommandError as e:
       if not e.status == 128:
-        print "Could not establish a remote for the {0} repo".format(self.siteName)
+        print "Could not establish a remote for the {0} repo".format(self._siteName)
     remote.fetch(self.workingBranch)
     gitRepo = repository.git
     try:
@@ -108,7 +100,7 @@ class siteupdate():
     except git.exc.GitCommandError as e:
       gitRepo.checkout(self.workingBranch)
     try:
-      distutils.dir_util.copy_tree(tempDir + '/' + self.siteName, self.siteWebroot)
+      distutils.dir_util.copy_tree(tempDir + '/' + self._siteName, self.siteWebroot)
     except IOError as e:
       print "Could not copy updates Drupal directory from temp to {0} \n Error: {1}".format(self.siteWebroot, e.strerror)
       return False
@@ -121,7 +113,7 @@ class siteupdate():
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
     self.commitHash = gitRepo.rev_parse('head')
-    push = gitRepo.push(self.siteName, self.workingBranch)
+    push = gitRepo.push(self._siteName, self.workingBranch)
     g.config("core.fileMode", fileMode)
     report['status'] = "The following updates were applied \n {0}".format(msg)
     report['commit'] = "The commit hash is {0}".format(self.commitHash)
