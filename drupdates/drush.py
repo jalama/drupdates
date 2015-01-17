@@ -7,7 +7,7 @@ from drupdates.utils import *
 class drush(Settings):
 
   def __init__(self):
-    self.localsettings = Settings()
+    self.settings = Settings()
 
   def readUpdateReport(self, lst, updates = []):
     updates = []
@@ -59,8 +59,8 @@ class drush(Settings):
     alias -- A Drush alias
 
     """
-    workingDir = self.localsettings.get('workingDir')
-    backportDir = self.localsettings.get('backupDir')
+    workingDir = self.settings.get('workingDir')
+    backportDir = self.settings.get('backupDir')
     commands = ['drush', '@drupdates.' + alias, 'sqlc']
     popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     out, stderr = popen.communicate(file(backportDir + alias + '.sql').read())

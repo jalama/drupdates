@@ -5,8 +5,8 @@ class pmtools(Plugin):
 
   def __init__(self):
     Plugin.__init__(self)
-    self.localsettings = Settings()
-    self._tool = self.localsettings.get('pmName').lower()
+    self.settings = Settings()
+    self._tool = self.settings.get('pmName').lower()
     self._plugin = self._tool
     self._instance = ""
 
@@ -58,10 +58,16 @@ class pmtools(Plugin):
     return '\n'.join(descriptionList)
 
   def deployTicket(self, site, commitHash):
+<<<<<<< HEAD
     description = self.description(site, commitHash)
     print description
     environments = self.localsettings.get('deploymentTickets')
     self._targetDate = self.localsettings.get('targetDate')
+=======
+    description = self._description(site, commitHash)
+    environments = self.settings.get('deploymentTickets')
+    self._targetDate = self.settings.get('targetDate')
+>>>>>>> cleanup - consistantly use settings in lieu of localsettings for attribute name
     return self._instance.submitDeployTicket(site, environments, description, self._targetDate)
 
 class pmTool(object):

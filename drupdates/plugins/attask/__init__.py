@@ -6,14 +6,14 @@ class attask(pmTool):
 
   def __init__(self):
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
-    self.localsettings = Settings(self.currentDir)
+    self.settings = Settings(self.currentDir)
 
   @property
   def _attaskAPIURL(self):
     return self.__attaskAPIURL
   @_attaskAPIURL.setter
   def _attaskAPIURL(self, value):
-    base = self.localsettings.get('attaskBaseURL')
+    base = self.settings.get('attaskBaseURL')
     self.__attaskAPIURL = base + 'attask/api/' + value + '/'
 
   @property
@@ -29,13 +29,13 @@ class attask(pmTool):
   @_sessionID.setter
   def _sessionID(self, value):
     # Get a session ID from AtTask
-    API = self.localsettings.get('attaskAPIVersion')
+    API = self.settings.get('attaskAPIVersion')
     self._attaskAPIURL = API
-    self._pmLabel = self.localsettings.get('pmName')
-    attaskPword = self.localsettings.get('attaskPword')
-    attaskUser = self.localsettings.get('attaskUser')
+    self._pmLabel = self.settings.get('pmName')
+    attaskPword = self.settings.get('attaskPword')
+    attaskUser = self.settings.get('attaskUser')
     atParams = {'username': attaskUser, 'password': attaskPword}
-    loginURL = self._attaskAPIURL + self.localsettings.get('attaskLoginUrl')
+    loginURL = self._attaskAPIURL + self.settings.get('attaskLoginUrl')
     response = utils.apiCall(loginURL, self._pmLabel, 'post', params = atParams)
     if response == False:
       self.__sessionID = False
@@ -59,11 +59,11 @@ class attask(pmTool):
     else:
       return False
     # Set-up AtTask request
-    attaskProjectID = self.localsettings.get('attaskProjectID')
-    devOpsTeamID = self.localsettings.get('devOpsTeamID')
-    attaskBaseURL = self.localsettings.get('attaskBaseURL')
-    attaskAssigneeType = self.localsettings.get('attaskAssigneeType')
-    taskURL = self._attaskAPIURL + self.localsettings.get('attaskTaskURL')
+    attaskProjectID = self.settings.get('attaskProjectID')
+    devOpsTeamID = self.settings.get('devOpsTeamID')
+    attaskBaseURL = self.settings.get('attaskBaseURL')
+    attaskAssigneeType = self.settings.get('attaskAssigneeType')
+    taskURL = self._attaskAPIURL + self.settings.get('attaskTaskURL')
     message = {}
     for environment in environments:
       title = environment + ' Deployment for ' + site +' w.e. ' + targetDate

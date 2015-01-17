@@ -9,13 +9,13 @@ class mysql(datastore):
   def __init__(self):
     # FIXME: class get re-instantiated each time db is called
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
-    self.localsettings = Settings(self.currentDir)
+    self.settings = Settings(self.currentDir)
 
   def writeMyCnf (self):
     # We have to create this file to get drush to run sql-create correctly
     # without ~/.my.cnf file drush sql-create won't pass the --db-su option
     # Sucks because it means we have to have sql driver specific plugins :(
-    myFile = self.localsettings.get('mysqlSettingsFile')
+    myFile = self.settings.get('mysqlSettingsFile')
     localFile = expanduser('~') + '/' + myFile
     ret = False
     if os.path.isfile(localFile):
@@ -26,9 +26,9 @@ class mysql(datastore):
       except IOError as e:
         print "Could not wrtie the {0} file \n Error: {1}".format(localFile, e.strerror)
         return ret
-      userline = "user = {0} \n".format(self.localsettings.get('datastoreSuperUser'))
-      password = self.localsettings.get('datastoreSuperPword')
-      settings = self.localsettings.get('mysqlSettings')
+      userline = "user = {0} \n".format(self.settings.get('datastoreSuperUser'))
+      password = self.settings.get('datastoreSuperPword')
+      settings = self.settings.get('mysqlSettings')
       f.write("This file was written by the Drupdates script\n")
       for setting in settings:
         settingline = "[{0}]\n".format(setting)
@@ -43,7 +43,7 @@ class mysql(datastore):
     return ret
 
   def deleteFiles (self):
-    myFile = self.localsettings.get('mysqlSettingsFile')
+    myFile = self.settings.get('mysqlSettingsFile')
     localFile = expanduser('~') + '/' + myFile
     if os.path.isfile(localFile):
       os.remove(localFile)
@@ -54,13 +54,13 @@ class mysql(datastore):
   def create(self, site):
     if self.writeMyCnf():
       dr = drush()
-      createCmds = ['sql-create', '-y', '--db-su=' + self.localsettings.get('datastoreSuperUser') ]
+      createCmds = ['sql-create', '-y', '--db-su=' + self.settings.get('datastoreSuperUser') ]
       dr.call(createCmds, site)
       self.deleteFiles()
     return True
 
   def driverSettings(self):
-    return self.localsettings
+    return self.settings
 
 
 

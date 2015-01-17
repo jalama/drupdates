@@ -9,11 +9,11 @@ class repolist(repoTool):
 
   def __init__(self):
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
-    self.localsettings = Settings(self.currentDir)
+    self.settings = Settings(self.currentDir)
 
   def gitRepos(self):
     #Get list of Stash repos in the Rain Project.
-    repoDict = self.localsettings.get('repoDict')
+    repoDict = self.settings.get('repoDict')
     if (not repoDict) or (type(repoDict) is not dict):
       return {}
     else:

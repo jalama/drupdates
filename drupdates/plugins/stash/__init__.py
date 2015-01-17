@@ -9,14 +9,14 @@ class stash(repoTool):
 
   def __init__(self):
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
-    self.localsettings = Settings(self.currentDir)
+    self.settings = Settings(self.currentDir)
 
   def gitRepos(self):
     #Get list of Stash repos in the Rain Project.
-    stashURL = self.localsettings.get('stashURL')
-    gitRepoName = self.localsettings.get('gitRepoName')
-    stashUser = self.localsettings.get('stashUser')
-    stashPword = self.localsettings.get('stashPword')
+    stashURL = self.settings.get('stashURL')
+    gitRepoName = self.settings.get('gitRepoName')
+    stashUser = self.settings.get('stashUser')
+    stashPword = self.settings.get('stashPword')
     utils = drupdates.utils()
     r = utils.apiCall(stashURL, gitRepoName, 'get', auth=(stashUser, stashPword))
     if not r == False:

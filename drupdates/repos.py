@@ -6,8 +6,8 @@ class repos(Plugin):
   def __init__(self):
     # load the Plugin _plugins property
     Plugin.__init__(self)
-    self.localsettings = Settings()
-    self._tool = self.localsettings.get('gitRepoName').lower()
+    self.settings = Settings()
+    self._tool = self.settings.get('gitRepoName').lower()
     self._plugin = self._tool
     self._instance = ""
 
