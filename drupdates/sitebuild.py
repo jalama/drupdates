@@ -52,8 +52,7 @@ class sitebuild():
       self._siteWebRoot = value
 
   def build(self):
-    # Build Git repository
-    # http://nullege.com/codes/search/git.add
+    """ Build site folder form Git repository."""
     if os.path.isdir(self.siteDir):
       try:
         shutil.rmtree(self.siteDir)
@@ -88,6 +87,7 @@ class sitebuild():
     return ret
 
   def constructSite(self):
+    """ Rebulid the Drupal site: build DB, settings.php, etc..."""
     buildDB = datastores().build(self._siteName)
     if not buildDB:
       return False
@@ -102,5 +102,10 @@ class sitebuild():
     return True
 
   def importBackup(self):
+    """ Imprt a site back-up
+
+    Note: the back-up sife most follow the <siteName>.sql" naming convention"
+
+    """
     importDB = self.dr.dbImport(self._siteName)
     return importDB

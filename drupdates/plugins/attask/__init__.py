@@ -28,7 +28,7 @@ class attask(pmTool):
     return self._sessionID
   @sessionID.setter
   def sessionID(self, value):
-    # Get a session ID from AtTask
+    """ Get a session ID from AtTask. """
     API = self.settings.get('attaskAPIVersion')
     self._attaskAPIURL = API
     self._pmLabel = self.settings.get('pmName')
@@ -43,7 +43,7 @@ class attask(pmTool):
       self._sessionID = response['data']['sessionID']
 
   def submitDeployTicket(self, site, environments, description, targetDate):
-    """ Submit a Deployment request to AtTask
+    """ Submit a Deployment request to AtTask.
 
     site -- The site the ticket is for
     environments -- The name(s) of the environments to deploy to

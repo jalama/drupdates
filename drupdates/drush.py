@@ -10,6 +10,7 @@ class drush(Settings):
     self.settings = Settings()
 
   def readUpdateReport(self, lst, updates = []):
+    """ Read the report produced the the Drush pm-update command."""
     updates = []
     for x in lst:
       # build list of updates, when you hit a blank line you are done
@@ -21,9 +22,7 @@ class drush(Settings):
     return updates
 
   def call(self, commands, alias = '', jsonRet = False):
-    # FIXME: Allow commands ro be run on all drupdates sites at one time
-    # ie drush @drupdates <some command>
-    """ Run a drush comand and return a list/dictionary of the results
+    """ Run a drush comand and return a list/dictionary of the results.
 
     Keyword arguments:
     commands -- list containing command, arguments and options
@@ -31,8 +30,9 @@ class drush(Settings):
     json -- binary deermining if the given command can/should return json
 
     """
+    # FIXME: Allow commands ro be run on all drupdates sites at one time
+    # ie drush @drupdates <some command>
     # https://github.com/dsnopek/python-drush/, threw errors calling Drush()
-    # consider --strict=no
     if alias:
       commands.insert(0, '@drupdates.' + alias)
     if jsonRet:
@@ -54,7 +54,7 @@ class drush(Settings):
     return ret
 
   def dbImport(self, alias):
-    """ Import a SQL dump using drush sqlc
+    """ Import a SQL dump using drush sqlc.
 
     alias -- A Drush alias
 

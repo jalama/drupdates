@@ -8,6 +8,7 @@ class slack():
     self.settings = Settings(self.currentDir)
 
   def sendMessage(self, reportText):
+    """ Post the report to a Slack channel or DM a specific user."""
     url = self.settings.get('slackURL')
     user = self.settings.get('slackUser')
     payload = {}

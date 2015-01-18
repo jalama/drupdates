@@ -12,7 +12,7 @@ class stash(repoTool):
     self.settings = Settings(self.currentDir)
 
   def gitRepos(self):
-    #Get list of Stash repos in the Rain Project.
+    """Get list of Stash repos from a specific Project."""
     stashURL = self.settings.get('stashURL')
     gitRepoName = self.settings.get('gitRepoName')
     stashUser = self.settings.get('stashUser')

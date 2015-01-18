@@ -11,8 +11,9 @@ class utils(object):
 
   @staticmethod
   def apiCall (uri, name, method = 'get', **kwargs):
-    """ Perform and API call, expecting a JSON response.  Largely a wrapper
-    around the request module
+    """ Perform and API call, expecting a JSON response.
+
+    Largely a wrapper around the request module
 
     Keyword arguments:
     uri -- the uri of the Restful Web Service (required)
@@ -51,7 +52,8 @@ class utils(object):
 
   def sysCommands(self, object, phase = ''):
     """ Run a system command based on the subprocess.popen method.
-    For example maybe you want a symbolic link, on a unix box,
+
+    For example: maybe you want a symbolic link, on a unix box,
     from /opt/drupal to /var/www/drupal you would add the command(s)
     to the appropriate phase setting in you yaml settings files.
 
@@ -148,9 +150,9 @@ class utils(object):
       return False
 
 class Plugin(Settings):
+  """ Simple Plugin system
 
-  """
-  Simple Plugin system shamelessly based on:
+  This is shamelessly based on:
   http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
   """
 

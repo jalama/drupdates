@@ -9,6 +9,7 @@ class sendmail():
     self.settings = Settings(self.currentDir)
 
   def sendMessage(self, reportText):
+    """ Send the report via email using sendmail."""
     today = str(datetime.date.today())
 
     msg = MIMEText(reportText)

@@ -12,9 +12,13 @@ class mysql(datastore):
     self.settings = Settings(self.currentDir)
 
   def writeMyCnf (self):
-    # We have to create this file to get drush to run sql-create correctly
-    # without ~/.my.cnf file drush sql-create won't pass the --db-su option
-    # Sucks because it means we have to have sql driver specific plugins :(
+    """ Create a my.cnf file.
+
+    We have to create this file to get drush to run sql-create correctly
+    without ~/.my.cnf file drush sql-create won't pass the --db-su option
+    Sucks because it means we have to have sql driver specific plugins :(
+
+    """
     myFile = self.settings.get('mysqlSettingsFile')
     localFile = expanduser('~') + '/' + myFile
     ret = False
@@ -43,6 +47,7 @@ class mysql(datastore):
     return ret
 
   def deleteFiles (self):
+    """ Clean-up my.cnf file."""
     myFile = self.settings.get('mysqlSettingsFile')
     localFile = expanduser('~') + '/' + myFile
     if os.path.isfile(localFile):
@@ -52,6 +57,7 @@ class mysql(datastore):
       return False
 
   def create(self, site):
+    """ Create a MYSQL Database."""
     if self.writeMyCnf():
       dr = drush()
       createCmds = ['sql-create', '-y', '--db-su=' + self.settings.get('datastoreSuperUser') ]
@@ -60,6 +66,11 @@ class mysql(datastore):
     return True
 
   def driverSettings(self):
+    """ Return the MYSQL Driver settings.
+
+    Note: this is used to pass settings to the Drush Alias file.
+
+    """
     return self.settings
 
 

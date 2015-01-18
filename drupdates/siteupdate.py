@@ -65,7 +65,7 @@ class siteupdate():
       self._commitHash = value
 
   def update(self):
-    # Run Drush up to update the site
+    """ Set-up to and run Drush pm-update (i.e. up) to update the site."""
     report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
     dr = drush()

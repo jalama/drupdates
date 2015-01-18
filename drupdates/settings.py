@@ -22,6 +22,21 @@ class Settings(object):
       return self.__settings
   @_settings.setter
   def _settings(self, currentDir):
+    """ Build the settings used through the drupdates project.
+
+    Settings are built from either YAML files or options passed when run on CLI.
+    Settings are loaded in this order:
+    - Core settings file, ie drupdates/settings/default.yaml
+    - Plugin settings files, ie <plugin dir>/settings/default.yaml
+    - Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
+    - Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
+    - Prompts to end user, only if required and not value found above
+
+    The later the setting is loaded the higher it's weight, ie if it's set at
+    at runtime it will overwrite anything set in the Core settings or local
+    settings file.
+
+    """
     self.__settings = {}
     packageDefaultYaml = os.path.dirname(os.path.realpath(__file__))
     packageDefault = open(packageDefaultYaml + '/settings/default.yaml', 'r')
@@ -43,6 +58,7 @@ class Settings(object):
       self.__settings = self.merge(self.__settings, self.__local)
 
   def options(self):
+    """ Read the options set at runtime. """
     # FIXME: add support for type validation
     # @see https://docs.python.org/2/library/optparse.html#optparse.Option.type
     if arg_loaded:
@@ -96,7 +112,7 @@ class Settings(object):
     self.__settings[setting]['value'] = value
 
   def merge(self, a, b, path=None):
-    "merges b into a"
+    """Utiliity used to merge two dictionaries, merges b into a. """
     if path is None: path = []
     for key in b:
       if key in a:

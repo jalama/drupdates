@@ -1,4 +1,16 @@
 <?php
+
+/*
+Build a list of Drsh Aliases based on folders in the drupdate Working Directory.
+
+This script will:
+- Recurse through the directories
+- test if it's a Drupal repo
+- set-up the database credentials, assuming the sitebuild class has successfully
+built the site.
+
+*/
+
 // Grab the datastore settings from drupdates
 $result = json_decode(exec('python ~/.drush/settings.py'), true);
 $path = $result['workingDir']['value'];

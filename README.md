@@ -1,7 +1,13 @@
 Drupdates
 ===========
-Scripts use to maintain various web sites, specifically Drupal sites using Drush
+Scripts to maintain web sites code bases, specifically Drupal sites using Drush
 
+This script performs 4 major functions (ie phases):
+
+1.) Builds a site's directory form a Git repository.
+2.) Updates the site using drush pm-update, default to security update only.
+3.) Will Submit a deployment ticket for the updated codebase.
+4.) Report on the site(s) it attempted to update.
 
 Installation
 ============

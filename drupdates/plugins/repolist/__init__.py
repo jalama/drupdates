@@ -1,10 +1,6 @@
 from drupdates.utils import *
 from drupdates.repos import *
 
-'''
-Note: you need an ssh key set up with Stash to make this script work
-'''
-
 class repolist(repoTool):
 
   def __init__(self):
@@ -12,7 +8,17 @@ class repolist(repoTool):
     self.settings = Settings(self.currentDir)
 
   def gitRepos(self):
-    #Get list of Stash repos in the Rain Project.
+    """Return a  list of repos from the Settings.
+
+    The expected format is a dictionary whose keys are the folder names and
+    values are the ssh connection strings to the repo.
+
+    Example:
+    {
+    'drupal': 'http://git.drupal.org/project/drupal.git'
+    }
+
+    """
     repoDict = self.settings.get('repoDict')
     if (not repoDict) or (type(repoDict) is not dict):
       return {}
