@@ -41,7 +41,7 @@ password in file locally
 - The entire script depends on the use of Drush site aliases names after the
 folders the siters are written to.  The sites assumes any back files follow the
 pattern of being named after that same folder/site alias.
--- example: site folder is drupal the back-up file is drupal.sql
+  - example: site folder is drupal the back-up file is drupal.sql
 
 - by default the script tries to build the sites in /var/www
 
