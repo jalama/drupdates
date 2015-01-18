@@ -50,15 +50,16 @@ class pmtools(Plugin):
     else:
         self.__targetDate = value
 
-  def _description(self, site, gitHash):
+  def description(self, site, gitHash):
     descriptionList = []
     descriptionList.append("Git Hash = <" + gitHash + ">")
     descriptionList.append("Post deployment steps:")
     descriptionList.append("drush @" + site +" updb -y")
-    self.__description = '\n'.join(descriptionList)
+    return '\n'.join(descriptionList)
 
   def deployTicket(self, site, commitHash):
-    description = self._description(site, commitHash)
+    description = self.description(site, commitHash)
+    print description
     environments = self.localsettings.get('deploymentTickets')
     self._targetDate = self.localsettings.get('targetDate')
     return self._instance.submitDeployTicket(site, environments, description, self._targetDate)
