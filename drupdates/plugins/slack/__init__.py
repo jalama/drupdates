@@ -1,7 +1,8 @@
 from drupdates.utils import *
+from drupdates.constructors.reports import *
 import json
 
-class slack():
+class slack(Reports):
 
   def __init__(self):
     self.currentDir = os.path.dirname(os.path.realpath(__file__))

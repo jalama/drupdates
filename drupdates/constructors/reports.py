@@ -47,7 +47,7 @@ class reports(Plugin):
     reportText = self.formatReport(report)
     return self._instance.sendMessage(reportText)
 
-class datastore(object):
+class Reports(object):
   __metaclass__ = abc.ABCMeta
 
   @abc.abstractmethod

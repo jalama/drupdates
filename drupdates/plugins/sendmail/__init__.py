@@ -1,8 +1,9 @@
 from drupdates.utils import *
+from drupdates.constructors.reports import *
 from email.mime.text import MIMEText
 from subprocess import Popen, PIPE
 
-class sendmail():
+class sendmail(Reports):
 
   def __init__(self):
     self.currentDir = os.path.dirname(os.path.realpath(__file__))

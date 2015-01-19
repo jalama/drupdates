@@ -1,6 +1,6 @@
 from drupdates.utils import *
 from drupdates.drush import *
-from drupdates.datastores import *
+from drupdates.constructors.datastores import *
 import os
 from os.path import expanduser
 

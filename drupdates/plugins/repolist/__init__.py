@@ -1,5 +1,5 @@
 from drupdates.utils import *
-from drupdates.repos import *
+from drupdates.constructors.repos import *
 
 class repolist(repoTool):
 

@@ -1,5 +1,5 @@
 from drupdates.utils import *
-from drupdates.repos import *
+from drupdates.constructors.repos import *
 
 '''
 Note: you need an ssh key set up with Stash to make this script work
