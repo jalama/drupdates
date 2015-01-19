@@ -5,7 +5,7 @@ from drupdates.constructors.reports import *
 from drupdates.sitebuild import *
 from drupdates.siteupdate import *
 
-def main(self):
+def main():
   self.settings = Settings()
   report = {}
   sites = repos().get()
