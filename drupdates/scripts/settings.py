@@ -3,7 +3,7 @@
 """ Publish the Datastore settings to the Drush alias file can read them."""
 import json
 from drupdates.utils import *
-from drupdates.datastores import *
+from drupdates.constructors.datastores import *
 
 data = datastores()
 settings = data.dbSettings()
