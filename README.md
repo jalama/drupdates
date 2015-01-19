@@ -11,21 +11,19 @@ This script performs 4 major functions (ie phases):
 
 Installation
 ============
-pip install git+git://github.com/jalama/drupdates.git
+easy_install https://github.com/jalama/drupdates/tarball/master
 
-or
-
-pip install git+https://github.com/jalama/drupdates.git
+note: you may need sudo to run easy_install
 
 Execution
 ============
 
-$ python -m drupdates
+$ drupdates
 
 note: Any setting can be passed as an option from the CLI, so if you want
 Drupdates to use /opt/ as the working directory in lieu of /var/www/
 
-$ python -m drupdates --workingDir=/opt/
+$ drupdates --workingDir=/opt/
 
 Requirements
 ============
