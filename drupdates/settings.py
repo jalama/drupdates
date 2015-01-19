@@ -32,8 +32,8 @@ class Settings(object):
     - Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
     - Prompts to end user, only if required and not value found above
 
-    The later the setting is loaded the higher it's weight, ie if it's set at
-    at runtime it will overwrite anything set in the Core settings or local
+    The later the setting is loaded the higher its weight, ie if it's set at
+    runtime it will overwrite anything set in the Core settings or local
     settings file.
 
     """
@@ -84,7 +84,6 @@ class Settings(object):
       return self.__model
   @_model.setter
   def _model(self, value = {}):
-    value['default'] = ''
     value['value'] = ''
     value['prompt'] = ''
     value['format'] = ''

@@ -4,10 +4,10 @@ Scripts to maintain web sites code bases, specifically Drupal sites using Drush
 
 This script performs 4 major functions (ie phases):
 
-1.) Builds a site's directory form a Git repository.
-2.) Updates the site using drush pm-update, default to security update only.
-3.) Will Submit a deployment ticket for the updated codebase.
-4.) Report on the site(s) it attempted to update.
+1.) Builds a site's directory from a Git repository.
+2.) Updates the site using drush pm-update, default to security update(s) only.
+3.) Submit a deployment ticket for the updated codebase.
+4.) Report on the site(s) Drupdates attempted to update.
 
 Installation
 ============
@@ -22,8 +22,8 @@ Execution
 
 $ python -m drupdates
 
-note: Any setting can be passed as an option form the CLI, so if you want drupdates
-to use /opt/ as the working directory in lieu of /var/www/
+note: Any setting can be passed as an option from the CLI, so if you want
+Drupdates to use /opt/ as the working directory in lieu of /var/www/
 
 $ python -m drupdates --workingDir=/opt/
 
@@ -36,19 +36,87 @@ sendmail (there is an issue filed for SMTP support)
 Assumptions
 ===========
 
-- Only tested on Nix boxes using Python 2.6 and 2.7, sorry haven't testing on Windows
+- Only tested on POSIX boxes with Python 2.6 and 2.7, sorry Windows testing yet.
 
-- Python 3+ support is forthcoming
+- Python 3+ support is forthcoming.
 
-- This is not a production ready system, it is inherently built assuming it
-will only be run on local development machines, it will need to store system
-password in file locally
+- Drupdates is not intened for production systems, it is built assuming it
+will only be run on local development machines.  Drupdates will need to store
+system user names and passwords in the $HOME/.drupdates directory.
 
-- The entire script depends on the use of Drush site aliases names after the
-folders the siters are written to.  The sites assumes any back files follow the
-pattern of being named after that same folder/site alias.
-  - example: site folder is drupal the back-up file is drupal.sql
+- The entire script depends on the use of Drush site aliases named after the
+folders the sites are written to (prefixed with "drupdates".  Drupdates assumes
+any back-up files follow the pattern of being named after that same
+folder/<site alias>.
+  - example: site folder is /var/www/drupal the back-up file is drupal.sql and
+  the Drush alias will be drupdates.drupal
 
-- by default the script tries to build the sites in /var/www
+- By default the script tries to build the sites in /var/www/
 
+Settings
+===========
+
+To make this script meet your needs you will need to customize the settings,
+loaded from YAML files.  As of version 1.0 there is no installer so the settings
+are changed and updated by either using a YAML file or passing options at
+runtime.
+
+At see http://pyyaml.org/wiki/PyYAMLDocumentation for YAML basics.
+
+Here's how it works:
+
+Settings are built from either YAML files or options passed when run on CLI.
+- Settings are loaded in this order:
+  - Core settings file, ie drupdates/settings/default.yaml
+  - Plugin settings files, ie <plugin dir>/settings/default.yaml
+  - Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
+  - Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
+  - Prompts to end user, only if required and not value found above
+
+Settings loaded later take precident over the same setting loaded earlier,
+ie if it's set at runtime it will overwrite anything set in the Core settings
+or local settings files.
+
+The Core settings file is <module dir>/drupdates/settings/default.yaml or
+https://github.com/jalama/drupdates/blob/master/drupdates/settings/default.yaml.
+Additionally, each plugin ships with it's own default.yaml file in its
+respective settings directory.
+
+Settings Format:
+
+Each setting in the YAML file needs to look like this or it will be assumed
+to be blank (ie "").  <notes on what each line means for clarities sake>
+
+setting:  <the name of the setting>
+  value: <required, value of the setting*>
+
+Optionally each setting can have other attributes (@see Settings.model()):
+
+setting:
+  value:
+  prompt: <optionsl, Prompt presented at runtime if setting is null and required>
+  format: <optionsl, What is the format, supported values: string (default), list, dict>
+  required: <optionsl, Is the setting required**>
+
+* Surround with '' if value contains special cahracters.  For list of YAML
+special characters @see http://www.yaml.org/refcard.html.
+** If setting is required and is empty, the end user will be asked for a value.
+
+Plugins
+===========
+
+There is a realtively primitive Plugin system based om a set of "constructor"
+classes that load the appropriate child class(s).
+
+In version 1.0 there are 4 sets of plugin types:
+
+- Git Repo lists (think Stash)
+- Project management tools (think AtTask, JIRA, etc...)
+- Datastores (currently on MYSQL)
+- Report delivery methods (ie e-mail, IM, etc...)
+
+The plugins can be found in the <module dir>/drupdates/plugins folder with their
+respective consturctors in <module dir>/drupdates/constructors.  With version
+1.0 all of the constructors define abstract classes used by the individual
+plugins.
 
