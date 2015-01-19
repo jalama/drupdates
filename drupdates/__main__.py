@@ -1,2 +1,4 @@
-from drupdates import main
-main()
+from drupdates.updates import *
+
+drupdates = Drupdates()
+drupdates.main()
