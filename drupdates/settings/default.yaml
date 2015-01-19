@@ -17,7 +17,7 @@ webrootDir:
 blacklist:
   value: ""
   format: list
-  prompt: name of site alias(es) you want ignored (seperate with spaces)
+  prompt: Name of site alias(es) you want ignored (seperate with spaces)
 drushSiFiles:
   value:
     - sites/default/settings.php
@@ -38,7 +38,7 @@ upCmds:
     - --security-only
     - --no-backup
   format: list
-  prompt: Arguments and options for the drush pm-update command
+  prompt: Arguments and options for drush pm-update cmd (separate with spaces)
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
 datastoreDriver:
@@ -61,5 +61,8 @@ importBackup:
   prompt: Do you want to import a backup
 postBuildCmds:
   value: ""
+  prompt: OS command/options to run after a site built (separate with spaces)
+  format: list
 reportingTool:
   value: "sendmail"
+  prompt: Tool to used to send the final report

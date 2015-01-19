@@ -1,8 +1,7 @@
 #YAML
-Name:
-  value: MySQL
 mysqlSettingsFile:
   value: .my.cnf
+  prompt: The name of the MYSQL settings file (change with care)
 mysqlSettings:
   value:
     - mysql

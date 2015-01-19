@@ -1,5 +1,9 @@
 #YAML
 reportSender:
   value: ""
+  prompt: Email of the sendmail report sender (ie reply to emaiol address)
+  required: True
 resportRecipient:
   value: ""
+  prompt: Email of the sendmail report recipient
+  required: True

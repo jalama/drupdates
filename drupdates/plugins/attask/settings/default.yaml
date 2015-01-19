@@ -1,12 +1,13 @@
 # YAML
-Name:
-  value: AtTask
 attaskLoginUrl:
   value: login
+  prompt: Url suffix for logging into AtTask (change with care)
 attaskTaskURL:
   value: task
+  prompt: Url suffix for AtTask tasks (change with care)
 attaskAPIVersion:
   value: v4.0
+  prompt: AtTask API version (defaults to 4.0)
 attaskUser:
   value: ""
   prompt: What is your AtTask user name?
