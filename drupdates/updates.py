@@ -1,7 +1,7 @@
 from drupdates.utils import *
-from drupdates.repos import *
-from drupdates.pmtools import *
-from drupdates.reports import *
+from drupdates.constructors.repos import *
+from drupdates.constructors.pmtools import *
+from drupdates.constructors.reports import *
 from drupdates.sitebuild import *
 from drupdates.siteupdate import *
 

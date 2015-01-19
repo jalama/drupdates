@@ -1,6 +1,6 @@
 from drupdates.utils import *
 from drupdates.drush import *
-from drupdates.datastores import *
+from drupdates.constructors.datastores import *
 import git, shutil
 from git import *
 
