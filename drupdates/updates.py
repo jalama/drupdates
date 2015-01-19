@@ -6,13 +6,13 @@ from drupdates.sitebuild import *
 from drupdates.siteupdate import *
 
 def main():
-  self.settings = Settings()
+  settings = Settings()
   report = {}
   sites = repos().get()
   pmTool = pmtools()
   utilities = utils()
-  blacklist = self.settings.get('blacklist')
-  singleSite = self.settings.get('singleSite')
+  blacklist = settings.get('blacklist')
+  singleSite = settings.get('singleSite')
   if singleSite:
     sites = {singleSite : sites[singleSite]}
   for siteName, ssh in sites.iteritems():
@@ -20,17 +20,17 @@ def main():
     if siteName in blacklist:
       continue
 
-    if self.settings.get('buildRepos'):
+    if settings.get('buildRepos'):
       builder = sitebuild(siteName, ssh)
       build = builder.build()
       if not build:
         continue
 
-    if self.settings.get('runUpdates'):
+    if settings.get('runUpdates'):
       updater = siteupdate(siteName, ssh)
       update = updater.update()
       report[siteName] = update
-      if self.settings.get('submitDeployTicket') and updater.commitHash:
+      if settings.get('submitDeployTicket') and updater.commitHash:
         deploys = pmTool.deployTicket(siteName, updater.commitHash)
         report[siteName]['pmtool'] = deploys
 
