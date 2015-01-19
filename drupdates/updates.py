@@ -5,39 +5,35 @@ from drupdates.constructors.reports import *
 from drupdates.sitebuild import *
 from drupdates.siteupdate import *
 
-class Drupdates():
+def main(self):
+  self.settings = Settings()
+  report = {}
+  sites = repos().get()
+  pmTool = pmtools()
+  utilities = utils()
+  blacklist = self.settings.get('blacklist')
+  singleSite = self.settings.get('singleSite')
+  if singleSite:
+    sites = {singleSite : sites[singleSite]}
+  for siteName, ssh in sites.iteritems():
+    report[siteName] = {}
+    if siteName in blacklist:
+      continue
 
-  def __init__(self):
-    self.settings = Settings()
-
-  def main(self):
-    report = {}
-    sites = repos().get()
-    pmTool = pmtools()
-    utilities = utils()
-    blacklist = self.settings.get('blacklist')
-    singleSite = self.settings.get('singleSite')
-    if singleSite:
-      sites = {singleSite : sites[singleSite]}
-    for siteName, ssh in sites.iteritems():
-      report[siteName] = {}
-      if siteName in blacklist:
+    if self.settings.get('buildRepos'):
+      builder = sitebuild(siteName, ssh)
+      build = builder.build()
+      if not build:
         continue
 
-      if self.settings.get('buildRepos'):
-        builder = sitebuild(siteName, ssh)
-        build = builder.build()
-        if not build:
-          continue
+    if self.settings.get('runUpdates'):
+      updater = siteupdate(siteName, ssh)
+      update = updater.update()
+      report[siteName] = update
+      if self.settings.get('submitDeployTicket') and updater.commitHash:
+        deploys = pmTool.deployTicket(siteName, updater.commitHash)
+        report[siteName]['pmtool'] = deploys
 
-      if self.settings.get('runUpdates'):
-        updater = siteupdate(siteName, ssh)
-        update = updater.update()
-        report[siteName] = update
-        if self.settings.get('submitDeployTicket') and updater.commitHash:
-          deploys = pmTool.deployTicket(siteName, updater.commitHash)
-          report[siteName]['pmtool'] = deploys
-
-    utilities.deleteFiles()
-    reporting = reports()
-    reporting.send(report)
+  utilities.deleteFiles()
+  reporting = reports()
+  reporting.send(report)
