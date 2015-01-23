@@ -37,7 +37,7 @@ class utils(object):
     except ValueError:
       return r
     #If API call errors out print the error and quit the script
-    if r.status_code != 200:
+    if r.status_code not in  [200, 201]:
       if 'errors' in responseDictionary:
         errors = responseDictionary.pop('errors')
         firstError = errors.pop()
@@ -100,7 +100,7 @@ class utils(object):
           continue
 
   def aliases(self):
-    """ Build a Drush alias file in $HOME/.drush, with alises to be used later
+    """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
 
     Notes:
     The file name is controlled by the drushAliasFile settings
@@ -150,7 +150,7 @@ class utils(object):
       return False
 
 class Plugin(Settings):
-  """ Simple Plugin system
+  """ Simple Plugin system.
 
   This is shamelessly based on:
   http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/

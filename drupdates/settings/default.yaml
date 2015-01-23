@@ -31,6 +31,9 @@ deploymentTickets:
     - Production
   prompt: What are environments are you deploying to (default Staging Production)
   format: list
+targetDate:
+  value: ""
+  prompt: What date should the deployment ticket(s) target?
 upCmds:
   value:
     - up

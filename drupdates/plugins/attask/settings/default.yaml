@@ -21,9 +21,6 @@ attaskBaseURL:
   prompt: What is the AtTask URL?
   format: url
   required: True
-targetDate:
-  value: ""
-  prompt: What date should the deployment ticket(s) target?
 attaskAssigneeType:
   value: teamID
   prompt: Assignments do to teamID or assigneeID

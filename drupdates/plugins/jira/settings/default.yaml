@@ -1,0 +1,30 @@
+#YAML
+jiraIssueURL:
+  value: issue
+  prompt: Url suffix for jira tasks (change with care)
+jiraAPIVersion:
+  value: '2'
+  prompt: Jira API version (defaults to 4.0)
+jiraUser:
+  value: ""
+  prompt: What is your Jira user name?
+  required: True
+jiraPword:
+  value: ""
+  prompt: What is your Jira password?
+  required: True
+jiraBaseURL:
+  value: ""
+  prompt: What is the Jira URL?
+  format: url
+  required: True
+jiraAssigneeType:
+  value: teamID
+  prompt: Assignments do to teamID or assigneeID
+jiraProjectID:
+  value: ""
+  prompt: What is the ID of the project to submit tickets to (typically a long hash)
+  required: True
+jiraIssueType:
+  value: Task
+  prompt: Type of issue to submit to JIRA (change with care)
