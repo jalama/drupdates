@@ -4,7 +4,7 @@ from drupdates.constructors.datastores import *
 import os
 from os.path import expanduser
 
-class mysql(datastore):
+class sql(datastore):
 
   def __init__(self):
     # FIXME: class get re-instantiated each time db is called
