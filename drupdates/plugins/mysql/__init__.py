@@ -14,9 +14,9 @@ class mysql(datastore):
   def writeMyCnf (self):
     """ Create a my.cnf file.
 
-    We have to create this file to get drush to run sql-create correctly
-    without ~/.my.cnf file drush sql-create won't pass the --db-su option
-    Sucks because it means we have to have sql driver specific plugins :(
+    If the mysql root password = "" we have to create this file for drush to
+    run sql-create correctly.
+    Without ~/.my.cnf file drush sql-create won't pass the --db-su option.
 
     """
     myFile = self.settings.get('mysqlSettingsFile')
@@ -58,11 +58,16 @@ class mysql(datastore):
 
   def create(self, site):
     """ Create a MYSQL Database."""
-    if self.writeMyCnf():
-      dr = drush()
-      createCmds = ['sql-create', '-y', '--db-su=' + self.settings.get('datastoreSuperUser') ]
-      dr.call(createCmds, site)
-      self.deleteFiles()
+    driver = self.settings.get('datastoreDriver')
+    spwd = self.settings.get('datastoreSuperPword')
+    suser = self.settings.get('datastoreSuperUser')
+    if driver == 'mysql' and not spwd:
+      if not self.writeMyCnf():
+        return False
+    dr = drush()
+    createCmds = ['sql-create', '-y', '--db-su=' + suser, '--db-su-pw=' + spwd]
+    dr.call(createCmds, site)
+    self.deleteFiles()
     return True
 
   def driverSettings(self):

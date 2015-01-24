@@ -44,6 +44,8 @@ upCmds:
   prompt: Arguments and options for drush pm-update cmd (separate with spaces)
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
+datastore:
+  value: sql
 datastoreDriver:
   value: mysql
   prompt: What is the default datastore (i.e. database) driver (default mysql)
