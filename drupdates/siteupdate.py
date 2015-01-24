@@ -110,6 +110,9 @@ class siteupdate():
     fileMode = g.config("core.fileMode")
     g.config("core.fileMode", "false")
     gitRepo.add('./')
+    deleted = gitRepo.ls_files('--deleted')
+    for f in deleted.split():
+      gitRepo.rm(f)
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
     self.commitHash = gitRepo.rev_parse('head')
