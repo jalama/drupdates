@@ -61,13 +61,16 @@ class drush(Settings):
     """
     workingDir = self.settings.get('workingDir')
     backportDir = self.settings.get('backupDir')
-    commands = ['drush', '@drupdates.' + alias, 'sqlc']
-    popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, stderr = popen.communicate(file(backportDir + alias + '.sql').read())
-    if stderr:
-      print alias + " DB import error: " + stderr
+    if os.path.isfile(backportDir + alias + '.sql'):
+      commands = ['drush', '@drupdates.' + alias, 'sqlc']
+      popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, stderr = popen.communicate(file(backportDir + alias + '.sql').read())
+      if stderr:
+        print "{0} DB import error: {1}".format(alias, stderr)
+        return False
+    else:
+      print "{0} could not find backup file".format(alias)
       return False
-
     return True
 
 
