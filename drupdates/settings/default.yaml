@@ -34,12 +34,16 @@ deploymentTickets:
 targetDate:
   value: ""
   prompt: What date should the deployment ticket(s) target?
+# Note: this is one of the more importand settings regarding Drupates behavior
+# change it only if you understand its implications regarding how the
+# Drush pm-update (up) command will behave.
 upCmds:
   value:
     - up
     - -y
     - --security-only
     - --no-backup
+    - --disabled
   format: list
   prompt: Arguments and options for drush pm-update cmd (separate with spaces)
 drushAliasFile:

@@ -69,8 +69,7 @@ class drush(Settings):
         print "{0} DB import error: {1}".format(alias, stderr)
         return False
     else:
-      print "{0} could not find backup file".format(alias)
-      return False
+      print "{0} could not find backup file, skipping import".format(alias)
     return True
 
 
