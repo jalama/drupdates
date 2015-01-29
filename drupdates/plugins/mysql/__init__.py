@@ -33,12 +33,12 @@ class mysql(datastore):
       userline = "user = {0} \n".format(self.settings.get('datastoreSuperUser'))
       password = self.settings.get('datastoreSuperPword')
       settings = self.settings.get('mysqlSettings')
-      f.write("This file was written by the Drupdates script\n")
+      f.write("#This file was written by the Drupdates script\n")
       for setting in settings:
         settingline = "[{0}]\n".format(setting)
         f.write(settingline)
         f.write(userline)
-        if not password == "None":
+        if password:
           passline = "password = {0} \n".format(password)
           f.write(passline)
         f.write("\n")
