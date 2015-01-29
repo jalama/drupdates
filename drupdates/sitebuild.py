@@ -97,7 +97,7 @@ class sitebuild():
     stCmds = ['st']
     repoStatus = self.dr.call(stCmds, self._siteName, True)
     bootstrap = repoStatus.get('bootstrap', "")
-    If not bootstrap:
+    if not bootstrap:
       return False
     dd = self.dr.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]

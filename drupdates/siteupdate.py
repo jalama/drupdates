@@ -69,9 +69,8 @@ class siteupdate():
     report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
     dr = drush()
-    # Make sure update module is enabled
+    # Make sure update module is enabled.
     dr.call(['en', 'update', '-y'], self._siteName)
-    # upCmdsCopy = copy.copy(upCmds)
     updatesRet = dr.call(self.upCmds, self._siteName)
     updates = dr.readUpdateReport(updatesRet)
     # If there are no updates move to the next repo
@@ -79,13 +78,17 @@ class siteupdate():
       self.commitHash = ""
       report['status'] = "Did not have any updates to apply"
       return report
+    # Calling dr.call() without a site alias argument as the site aliaes comes
+    # after the argument when calling drush dd
     dd = dr.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
+    # drush pm-update of Drupal Core deletes the .git folder therefore we have to
+    # move the updated folder to a temp dir and re-build the webroot folder.
     tempDir = tempfile.mkdtemp(self._siteName)
     shutil.move(self.siteWebroot, tempDir)
-    # Commit and push updates to remote repo
     # FIXME: Need to rebuild any make file to reflect the new module versions
     # maybe using generate-makefile or simply search/replace?
+    # Commit and push updates to remote repo.
     msg = '\n'.join(updates)
     repository = Repo.init(self.siteDir)
     try:
@@ -97,6 +100,8 @@ class siteupdate():
     gitRepo = repository.git
     try:
       gitRepo.checkout('FETCH_HEAD', b=self.workingBranch)
+      # FIXME: delete the files in web root and all folders in both siteWebRoot
+      # and the tempDir but not /sites/default/files
     except git.exc.GitCommandError as e:
       gitRepo.checkout(self.workingBranch)
     try:
@@ -113,6 +118,8 @@ class siteupdate():
     deleted = gitRepo.ls_files('--deleted')
     for f in deleted.split():
       gitRepo.rm(f)
+    # FIXME: remove the .htaccess and ROBOTS.txt files, probably want to make
+    # this a setting
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
     self.commitHash = gitRepo.rev_parse('head')
