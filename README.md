@@ -47,6 +47,7 @@ any back-up files follow the pattern of being named after that same
 folder/<site alias>.
   - example: site folder is /var/www/drupal the back-up file is drupal.sql and
   the Drush alias will be drupdates.drupal
+Lack of a back-up will not stop Drupdates from updating the Drupal codebase.
 
 - By default the script tries to build the sites in /var/www/
 
