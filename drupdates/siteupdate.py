@@ -118,8 +118,8 @@ class siteupdate():
     deleted = gitRepo.ls_files('--deleted')
     for f in deleted.split():
       gitRepo.rm(f)
-    # FIXME: remove the .htaccess and ROBOTS.txt files, probably want to make
-    # this a setting
+    # FIXME: ignore the .htaccess and ROBOTS.txt files, probably want to make
+    # this a setting to allow users to ignore other files/folders
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
     self.commitHash = gitRepo.rev_parse('head')

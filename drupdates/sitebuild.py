@@ -52,12 +52,12 @@ class sitebuild():
       self._siteWebRoot = value
 
   def build(self):
-    """ Build site folder form Git repository."""
+    """ Build site folder from Git repository."""
     if os.path.isdir(self.siteDir):
       try:
         shutil.rmtree(self.siteDir)
       except OSError as e:
-        print "Cannot remove the site directory\n Error: {0}".format(e.strerror)
+        print "Cannot remove the site {0} directory\n Error: {1}".format(self._siteName, e.strerror)
         return False
     self.utilities.sysCommands(self, 'preBuildCmds')
     repository = Repo.init(self.siteDir)
@@ -65,7 +65,7 @@ class sitebuild():
     try:
       remote.fetch(self._workingBranch)
     except git.exc.GitCommandError as e:
-      print "Git could could not checkout the {0} branch. \n Error: {1}".format(self._workingBranch, e)
+      print "Git could could not checkout the {0} branch for {1}. \n Error: {2}".format(self._workingBranch, self._siteName, e)
       return False
     gitRepo = repository.git
     gitRepo.checkout('FETCH_HEAD', b=self._workingBranch)

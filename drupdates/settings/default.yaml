@@ -43,7 +43,7 @@ upCmds:
     - -y
     - --security-only
     - --no-backup
-    - --disabled
+    - --check-disabled
   format: list
   prompt: Arguments and options for drush pm-update cmd (separate with spaces)
 drushAliasFile:
