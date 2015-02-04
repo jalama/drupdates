@@ -1,4 +1,5 @@
-import datetime, requests, os, imp, yaml, urlparse, subprocess
+import datetime, requests, os, imp, yaml, urlparse, subprocess, shutil, filecmp
+from filecmp import dircmp
 from drupdates.settings import *
 from os.path import expanduser
 
@@ -148,6 +149,39 @@ class utils(object):
       return True
     else:
       return False
+
+  def rmCommon(self, dirDelete, dirCompare):
+    """ Delete files in dirDelete that are in dirCompare.
+
+    keyword arguments:
+    dirDelete -- The directory to have it's file/folders deleted.
+    dirCompare -- The directory to compare dirDelete with.
+
+    Iterate over the sites directory and delete any files/folders not in the
+    commonIgnore setting.
+    """
+    ignore = self.settings.get('commonIgnore')
+    if isinstance(ignore, str):
+      ignore = [ignore]
+    dcmp = dircmp(dirDelete, dirCompare, ignore)
+    for fileName in dcmp.common_files:
+      os.remove(dirDelete + '/' + fileName)
+    for directory in dcmp.common_dirs:
+      shutil.rmtree(dirDelete + '/' + directory)
+    # Now deal with sites directory
+    shutil.rmtree(dirDelete + '/sites/all')
+    for f in os.listdir(dirDelete + '/sites'):
+      if os.path.isdir(dirDelete + '/sites/' + f) and f not in ignore:
+        for fDir in os.listdir(dirDelete + '/sites/' + f):
+          if fDir not in ignore:
+            shutil.rmtree(dirDelete + '/sites/' + f + '/' + fDir, onerror=self.force_delete)
+
+  def force_delete(self, func, path, excinfo):
+    """ shutil.rmtree callback to deal with files, symlinks etc..."""
+    if (func.__name__ == 'rmdir' or func.__name__ =='listdir') and excinfo[1] == "[Errno 2] No such file or directory":
+      os.remove(path)
+    elif func.__name__ == 'islink':
+      os.unlink(path)
 
 class Plugin(Settings):
   """ Simple Plugin system.

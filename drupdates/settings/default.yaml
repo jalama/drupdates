@@ -75,3 +75,15 @@ postBuildCmds:
 reportingTool:
   value: "sendmail"
   prompt: Tool to used to send the final report
+commonIgnore:
+  value:
+    - .git
+    - .htaccess
+    - sites
+    - robots.txt
+    - web.config
+    - tmp
+    - settings.php
+    - files
+    - default
+  prompt: What files and folders that ship with core are unique to local install (separate with spaces)

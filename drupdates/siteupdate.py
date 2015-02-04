@@ -82,7 +82,7 @@ class siteupdate():
     # after the argument when calling drush dd
     dd = dr.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
-    # drush pm-update of Drupal Core deletes the .git folder therefore we have to
+    # drush pm-update of Drupal Core deletes the .git folder therefore need to
     # move the updated folder to a temp dir and re-build the webroot folder.
     tempDir = tempfile.mkdtemp(self._siteName)
     shutil.move(self.siteWebroot, tempDir)
@@ -100,14 +100,13 @@ class siteupdate():
     gitRepo = repository.git
     try:
       gitRepo.checkout('FETCH_HEAD', b=self.workingBranch)
-      # FIXME: delete the files in web root and all folders in both siteWebRoot
-      # and the tempDir but not /sites/default/files
     except git.exc.GitCommandError as e:
       gitRepo.checkout(self.workingBranch)
+    self.utilities.rmCommon(self.siteWebroot, tempDir)
     try:
       distutils.dir_util.copy_tree(tempDir + '/' + self._siteName, self.siteWebroot)
     except IOError as e:
-      print "Could not copy updates Drupal directory from temp to {0} \n Error: {1}".format(self.siteWebroot, e.strerror)
+      print "Could not copy updates from {0} temp diretory to {1} \n Error: {2}".format(tempDir, self.siteWebroot, e.strerror)
       return False
     shutil.rmtree(tempDir)
     os.chdir (self.siteWebroot)
@@ -118,8 +117,6 @@ class siteupdate():
     deleted = gitRepo.ls_files('--deleted')
     for f in deleted.split():
       gitRepo.rm(f)
-    # FIXME: ignore the .htaccess and ROBOTS.txt files, probably want to make
-    # this a setting to allow users to ignore other files/folders
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
     self.commitHash = gitRepo.rev_parse('head')
