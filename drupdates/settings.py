@@ -1,4 +1,5 @@
 import os, yaml
+from copy import copy
 from drupdates.utils import *
 from os.path import expanduser
 try:
@@ -81,7 +82,7 @@ class Settings(object):
 
   @property
   def _model(self):
-      return self.__model
+      return copy(self.__model)
   @_model.setter
   def _model(self, value = {}):
     value['value'] = ''
