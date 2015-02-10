@@ -87,3 +87,16 @@ commonIgnore:
     - files
     - default
   prompt: What files and folders that ship with core are unique to local install (separate with spaces)
+useMakeFile:
+  value: ""
+  prompt: Build the site using a make file (note the make file will be updated)
+  requires: webrootDir
+makeFormat:
+  value: make
+  prompt: What format and file extension will the make file be (ie .make or .yaml) (default make)
+makeFolder:
+  value: ""
+  prompt: Is the make file stored in a sub folder of the repo
+buildSource:
+  value: git
+  prompt: How will the site be built (using drush make or git)

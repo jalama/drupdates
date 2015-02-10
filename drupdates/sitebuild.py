@@ -53,12 +53,8 @@ class sitebuild():
 
   def build(self):
     """ Build site folder from Git repository."""
-    if os.path.isdir(self.siteDir):
-      try:
-        shutil.rmtree(self.siteDir)
-      except OSError as e:
-        print "Cannot remove the site {0} directory\n Error: {1}".format(self._siteName, e.strerror)
-        return False
+    if not self.removeDir(self.siteDir):
+      return False
     self.utilities.sysCommands(self, 'preBuildCmds')
     repository = Repo.init(self.siteDir)
     remote = git.Remote.create(repository, self._siteName, self.ssh)
@@ -69,6 +65,8 @@ class sitebuild():
       return False
     gitRepo = repository.git
     gitRepo.checkout('FETCH_HEAD', b=self._workingBranch)
+    if self.settings.get('useMakeFile'):
+      make = self.makeSite()
     stCmds = ['st']
     repoStatus = self.dr.call(stCmds, self._siteName, True)
     drupalSite = repoStatus.get('drupal-version', "")
@@ -114,3 +112,40 @@ class sitebuild():
     """
     importDB = self.dr.dbImport(self._siteName)
     return importDB
+
+  def removeDir(self, directory):
+    """ Try and remove the directory. """
+    if os.path.isdir(directory):
+      try:
+        shutil.rmtree(directory)
+      except OSError as e:
+        print "Cannot remove the site {0} directory\n Error: {1}".format(self._siteName, e.strerror)
+        return False
+    return True
+
+  def findMakeFile(self):
+    """ Find the make file and test to ensure it exists. """
+    makeFormat = self.settings.get('makeFormat')
+    makeFolder = self.settings.get('makeFolder')
+    makeFile = self._siteName + '.make'
+    if makeFormat == 'yaml':
+      makeFile += '.yaml'
+    folder = self.siteDir
+    if makeFolder:
+      folder += '/' + makeFolder
+    fileName = folder + '/' + makeFile
+    if os.path.isfile(fileName):
+      return fileName
+    return False
+
+  def makeSite(self):
+    """ Build a webroot based on a make file. """
+    webRoot = self.settings.get('webrootDir')
+    directory = self.siteDir + '/' + webRoot
+    makeFile = self.findMakeFile()
+    self.removeDir(directory)
+    if makeFile and webRoot:
+      # Run drush make
+      # Get the repo webroot
+      makeCmds = ['make', makeFile, directory]
+      make = self.dr.call(makeCmds)
