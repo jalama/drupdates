@@ -9,19 +9,8 @@ class drush(Settings):
   def __init__(self):
     self.settings = Settings()
 
-  def readUpdateReport(self, lst, updates = []):
-    """ Read the report produced the the Drush pm-update command."""
-    updates = []
-    for x in lst:
-      # build list of updates, when you hit a blank line you are done
-      # note: if there are no updates the first line will be blank
-      if x:
-        updates.append(x)
-      else:
-        break
-    return updates
-
-  def call(self, commands, alias = '', jsonRet = False):
+  @staticmethod
+  def call(commands, alias = '', jsonRet = False):
     """ Run a drush comand and return a list/dictionary of the results.
 
     Keyword arguments:
@@ -71,7 +60,3 @@ class drush(Settings):
     else:
       print "{0} could not find backup file, skipping import".format(alias)
     return True
-
-
-
-

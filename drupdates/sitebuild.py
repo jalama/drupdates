@@ -53,7 +53,7 @@ class sitebuild():
 
   def build(self):
     """ Build site folder from Git repository."""
-    if not self.removeDir(self.siteDir):
+    if not utils.removeDir(self.siteDir):
       return False
     self.utilities.sysCommands(self, 'preBuildCmds')
     repository = Repo.init(self.siteDir)
@@ -68,7 +68,7 @@ class sitebuild():
     if self.settings.get('useMakeFile'):
       make = self.makeSite()
     stCmds = ['st']
-    repoStatus = self.dr.call(stCmds, self._siteName, True)
+    repoStatus = drush.call(stCmds, self._siteName, True)
     drupalSite = repoStatus.get('drupal-version', "")
     # If this is not a Drupal repo move to the next repo
     if not drupalSite:
@@ -91,13 +91,13 @@ class sitebuild():
       return False
     # Perform Drush site-install to get a base settings.php file
     siCmds = ['si', 'minimal', '-y']
-    install = self.dr.call(siCmds, self._siteName)
+    install = drush.call(siCmds, self._siteName)
     stCmds = ['st']
-    repoStatus = self.dr.call(stCmds, self._siteName, True)
+    repoStatus = drush.call(stCmds, self._siteName, True)
     bootstrap = repoStatus.get('bootstrap', "")
     if not bootstrap:
       return False
-    dd = self.dr.call(['dd', '@drupdates.' + self._siteName])
+    dd = drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
     siFiles = self.settings.get('drushSiFiles')
     for f in siFiles:
@@ -113,39 +113,14 @@ class sitebuild():
     importDB = self.dr.dbImport(self._siteName)
     return importDB
 
-  def removeDir(self, directory):
-    """ Try and remove the directory. """
-    if os.path.isdir(directory):
-      try:
-        shutil.rmtree(directory)
-      except OSError as e:
-        print "Cannot remove the site {0} directory\n Error: {1}".format(self._siteName, e.strerror)
-        return False
-    return True
-
-  def findMakeFile(self):
-    """ Find the make file and test to ensure it exists. """
-    makeFormat = self.settings.get('makeFormat')
-    makeFolder = self.settings.get('makeFolder')
-    makeFile = self._siteName + '.make'
-    if makeFormat == 'yaml':
-      makeFile += '.yaml'
-    folder = self.siteDir
-    if makeFolder:
-      folder += '/' + makeFolder
-    fileName = folder + '/' + makeFile
-    if os.path.isfile(fileName):
-      return fileName
-    return False
-
   def makeSite(self):
     """ Build a webroot based on a make file. """
     webRoot = self.settings.get('webrootDir')
-    directory = self.siteDir + '/' + webRoot
-    makeFile = self.findMakeFile()
-    self.removeDir(directory)
+    folder = self.siteDir +'/' + webRoot
+    makeFile = self.utilities.findMakeFile(self._siteName, self.siteDir)
+    utils.removeDir(folder)
     if makeFile and webRoot:
       # Run drush make
       # Get the repo webroot
-      makeCmds = ['make', makeFile, directory]
-      make = self.dr.call(makeCmds)
+      makeCmds = ['make', makeFile, folder]
+      make = drush.call(makeCmds)

@@ -11,6 +11,31 @@ class utils(object):
     self.aliases()
 
   @staticmethod
+  def removeDir(directory):
+    """ Try and remove the directory. """
+    if os.path.isdir(directory):
+      try:
+        shutil.rmtree(directory)
+      except OSError as e:
+        print "Cannot remove the site {0} directory\n Error: {1}".format(self._siteName, e.strerror)
+        return False
+    return True
+
+  def findMakeFile(self, siteName, directory):
+    """ Find the make file and test to ensure it exists. """
+    makeFormat = self.settings.get('makeFormat')
+    makeFolder = self.settings.get('makeFolder')
+    makeFile = siteName + '.make'
+    if makeFormat == 'yaml':
+      makeFile += '.yaml'
+    if makeFolder:
+      directory += '/' + makeFolder
+    fileName = directory + '/' + makeFile
+    if os.path.isfile(fileName):
+      return fileName
+    return False
+
+  @staticmethod
   def apiCall (uri, name, method = 'get', **kwargs):
     """ Perform and API call, expecting a JSON response.
 
