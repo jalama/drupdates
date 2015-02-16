@@ -64,9 +64,8 @@ class sql(datastore):
     if driver == 'mysql' and not spwd:
       if not self.writeMyCnf():
         return False
-    dr = drush()
     createCmds = ['sql-create', '-y', '--db-su=' + suser, '--db-su-pw=' + spwd]
-    dr.call(createCmds, site)
+    drush.call(createCmds, site)
     self.deleteFiles()
     return True
 
