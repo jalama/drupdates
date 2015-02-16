@@ -100,3 +100,11 @@ makeFolder:
 buildSource:
   value: git
   prompt: How will the site be built (using drush make or git)
+upsCmds:
+  value:
+    - ups
+    - --format=csv
+    - --security-only
+    - --check-disabled
+  format: list
+  prompt: Arguments and options for drush pm-updatestatus cmd (separate with spaces)

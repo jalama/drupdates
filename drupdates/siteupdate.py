@@ -12,6 +12,7 @@ class siteupdate():
     self._siteName = siteName
     self.siteDir = self.settings.get('workingDir') + self._siteName
     self.upCmds = self.settings.get('upCmds')
+    self.upsCmds = self.settings.get('upsCmds')
     self.ssh = ssh
     self.utilities = utils()
 
@@ -44,6 +45,13 @@ class siteupdate():
       self._upCmds = value
 
   @property
+  def upsCmds(self):
+      return self._upsCmds
+  @upsCmds.setter
+  def upsCmds(self, value):
+      self._upsCmds = value
+
+  @property
   def ssh(self):
       return self._ssh
   @ssh.setter
@@ -65,31 +73,126 @@ class siteupdate():
       self._commitHash = value
 
   def update(self):
-    """ Set-up to and run Drush pm-update (i.e. up) to update the site."""
+    """ Set-up to and run Drush update(s) (i.e. up or ups). """
     report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
-    dr = drush()
-    # Make sure update module is enabled.
-    dr.call(['en', 'update', '-y'], self._siteName)
-    updatesRet = dr.call(self.upCmds, self._siteName)
-    updates = dr.readUpdateReport(updatesRet)
-    # If there are no updates move to the next repo
-    if len(updates) <= 1:
+    # Ensure update module is enabled.
+    drush.call(['en', 'update', '-y'], self._siteName)
+    updates = self.runUpdates()
+    print updates
+    # If no updates move to the next repo
+    if not updates:
       self.commitHash = ""
       report['status'] = "Did not have any updates to apply"
       return report
-    # Calling dr.call() without a site alias argument as the site aliaes comes
-    # after the argument when calling drush dd
-    dd = dr.call(['dd', '@drupdates.' + self._siteName])
+    msg = '\n'.join(updates)
+    # Call dr.call() without site alias argument, aliaes comes after dd argument
+    dd = drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
-    # drush pm-update of Drupal Core deletes the .git folder therefore need to
-    # move the updated folder to a temp dir and re-build the webroot folder.
+    if not self.settings.get('buildSource') == 'git':
+      shutil.rmtree(self.siteWebroot)
+    else:
+      rebuildWebRoot()
+    gitRepo = self.gitChanges()
+    commitAuthor = self.settings.get('commitAuthor')
+    gitRepo.commit(m=msg, author=commitAuthor)
+    self.commitHash = gitRepo.rev_parse('head')
+    push = gitRepo.push(self._siteName, self.workingBranch)
+    report['status'] = "The following updates were applied \n {0}".format(msg)
+    report['commit'] = "The commit hash is {0}".format(self.commitHash)
+    self.utilities.sysCommands(self, 'postUpdateCmds')
+    return report
+
+  def runUpdates(self):
+    """ Run the site updates.
+
+    The updates are done either by downloading the updates, updating the make
+    file or both.
+
+    """
+    if self.settings.get('useMakeFile'):
+      updatesRet = drush.call(self.upsCmds, self._siteName, True)
+      updates = []
+      for module, update in updatesRet.iteritems():
+        api = update['api_version']
+        current = update['existing_version'].replace(api + '-', '')
+        candidate = update['candidate_version'].replace(api + '-', '')
+        self.updateMakeFile(module, current, candidate)
+        updates.append("Update {0} from {1} to {2}".format(module, current, candidate))
+    else:
+      updatesRet = drush.call(self.upCmds, self._siteName)
+      updates = self.readUpdateReport(updatesRet)
+    if len(updates) <= 1:
+      return False
+    else:
+      return updates
+
+  def readUpdateReport(self, lst, updates = []):
+    """ Read the report produced the the Drush pm-update command. """
+    updates = []
+    for x in lst:
+      # build list of updates, when you hit a blank line you are done
+      # note: if there are no updates the first line will be blank
+      if x:
+        updates.append(x)
+      else:
+        break
+    return updates
+
+  def updateMakeFile(self, module, current, candidate):
+    """ Update the make file.
+
+    Keyword arguments:
+    module -- the drupal module or core (required)
+    current -- the current version
+    candidate -- the version to update two
+
+    """
+    makeFile = self.utilities.findMakeFile(self._siteName, self.siteDir)
+    makeFormat = self.settings.get('makeFormat')
+    if makeFormat == 'make':
+      f = open(makeFile)
+      makef = f.read()
+      f.close()
+      currentStr = 'projects[{0}][version] = \"{1}\"'.format(module, current)
+      candidateStr = 'projects[{0}][version] = \"{1}\"'.format(module, candidate)
+      newdata = makef.replace(currentStr, candidateStr)
+      f = open(makeFile, 'w')
+      f.write(newdata)
+      f.close()
+    elif makeFormat == 'yaml':
+      make = open(makeFile)
+      makef = yaml.load(make)
+      make.close()
+      makef['projects'][module]['version'] = candidate
+      f = open(makeFile, 'w')
+      yaml.dump(makef, f, default_flow_style=False)
+
+  def gitChanges(self):
+    """ add/remove changed files, ignore file mode changes. """
+    os.chdir (self.siteDir)
+    repository = Repo(self.siteDir)
+    gitRepo = repository.git
+    g = git.Git('.')
+    fileMode = g.config("core.fileMode")
+    g.config("core.fileMode", "false")
+    gitRepo.add('./')
+    deleted = gitRepo.ls_files('--deleted')
+    for f in deleted.split():
+      gitRepo.rm(f)
+    g.config("core.fileMode", fileMode)
+    return gitRepo
+
+  def rebuildWebRoot(self):
+    """ Rebuild the web root folder completely after running pm-update.
+
+    drush pm-update of Drupal Core deletes the .git folder therefore need to
+    move the updated folder to a temp dir and re-build the webroot folder.
+
+    """
     tempDir = tempfile.mkdtemp(self._siteName)
     shutil.move(self.siteWebroot, tempDir)
-    # FIXME: Need to rebuild any make file to reflect the new module versions
-    # maybe using generate-makefile or simply search/replace?
     # Commit and push updates to remote repo.
-    msg = '\n'.join(updates)
     repository = Repo.init(self.siteDir)
     try:
       remote = git.Remote.create(repository, self._siteName, self.ssh)
@@ -109,22 +212,3 @@ class siteupdate():
       print "Could not copy updates from {0} temp diretory to {1} \n Error: {2}".format(tempDir, self.siteWebroot, e.strerror)
       return False
     shutil.rmtree(tempDir)
-    os.chdir (self.siteWebroot)
-    g = git.Git('.')
-    fileMode = g.config("core.fileMode")
-    g.config("core.fileMode", "false")
-    gitRepo.add('./')
-    deleted = gitRepo.ls_files('--deleted')
-    for f in deleted.split():
-      gitRepo.rm(f)
-    commitAuthor = self.settings.get('commitAuthor')
-    gitRepo.commit(m=msg, author=commitAuthor)
-    self.commitHash = gitRepo.rev_parse('head')
-    push = gitRepo.push(self._siteName, self.workingBranch)
-    g.config("core.fileMode", fileMode)
-    report['status'] = "The following updates were applied \n {0}".format(msg)
-    report['commit'] = "The commit hash is {0}".format(self.commitHash)
-    self.utilities.sysCommands(self, 'postUpdateCmds')
-    return report
-
-
