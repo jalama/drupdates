@@ -69,6 +69,8 @@ class sitebuild():
       make = self.makeSite()
     stCmds = ['st']
     repoStatus = drush.call(stCmds, self._siteName, True)
+    if not type(repoStatus) is dict:
+      return False
     drupalSite = repoStatus.get('drupal-version', "")
     # If this is not a Drupal repo move to the next repo
     if not drupalSite:
