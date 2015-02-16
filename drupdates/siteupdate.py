@@ -79,7 +79,6 @@ class siteupdate():
     # Ensure update module is enabled.
     drush.call(['en', 'update', '-y'], self._siteName)
     updates = self.runUpdates()
-    print updates
     # If no updates move to the next repo
     if not updates:
       self.commitHash = ""
