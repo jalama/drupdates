@@ -88,10 +88,16 @@ class siteupdate():
     # Call dr.call() without site alias argument, aliaes comes after dd argument
     dd = drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
-    if not self.settings.get('buildSource') == 'git':
+    rebuilt = self.rebuildWebRoot()
+    if not rebuilt:
+      report['status'] = "The webroot re-build failed."
+      if self.settings.get('useMakeFile'):
+        makeErr = " Ensure the make file format is correct "
+        makeErr += "and drush make didn't fail on a bad patch."
+        report['status'] += makeErr
+      return report
+    if self.settings.get('buildSource') == 'make':
       shutil.rmtree(self.siteWebroot)
-    else:
-      rebuildWebRoot()
     gitRepo = self.gitChanges()
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
@@ -191,23 +197,36 @@ class siteupdate():
     """
     tempDir = tempfile.mkdtemp(self._siteName)
     shutil.move(self.siteWebroot, tempDir)
-    # Commit and push updates to remote repo.
-    repository = Repo.init(self.siteDir)
-    try:
-      remote = git.Remote.create(repository, self._siteName, self.ssh)
-    except git.exc.GitCommandError as e:
-      if not e.status == 128:
-        print "Could not establish a remote for the {0} repo".format(self._siteName)
-    remote.fetch(self.workingBranch)
-    gitRepo = repository.git
-    try:
-      gitRepo.checkout('FETCH_HEAD', b=self.workingBranch)
-    except git.exc.GitCommandError as e:
-      gitRepo.checkout(self.workingBranch)
+    addDir = self.settings.get('webrootDir')
+    if addDir:
+      repository = Repo(self.siteDir)
+      gitRepo = repository.git
+      if self.settings.get('useMakeFile'):
+        make = self.utilities.makeSite(self._siteName, self.siteDir)
+        if not os.path.isdir(self.siteWebroot):
+          print self.siteWebroot
+          return False
+      else:
+        gitRepo.checkout(addDir)
+    else:
+      repository = Repo.init(self.siteDir)
+      try:
+        remote = git.Remote.create(repository, self._siteName, self.ssh)
+      except git.exc.GitCommandError as e:
+        if not e.status == 128:
+          print "Could not establish a remote for the {0} repo".format(self._siteName)
+      remote.fetch(self.workingBranch)
+      gitRepo = repository.git
+      try:
+        gitRepo.checkout('FETCH_HEAD', b=self.workingBranch)
+      except git.exc.GitCommandError as e:
+        gitRepo.checkout(self.workingBranch)
+      addDir = self._siteName
     self.utilities.rmCommon(self.siteWebroot, tempDir)
     try:
-      distutils.dir_util.copy_tree(tempDir + '/' + self._siteName, self.siteWebroot)
+      distutils.dir_util.copy_tree(tempDir + '/' + addDir, self.siteWebroot)
     except IOError as e:
       print "Could not copy updates from {0} temp diretory to {1} \n Error: {2}".format(tempDir, self.siteWebroot, e.strerror)
       return False
     shutil.rmtree(tempDir)
+    return True

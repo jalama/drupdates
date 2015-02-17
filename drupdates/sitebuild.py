@@ -66,7 +66,7 @@ class sitebuild():
     gitRepo = repository.git
     gitRepo.checkout('FETCH_HEAD', b=self._workingBranch)
     if self.settings.get('useMakeFile'):
-      make = self.makeSite()
+      make = self.utilities.makeSite(self._siteName, self.siteDir)
     stCmds = ['st']
     repoStatus = drush.call(stCmds, self._siteName, True)
     if not type(repoStatus) is dict:
@@ -114,15 +114,3 @@ class sitebuild():
     """
     importDB = self.dr.dbImport(self._siteName)
     return importDB
-
-  def makeSite(self):
-    """ Build a webroot based on a make file. """
-    webRoot = self.settings.get('webrootDir')
-    folder = self.siteDir +'/' + webRoot
-    makeFile = self.utilities.findMakeFile(self._siteName, self.siteDir)
-    utils.removeDir(folder)
-    if makeFile and webRoot:
-      # Run drush make
-      # Get the repo webroot
-      makeCmds = ['make', makeFile, folder]
-      make = drush.call(makeCmds)

@@ -1,6 +1,7 @@
 import datetime, requests, os, imp, yaml, urlparse, subprocess, shutil, filecmp
 from filecmp import dircmp
 from drupdates.settings import *
+from drupdates.drush import *
 from os.path import expanduser
 
 
@@ -34,6 +35,19 @@ class utils(object):
     if os.path.isfile(fileName):
       return fileName
     return False
+
+  def makeSite(self, siteName, siteDir):
+    """ Build a webroot based on a make file. """
+    webRoot = self.settings.get('webrootDir')
+    folder = siteDir +'/' + webRoot
+    makeFile = self.findMakeFile(siteName, siteDir)
+    utils.removeDir(folder)
+    if makeFile and webRoot:
+      # Run drush make
+      # Get the repo webroot
+      makeCmds = ['make', makeFile, folder, '--no-patch-txt', '--force-complete']
+      make = drush.call(makeCmds)
+      return make
 
   @staticmethod
   def apiCall (uri, name, method = 'get', **kwargs):
