@@ -16,8 +16,6 @@
 $result = json_decode(exec('python ~/.drush/settings.py'), true);
 $path = $result['workingDir']['value'];
 $driver = $result['datastoreDriver']['value'];
-$user = $result['datastoreSuperUser']['value'];
-$pass = $result['datastoreSuperPword']['value'];
 $port = $result['datastorePort']['value'];
 $host = $result['datastoreHost']['value'];
 $webroot = $result['webrootDir']['value'];
@@ -42,7 +40,7 @@ while($dir_handle->valid()) {
           'default' => array(
             'default' => array(
               'driver' => $driver,
-              'username' => $basename . '_user',
+              'username' => substr($basename . '_user', 0, 16),
               'password' => $basename . '_pass',
               'port' => $port,
               'host' => $host,
