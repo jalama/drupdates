@@ -104,7 +104,7 @@ class Settings(object):
       settingComplete['value'] = getattr(self.__options, setting)
       if not settingComplete['value'] and settingComplete['required']:
           self.queryUser(setting, settingComplete)
-      if settingComplete['requires']:
+      if settingComplete['value'] and settingComplete['requires']:
         required = self.get(settingComplete['requires'])
         if not required:
           self.queryUser(setting, settingComplete)
