@@ -89,17 +89,17 @@ Each setting in the YAML file needs to look like this or it will be assumed
 to be blank (ie "").  *notes on what each line means for clarities sake*
 
 ```
-setting:  *the name of the setting*<br>
-  value: *required, value of the setting1*<br>
+setting: the name of the setting
+  value: required, value of the setting1
 ```
 Optionally each setting can have other attributes (@see Settings.model()):
 ```
 setting:
   value:
-  prompt: *optional, Prompt presented at runtime if setting is null and required*
-  format: *optional, What is the format, supported values: string (default), list, dict*
-  required: *optional, Is the setting required2
-  requires: *optional, does this setting require another setting*
+  prompt: optional, Prompt presented at runtime if setting is null and required
+  format: optional, What is the format, supported values: string (default), list, dict
+  required: optional, Is the setting required2
+  requires: optional, does this setting require another setting
 ```
 1 Surround with '' if value contains special cahracters.  For list of YAML
 special characters @see http://www.yaml.org/refcard.html.
