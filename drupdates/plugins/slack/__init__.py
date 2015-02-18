@@ -16,8 +16,11 @@ class slack(Reports):
     payload['text'] = reportText
     payload['new-bot-name'] = user
     dm = self.settings.get('slackRecipient')
+    channel = self.settings.get('slackChannel')
     if dm:
         payload['channel'] = '@' + dm
+    elif channel:
+        payload['channel'] = '#' + dm
     response = utils.apiCall(url, 'Slack', 'post', data = json.dumps(payload))
 
 

@@ -17,7 +17,7 @@ webrootDir:
 blacklist:
   value: ""
   format: list
-  prompt: name of site alias(es) you want ignored (seperate with spaces)
+  prompt: Name of site alias(es) you want ignored (seperate with spaces)
 drushSiFiles:
   value:
     - sites/default/settings.php
@@ -31,16 +31,25 @@ deploymentTickets:
     - Production
   prompt: What are environments are you deploying to (default Staging Production)
   format: list
+targetDate:
+  value: ""
+  prompt: What date should the deployment ticket(s) target?
+# Note: this is one of the more important settings regarding Drupates behavior
+# change it only if you understand its implications regarding how the
+# Drush pm-update (up) command will behave.
 upCmds:
   value:
     - up
     - -y
     - --security-only
     - --no-backup
+    - --check-disabled
   format: list
-  prompt: Arguments and options for the drush pm-update command
+  prompt: Arguments and options for drush pm-update cmd (separate with spaces)
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
+datastore:
+  value: sql
 datastoreDriver:
   value: mysql
   prompt: What is the default datastore (i.e. database) driver (default mysql)
@@ -57,9 +66,45 @@ runUpdates:
   value: Yes
   prompt: Do you want to run the site update(s)
 importBackup:
-  value: Yes
+  value: ""
   prompt: Do you want to import a backup
 postBuildCmds:
   value: ""
+  prompt: OS command/options to run after a site built (separate with spaces)
+  format: list
 reportingTool:
   value: "sendmail"
+  prompt: Tool to used to send the final report
+commonIgnore:
+  value:
+    - .git
+    - .htaccess
+    - sites
+    - robots.txt
+    - web.config
+    - tmp
+    - settings.php
+    - files
+    - default
+  prompt: What files and folders that ship with core are unique to local install (separate with spaces)
+useMakeFile:
+  value: ""
+  prompt: Build the site using a make file (note the make file will be updated)
+  requires: webrootDir
+makeFormat:
+  value: make
+  prompt: What format and file extension will the make file be (ie .make or .yaml) (default make)
+makeFolder:
+  value: ""
+  prompt: Is the make file stored in a sub folder of the repo
+buildSource:
+  value: git
+  prompt: How will the site be built (using drush make or git)
+upsCmds:
+  value:
+    - ups
+    - --format=csv
+    - --security-only
+    - --check-disabled
+  format: list
+  prompt: Arguments and options for drush pm-updatestatus cmd (separate with spaces)

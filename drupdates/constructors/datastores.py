@@ -7,7 +7,7 @@ class datastores(Plugin):
     # load the Plugin _plugins property
     Plugin.__init__(self)
     self.settings = Settings()
-    self._tool = self.settings.get('datastoreDriver').lower()
+    self._tool = self.settings.get('datastore').lower()
     self._plugin = self._tool
     self._instance = ""
 

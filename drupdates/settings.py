@@ -51,7 +51,8 @@ class Settings(object):
       self.__settings = self.merge(self.__settings, self.__plugin)
     path = __name__
     localFile = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
-    # If there is an override file in the home dir (ex. ~/.drupdates/settings.yaml)
+    # If there is an override file in the home dir
+    # (ex. ~/.drupdates/settings.yaml)
     if os.path.isfile(localFile):
       local = open(localFile, 'r')
       self.__local =  yaml.load(local)
@@ -89,30 +90,40 @@ class Settings(object):
     value['prompt'] = ''
     value['format'] = ''
     value['required'] = ''
+    # Does this setting require another setting be set
+    value['requires'] = ''
     self.__model = value
+
+  def queryUser(self, setting, complete):
+    value = raw_input("Please provide the setting, " + setting + ", " + complete['prompt'] + ":")
+    self.set(setting, value, complete)
 
   def get(self, setting):
     if setting in self._settings:
       settingComplete = self.merge(self._model, self._settings[setting])
       settingComplete['value'] = getattr(self.__options, setting)
       if not settingComplete['value'] and settingComplete['required']:
-        value = raw_input(settingComplete['prompt'] + ":")
-        self.set(setting, value, settingComplete)
+          self.queryUser(setting, settingComplete)
+      if settingComplete['value'] and settingComplete['requires']:
+        required = self.get(settingComplete['requires'])
+        if not required:
+          self.queryUser(settingComplete['requires'], self._settings[settingComplete['requires']])
       return settingComplete['value']
     else:
       return ""
 
-  def set(self, setting, value, complete):
-    # FIXME: need better format parsing (ie int, boolean, dict, list etc...)
-    if complete['format'] == 'list':
-      value = value.split()
-    elif complete['format'] == 'dict':
-      import json
-      value = json.loads(value)
+  def set(self, setting, value, complete = {}):
+    if 'format' in complete:
+      # FIXME: need better format parsing (ie int, boolean, dict, list etc...)
+      if complete['format'] == 'list':
+        value = value.split()
+      elif complete['format'] == 'dict':
+        import json
+        value = json.loads(value)
     self.__settings[setting]['value'] = value
 
   def merge(self, a, b, path=None):
-    """Utiliity used to merge two dictionaries, merges b into a. """
+    """ Utiliity used to merge two dictionaries, merges b into a. """
     if path is None: path = []
     for key in b:
       if key in a:

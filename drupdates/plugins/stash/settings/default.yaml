@@ -1,6 +1,4 @@
 # YAML
-name:
-  value: Stash
 stashURL:
   value: ""
   prompt: What is the Satsh url

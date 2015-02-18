@@ -1,6 +1,4 @@
 # YAML
-Name:
-  value: Manaul Repo List
 repoDict:
   value: ""
   format: dict

@@ -52,25 +52,25 @@ class sitebuild():
       self._siteWebRoot = value
 
   def build(self):
-    """ Build site folder form Git repository."""
-    if os.path.isdir(self.siteDir):
-      try:
-        shutil.rmtree(self.siteDir)
-      except OSError as e:
-        print "Cannot remove the site directory\n Error: {0}".format(e.strerror)
-        return False
+    """ Build site folder from Git repository."""
+    if not utils.removeDir(self.siteDir):
+      return False
     self.utilities.sysCommands(self, 'preBuildCmds')
     repository = Repo.init(self.siteDir)
     remote = git.Remote.create(repository, self._siteName, self.ssh)
     try:
       remote.fetch(self._workingBranch)
     except git.exc.GitCommandError as e:
-      print "Git could could not checkout the {0} branch. \n Error: {1}".format(self._workingBranch, e)
+      print "Git could could not checkout the {0} branch for {1}. \n Error: {2}".format(self._workingBranch, self._siteName, e)
       return False
     gitRepo = repository.git
     gitRepo.checkout('FETCH_HEAD', b=self._workingBranch)
+    if self.settings.get('useMakeFile'):
+      make = self.utilities.makeSite(self._siteName, self.siteDir)
     stCmds = ['st']
-    repoStatus = self.dr.call(stCmds, self._siteName, True)
+    repoStatus = drush.call(stCmds, self._siteName, True)
+    if not type(repoStatus) is dict:
+      return False
     drupalSite = repoStatus.get('drupal-version', "")
     # If this is not a Drupal repo move to the next repo
     if not drupalSite:
@@ -93,8 +93,13 @@ class sitebuild():
       return False
     # Perform Drush site-install to get a base settings.php file
     siCmds = ['si', 'minimal', '-y']
-    install = self.dr.call(siCmds, self._siteName)
-    dd = self.dr.call(['dd', '@drupdates.' + self._siteName])
+    install = drush.call(siCmds, self._siteName)
+    stCmds = ['st']
+    repoStatus = drush.call(stCmds, self._siteName, True)
+    bootstrap = repoStatus.get('bootstrap', "")
+    if not bootstrap:
+      return False
+    dd = drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
     siFiles = self.settings.get('drushSiFiles')
     for f in siFiles:

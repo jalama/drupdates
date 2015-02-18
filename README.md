@@ -29,12 +29,11 @@ Requirements
 ============
 Drush (preferably Drush 7)
 Git 1.7+
-sendmail (there is an issue filed for SMTP support)
 
 Assumptions
 ===========
 
-- Only tested on POSIX boxes with Python 2.6 and 2.7, sorry Windows testing yet.
+- Only tested on POSIX boxes with Python 2.6 and 2.7, sorry no Windows yet.
 
 - Python 3+ support is forthcoming.
 
@@ -48,6 +47,7 @@ any back-up files follow the pattern of being named after that same
 folder/<site alias>.
   - example: site folder is /var/www/drupal the back-up file is drupal.sql and
   the Drush alias will be drupdates.drupal
+Lack of a back-up will not stop Drupdates from updating the Drupal codebase.
 
 - By default the script tries to build the sites in /var/www/
 
@@ -110,11 +110,14 @@ In version 1.0 there are 4 sets of plugin types:
 
 - Git Repo lists (think Stash)
 - Project management tools (think AtTask, JIRA, etc...)
-- Datastores (currently on MYSQL)
+- Datastores (currently only sql)*
 - Report delivery methods (ie e-mail, IM, etc...)
 
 The plugins can be found in the <module dir>/drupdates/plugins folder with their
 respective consturctors in <module dir>/drupdates/constructors.  With version
 1.0 all of the constructors define abstract classes used by the individual
 plugins.
+
+* We shamelessly punt management of the sql to Drush, so in theory Drupdates
+supports anything Drush does, though only mysql has been tested at as of v1.1.
 

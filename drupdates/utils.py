@@ -1,5 +1,7 @@
-import datetime, requests, os, imp, yaml, urlparse, subprocess
+import datetime, requests, os, imp, yaml, urlparse, subprocess, shutil, filecmp
+from filecmp import dircmp
 from drupdates.settings import *
+from drupdates.drush import *
 from os.path import expanduser
 
 
@@ -8,6 +10,44 @@ class utils(object):
   def __init__(self):
     self.settings = Settings()
     self.aliases()
+
+  @staticmethod
+  def removeDir(directory):
+    """ Try and remove the directory. """
+    if os.path.isdir(directory):
+      try:
+        shutil.rmtree(directory)
+      except OSError as e:
+        print "Cannot remove the site {0} directory\n Error: {1}".format(self._siteName, e.strerror)
+        return False
+    return True
+
+  def findMakeFile(self, siteName, directory):
+    """ Find the make file and test to ensure it exists. """
+    makeFormat = self.settings.get('makeFormat')
+    makeFolder = self.settings.get('makeFolder')
+    makeFile = siteName + '.make'
+    if makeFormat == 'yaml':
+      makeFile += '.yaml'
+    if makeFolder:
+      directory += '/' + makeFolder
+    fileName = directory + '/' + makeFile
+    if os.path.isfile(fileName):
+      return fileName
+    return False
+
+  def makeSite(self, siteName, siteDir):
+    """ Build a webroot based on a make file. """
+    webRoot = self.settings.get('webrootDir')
+    folder = siteDir +'/' + webRoot
+    makeFile = self.findMakeFile(siteName, siteDir)
+    utils.removeDir(folder)
+    if makeFile and webRoot:
+      # Run drush make
+      # Get the repo webroot
+      makeCmds = ['make', makeFile, folder, '--no-patch-txt', '--force-complete']
+      make = drush.call(makeCmds)
+      return make
 
   @staticmethod
   def apiCall (uri, name, method = 'get', **kwargs):
@@ -37,7 +77,7 @@ class utils(object):
     except ValueError:
       return r
     #If API call errors out print the error and quit the script
-    if r.status_code != 200:
+    if r.status_code not in  [200, 201]:
       if 'errors' in responseDictionary:
         errors = responseDictionary.pop('errors')
         firstError = errors.pop()
@@ -100,7 +140,7 @@ class utils(object):
           continue
 
   def aliases(self):
-    """ Build a Drush alias file in $HOME/.drush, with alises to be used later
+    """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
 
     Notes:
     The file name is controlled by the drushAliasFile settings
@@ -149,8 +189,41 @@ class utils(object):
     else:
       return False
 
+  def rmCommon(self, dirDelete, dirCompare):
+    """ Delete files in dirDelete that are in dirCompare.
+
+    keyword arguments:
+    dirDelete -- The directory to have it's file/folders deleted.
+    dirCompare -- The directory to compare dirDelete with.
+
+    Iterate over the sites directory and delete any files/folders not in the
+    commonIgnore setting.
+    """
+    ignore = self.settings.get('commonIgnore')
+    if isinstance(ignore, str):
+      ignore = [ignore]
+    dcmp = dircmp(dirDelete, dirCompare, ignore)
+    for fileName in dcmp.common_files:
+      os.remove(dirDelete + '/' + fileName)
+    for directory in dcmp.common_dirs:
+      shutil.rmtree(dirDelete + '/' + directory)
+    # Now deal with sites directory
+    shutil.rmtree(dirDelete + '/sites/all')
+    for f in os.listdir(dirDelete + '/sites'):
+      if os.path.isdir(dirDelete + '/sites/' + f) and f not in ignore:
+        for fDir in os.listdir(dirDelete + '/sites/' + f):
+          if fDir not in ignore:
+            shutil.rmtree(dirDelete + '/sites/' + f + '/' + fDir, onerror=self.force_delete)
+
+  def force_delete(self, func, path, excinfo):
+    """ shutil.rmtree callback to deal with files, symlinks etc..."""
+    if (func.__name__ == 'rmdir' or func.__name__ =='listdir') and excinfo[1] == "[Errno 2] No such file or directory":
+      os.remove(path)
+    elif func.__name__ == 'islink':
+      os.unlink(path)
+
 class Plugin(Settings):
-  """ Simple Plugin system
+  """ Simple Plugin system.
 
   This is shamelessly based on:
   http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
