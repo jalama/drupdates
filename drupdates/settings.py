@@ -95,7 +95,7 @@ class Settings(object):
     self.__model = value
 
   def queryUser(self, setting, complete):
-    value = raw_input(complete['prompt'] + ":")
+    value = raw_input("Please provide the setting, " + setting + ", " + complete['prompt'] + ":")
     self.set(setting, value, complete)
 
   def get(self, setting):
@@ -107,7 +107,7 @@ class Settings(object):
       if settingComplete['value'] and settingComplete['requires']:
         required = self.get(settingComplete['requires'])
         if not required:
-          self.queryUser(setting, settingComplete)
+          self.queryUser(settingComplete['requires'], self._settings[settingComplete['requires']])
       return settingComplete['value']
     else:
       return ""
