@@ -47,7 +47,10 @@ any back-up files follow the pattern of being named after that same
 folder/<site alias>.
   - example: site folder is /var/www/drupal the back-up file is drupal.sql and
   the Drush alias will be drupdates.drupal
-Lack of a back-up will not stop Drupdates from updating the Drupal codebase.
+
+- Lack of a back-up will not stop Drupdates from updating the Drupal codebase.
+
+- Any Make file used to build a site will be named the same as the site folder.
 
 - By default the script tries to build the sites in /var/www/
 
@@ -92,9 +95,10 @@ Optionally each setting can have other attributes (@see Settings.model()):
 
 setting:
   value:
-  prompt: <optionsl, Prompt presented at runtime if setting is null and required>
-  format: <optionsl, What is the format, supported values: string (default), list, dict>
-  required: <optionsl, Is the setting required**>
+  prompt: <optional, Prompt presented at runtime if setting is null and required>
+  format: <optional, What is the format, supported values: string (default), list, dict>
+  required: <optional, Is the setting required**>
+  requires: <optional, does this setting require another setting>
 
 * Surround with '' if value contains special cahracters.  For list of YAML
 special characters @see http://www.yaml.org/refcard.html.
@@ -120,4 +124,25 @@ plugins.
 
 * We shamelessly punt management of the sql to Drush, so in theory Drupdates
 supports anything Drush does, though only mysql has been tested at as of v1.1.
+
+Make File
+===========
+
+Make FIles can be used to build the site.  The following settings will be
+required:
+
+useMakeFile, needs to be set to a non "Falsey" value, ie "Yes".
+webrootDir, needs to be set to a non "Falsey" value, ie webroot or html.
+
+It's worth noting Drupdates can support two file structures with regards to
+make files.  The setting that contorls this is "buildSource".
+
+1. Ship only a make file that will later be used to build the site codebase.
+  - buildSource: make
+2. Ship the make file along with a complete codebase in a webroot sub-folder.
+  - buildSource: git
+  - example file structure:
+    - drupal.make
+    - webroot
+      - <Drupal codebase>
 
