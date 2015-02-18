@@ -19,7 +19,7 @@ setup (
 	author_email = 'jim@rootyhollow.com',
 	version = '1.1.0',
 	package_dir = {'drupdates' : 'drupdates'},
-  include_package_data = True,
+	include_package_data = True,
 	install_requires = ['nose', 'gitpython', 'requests', 'pyyaml'],
 	entry_points = {
 		'console_scripts': ['drupdates = drupdates.updates:main'],
