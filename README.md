@@ -88,9 +88,10 @@ Settings Format:
 Each setting in the YAML file needs to look like this or it will be assumed
 to be blank (ie "").  *notes on what each line means for clarities sake*
 
+```
 setting:  *the name of the setting*<br>
   value: *required, value of the setting1*<br>
-
+```
 Optionally each setting can have other attributes (@see Settings.model()):
 
 setting:
