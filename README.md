@@ -37,7 +37,7 @@ Assumptions
 
 - Python 3+ support is forthcoming.
 
-- Drupdates is not intened for production systems, it is built assuming it
+- Drupdates is not intended for production systems, it is built assuming it
 will only be run on local development machines.  Drupdates will need to store
 system user names and passwords in the $HOME/.drupdates directory.
 
@@ -69,7 +69,7 @@ Here's how it works:
 Settings are built from either YAML files or options passed when run on CLI.
 - Settings are loaded in this order:
   - Core settings file, ie drupdates/settings/default.yaml
-  - Plugin settings files, ie <plugin dir>/settings/default.yaml
+  - Plugin settings files, ie *plugin dir*/settings/default.yaml
   - Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
   - Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
   - Prompts to end user, only if required and not value found above
@@ -78,7 +78,7 @@ Settings loaded later take precident over the same setting loaded earlier,
 ie if it's set at runtime it will overwrite anything set in the Core settings
 or local settings files.
 
-The Core settings file is <module dir>/drupdates/settings/default.yaml or
+The Core settings file is /drupdates/settings/default.yaml or
 https://github.com/jalama/drupdates/blob/master/drupdates/settings/default.yaml.
 Additionally, each plugin ships with it's own default.yaml file in its
 respective settings directory.
@@ -86,23 +86,23 @@ respective settings directory.
 Settings Format:
 
 Each setting in the YAML file needs to look like this or it will be assumed
-to be blank (ie "").  <notes on what each line means for clarities sake>
+to be blank (ie "").  *notes on what each line means for clarities sake*
 
-setting:  <the name of the setting>
-  value: <required, value of the setting*>
+setting:  *the name of the setting*<br>
+  value: *required, value of the setting1*<br>
 
 Optionally each setting can have other attributes (@see Settings.model()):
 
 setting:
-  value:
-  prompt: <optional, Prompt presented at runtime if setting is null and required>
-  format: <optional, What is the format, supported values: string (default), list, dict>
-  required: <optional, Is the setting required**>
-  requires: <optional, does this setting require another setting>
+  value:<br>
+  prompt: *optional, Prompt presented at runtime if setting is null and required*<br>
+  format: *optional, What is the format, supported values: string (default), list, dict*<br>
+  required: *optional, Is the setting required2<br>
+  requires: *optional, does this setting require another setting*<br>
 
-* Surround with '' if value contains special cahracters.  For list of YAML
+1 Surround with '' if value contains special cahracters.  For list of YAML
 special characters @see http://www.yaml.org/refcard.html.
-** If setting is required and is empty, the end user will be asked for a value.
+2 If setting is required and is empty, the end user will be asked for a value.
 
 Plugins
 ===========
