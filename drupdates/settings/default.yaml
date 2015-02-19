@@ -103,7 +103,6 @@ buildSource:
 upsCmds:
   value:
     - ups
-    - --format=csv
     - --security-only
     - --check-disabled
   format: list
