@@ -118,12 +118,13 @@ class siteupdate():
     if self.settings.get('useMakeFile'):
       updatesRet = drush.call(self.upsCmds, self._siteName, True)
       updates = []
-      for module, update in updatesRet.iteritems():
-        api = update['api_version']
-        current = update['existing_version'].replace(api + '-', '')
-        candidate = update['candidate_version'].replace(api + '-', '')
-        self.updateMakeFile(module, current, candidate)
-        updates.append("Update {0} from {1} to {2}".format(module, current, candidate))
+      if isinstance(updatesRet, dict):
+        for module, update in updatesRet.iteritems():
+          api = update['api_version']
+          current = update['existing_version'].replace(api + '-', '')
+          candidate = update['candidate_version'].replace(api + '-', '')
+          self.updateMakeFile(module, current, candidate)
+          updates.append("Update {0} from {1} to {2}".format(module, current, candidate))
     else:
       updatesRet = drush.call(self.upCmds, self._siteName)
       updates = self.readUpdateReport(updatesRet)
