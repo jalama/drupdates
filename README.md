@@ -85,8 +85,9 @@ respective settings directory.
 
 Settings Format:
 
-Each setting in the YAML file needs to look like this or it will be assumed
-to be blank (ie "").  *notes on what each line means for clarities sake*
+Each setting in the YAML file needs to be a dictionary with the following keys.
+Each setting should formatted like below or it will be assumed to be blank
+(ie "") there are notes on what each line means for clarities sake.
 
 ```
 setting: the name of the setting

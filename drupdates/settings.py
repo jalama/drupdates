@@ -1,4 +1,4 @@
-import os, yaml
+import os, yaml, sys
 from copy import copy
 from drupdates.utils import *
 from os.path import expanduser
@@ -57,6 +57,12 @@ class Settings(object):
       local = open(localFile, 'r')
       self.__local =  yaml.load(local)
       local.close()
+      for x, item in self.__local.iteritems():
+        if not isinstance(item, dict):
+          error = "Exiting Drupdates \nFatal Error: Custom settngs file, {0}, ".format(localFile)
+          error += "failed to load or parse properly. \n"
+          error += "{0} setting is fomatted improperly".format(x)
+          sys.exit(error)
       self.__settings = self.merge(self.__settings, self.__local)
 
   def options(self):
