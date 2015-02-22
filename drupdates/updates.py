@@ -2,6 +2,7 @@ from drupdates.utils import *
 from drupdates.constructors.repos import *
 from drupdates.constructors.pmtools import *
 from drupdates.constructors.reports import *
+from drupdates.constructors.datastores import *
 from drupdates.sitebuild import *
 from drupdates.siteupdate import *
 
@@ -13,6 +14,8 @@ def main():
   utilities = utils()
   blacklist = settings.get('blacklist')
   singleSite = settings.get('singleSite')
+  datastore = datastores()
+  datastore.createAlises()
   if singleSite:
     sites = {singleSite : sites[singleSite]}
   for siteName, ssh in sites.iteritems():
@@ -34,6 +37,6 @@ def main():
         deploys = pmTool.deployTicket(siteName, updater.commitHash)
         report[siteName]['pmtool'] = deploys
 
-  utilities.deleteFiles()
+  datastore.cleanFiles()
   reporting = reports()
   reporting.send(report)

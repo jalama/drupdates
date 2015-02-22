@@ -3,6 +3,7 @@ from drupdates.drush import *
 from drupdates.constructors.datastores import *
 import os
 from os.path import expanduser
+from string import Template
 
 class sql(datastore):
 
@@ -10,6 +11,13 @@ class sql(datastore):
     # FIXME: class get re-instantiated each time db is called
     self.currentDir = os.path.dirname(os.path.realpath(__file__))
     self.settings = Settings(self.currentDir)
+
+  @property
+  def aliasFile(self):
+    return self._aliasFile
+  @aliasFile.setter
+  def aliasFile(self, value):
+    self._aliasFile = value
 
   def writeMyCnf (self):
     """ Create a my.cnf file.
@@ -51,10 +59,16 @@ class sql(datastore):
     myFile = self.settings.get('mysqlSettingsFile')
     localFile = expanduser('~') + '/' + myFile
     if os.path.isfile(localFile):
-      os.remove(localFile)
-      return True
-    else:
-      return False
+      try:
+        os.remove(localFile)
+      except OSError as e:
+        print "Clean-up error, could not remove {0} \n Error: {1}".format(localFile, e.strerror)
+    if os.path.isfile(self.aliasFile):
+      try:
+        os.remove(self.aliasFile)
+      except OSError as e:
+        print "Clean-up error, could not remove {0} \n Error: {1}".format(self.AliasFile, e.strerror)
+    return True
 
   def create(self, site):
     """ Create a MYSQL Database."""
@@ -66,16 +80,50 @@ class sql(datastore):
         return False
     createCmds = ['sql-create', '-y', '--db-su=' + suser, '--db-su-pw=' + spwd]
     drush.call(createCmds, site)
-    self.deleteFiles()
     return True
 
-  def driverSettings(self):
-    """ Return the MYSQL Driver settings.
+  def aliases(self):
+    """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
 
-    Note: this is used to pass settings to the Drush Alias file.
-
+    Notes:
+    The file name is controlled by the drushAliasFile settings
+    All of the aliases will be prefixed with "drupdates" if he default file name
+      is retained
     """
-    return self.settings
+
+    ret = False
+    aliasFileName = self.settings.get('drushAliasFile')
+    drushFolder = expanduser('~') + '/.drush'
+    drushFile = drushFolder + "/" + aliasFileName
+    if not os.path.isdir(drushFolder):
+      try:
+        os.makedirs(drushFolder)
+      except OSError as e:
+        print "Could not create ~/.drush folder \n Error: {0}".format(e.strerror)
+        return ret
+    currentDir = os.path.dirname(os.path.realpath(__file__))
+    # Symlink the Drush aliases file
+    src = currentDir + "/templates/aliases.template"
+    doc = open(src)
+    s = Template(doc.read())
+    doc.close()
+    try:
+      f = open(drushFile,'w')
+    except OSError as e:
+      print "Could not create {0} folder \n Error: {1}".format(drushFile, e.strerror)
+      return ret
+    webrootSet = self.settings.get('webrootDir')
+    hostSet = self.settings.get('datastoreHost')
+    driverSet = self.settings.get('datastoreDriver')
+    pathSet = self.settings.get('workingDir')
+    portSet = self.settings.get('datastorePort')
+    f.write(s.safe_substitute(host=hostSet, driver=driverSet, path=pathSet, webroot=webrootSet, port=portSet))
+    self.aliasFile = drushFile
+    f.close()
+    ret = True
+    return ret
+
+
 
 
 

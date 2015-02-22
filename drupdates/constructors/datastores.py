@@ -37,8 +37,11 @@ class datastores(Plugin):
   def build(self, site):
     return self._instance.create(site)
 
-  def dbSettings(self):
-    return self._instance.driverSettings()
+  def createAlises(self):
+    return self._instance.aliases()
+
+  def cleanFiles(self):
+    return self._instance.deleteFiles()
 
 class datastore(object):
   __metaclass__ = abc.ABCMeta
@@ -47,5 +50,8 @@ class datastore(object):
   def create(self, site): pass
 
   @abc.abstractmethod
-  def driverSettings(self): pass
+  def aliases(self): pass
+
+  @abc.abstractmethod
+  def deleteFiles(self): pass
 

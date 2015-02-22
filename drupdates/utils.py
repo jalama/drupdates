@@ -9,7 +9,6 @@ class utils(object):
 
   def __init__(self):
     self.settings = Settings()
-    self.aliases()
 
   @staticmethod
   def removeDir(directory):
@@ -138,56 +137,6 @@ class utils(object):
             print "There was and issue running {0}, \n Error: {1}".format(command, stderr)
         else:
           continue
-
-  def aliases(self):
-    """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
-
-    Notes:
-    The file name is controlled by the drushAliasFile settings
-    All of the aliases will be prefixed with "drupdates" if he default file name
-      is retained
-    """
-
-    ret = False
-    aliasFileName = self.settings.get('drushAliasFile')
-    drushFolder = expanduser('~') + '/.drush'
-    drushFile = drushFolder + "/" + aliasFileName
-    if os.path.isfile(drushFile):
-      ret = True
-    else:
-      if not os.path.isdir(drushFolder):
-        try:
-          os.makedirs(drushFolder)
-        except OSError as e:
-          print "Could not create ~/.drush folder \n Error: {0}".format(e.strerror)
-      currentDir = os.path.dirname(os.path.realpath(__file__))
-      # Symlink the Drush aliases file
-      src = currentDir + "/scripts/" + aliasFileName
-      try:
-        os.symlink(src, drushFile)
-        ret = True
-      except OSError as e:
-        print "Could not create Drush alias file \n Error: {0}".format(e.strerror)
-      # Symlink the settings file used by above Drush aliases file
-      src = currentDir + "/scripts/settings.py"
-      dst = drushFolder + "/settings.py"
-      try:
-        os.symlink(src, dst)
-        ret = True
-      except OSError as e:
-        print "Could not create settings.py file \n Error: {0}".format(e.strerror)
-    self._aliases = {"folder" : drushFolder, "file" : drushFile}
-
-  def deleteFiles(self):
-    """ Clean-up the alias files crreated by aliases method
-
-    """
-    if os.path.isfile(self._aliases['file']):
-      os.remove(self._aliases['file'])
-      os.remove(self._aliases['folder'] + "/settings.py")
-      return True
-    else:
-      return False
 
   def rmCommon(self, dirDelete, dirCompare):
     """ Delete files in dirDelete that are in dirCompare.

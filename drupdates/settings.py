@@ -74,7 +74,6 @@ class Settings(object):
       for key, setting in self._settings.iteritems():
         settingComplete = self.merge(self._model, setting)
         parser.add_argument("--" + key, dest=key,
-                          default=settingComplete['value'],
                           help=settingComplete['prompt'])
       options = parser.parse_args()
     else:
@@ -82,7 +81,6 @@ class Settings(object):
       for key, setting in self._settings.iteritems():
         settingComplete = self.merge(self._model, setting)
         parser.add_option("--" + key, action="store", dest=key,
-                          default=settingComplete['value'],
                           type="string", help=settingComplete['prompt'])
       (options, args) = parser.parse_args()
     self.__options = options
@@ -107,7 +105,9 @@ class Settings(object):
   def get(self, setting):
     if setting in self._settings:
       settingComplete = self.merge(self._model, self._settings[setting])
-      settingComplete['value'] = getattr(self.__options, setting)
+      cliOption = getattr(self.__options, setting)
+      if cliOption:
+        settingComplete['value'] = cliOption
       if not settingComplete['value'] and settingComplete['required']:
           self.queryUser(setting, settingComplete)
       if settingComplete['value'] and settingComplete['requires']:
