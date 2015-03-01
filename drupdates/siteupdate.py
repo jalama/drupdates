@@ -115,10 +115,11 @@ class siteupdate():
     file or both.
 
     """
+    updates = False
     if self.settings.get('useMakeFile'):
       updatesRet = drush.call(self.upsCmds, self._siteName, True)
-      updates = []
       if isinstance(updatesRet, dict):
+        updates = []
         for module, update in updatesRet.iteritems():
           api = update['api_version']
           current = update['existing_version'].replace(api + '-', '')
@@ -128,10 +129,7 @@ class siteupdate():
     else:
       updatesRet = drush.call(self.upCmds, self._siteName)
       updates = self.readUpdateReport(updatesRet)
-    if len(updates) <= 1:
-      return False
-    else:
-      return updates
+    return updates
 
   def readUpdateReport(self, lst, updates = []):
     """ Read the report produced the the Drush pm-update command. """
@@ -143,6 +141,8 @@ class siteupdate():
         updates.append(x)
       else:
         break
+    if len(updates) <= 1:
+      updates = False
     return updates
 
   def updateMakeFile(self, module, current, candidate):
