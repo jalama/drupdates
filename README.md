@@ -4,10 +4,10 @@ Scripts to maintain web sites code bases, specifically Drupal sites using Drush
 
 This script performs 4 major functions (ie phases):
 
-1.) Builds a site's directory from a Git repository.
-2.) Updates the site using drush pm-update, default to security update(s) only.
-3.) Submit a deployment ticket for the updated codebase.
-4.) Report on the site(s) Drupdates attempted to update.
+1. Builds a site's directory from a Git repository.
+2. Updates the site using drush pm-update, default to security update(s) only.
+3. Submit a deployment ticket for the updated codebase.
+4. Report on the site(s) Drupdates attempted to update.
 
 Installation
 ============
@@ -40,6 +40,8 @@ Assumptions
 - Drupdates is not intended for production systems, it is built assuming it
 will only be run on local development machines.  Drupdates will need to store
 system user names and passwords in the $HOME/.drupdates directory.
+
+- Drupdates does not support multi-site installs out of the box.
 
 - The entire script depends on the use of Drush site aliases named after the
 folders the sites are written to (prefixed with "drupdates".  Drupdates assumes
