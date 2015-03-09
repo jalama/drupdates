@@ -44,7 +44,9 @@ class utils(object):
     if makeFile and webRoot:
       # Run drush make
       # Get the repo webroot
-      makeCmds = ['make', makeFile, folder, '--no-patch-txt', '--force-complete' '--no-gitinfofile']
+      makeOpts = self.settings.get('makeOpts')
+      makeCmds = ['make', makeFile, folder]
+      makeCmds += makeOpts
       make = drush.call(makeCmds)
       return make
 

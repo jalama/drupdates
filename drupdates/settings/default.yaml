@@ -107,3 +107,8 @@ upsCmds:
     - --check-disabled
   format: list
   prompt: Arguments and options for drush pm-updatestatus cmd (separate with spaces)
+makeOpts:
+  value:
+    - --no-patch-txt
+    - --force-complete
+    - --no-gitinfofile
