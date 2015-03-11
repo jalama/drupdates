@@ -97,12 +97,12 @@ class siteupdate():
       report['status'] = "Did not have any updates to apply"
       return report
     msg = '\n'.join(updates)
+    # Call dr.call() without site alias argument, aliaes comes after dd argument
+    dd = drush.call(['dd', '@drupdates.' + self._siteName])
+    self.siteWebroot = dd[0]
     if self.settings.get('buildSource') == 'make':
       shutil.rmtree(self.siteWebroot)
     else:
-      # Call dr.call() without site alias argument, aliaes comes after dd argument
-      dd = drush.call(['dd', '@drupdates.' + self._siteName])
-      self.siteWebroot = dd[0]
       rebuilt = self.rebuildWebRoot()
       if not rebuilt:
         report['status'] = "The webroot re-build failed."
