@@ -1,4 +1,4 @@
-import distutils.core, tempfile, os, git, shutil, copy
+import distutils.core, tempfile, git, copy
 from drupdates.utils import *
 from drupdates.drush import *
 from git import *
@@ -72,10 +72,29 @@ class siteupdate():
   def commitHash(self, value):
       self._commitHash = value
 
+  @property
+  def repoStatus(self):
+      return self._repoStatus
+  @repoStatus.setter
+  def repoStatus(self, value):
+      self._repoStatus = value
+
+  @property
+  def _moduleDir(self):
+      return self.__moduleDir
+  @_moduleDir.setter
+  def _moduleDir(self, value):
+      self.__moduleDir = value
+
   def update(self):
     """ Set-up to and run Drush update(s) (i.e. up or ups). """
     report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
+    stCmds = ['st']
+    self.repoStatus = drush.call(stCmds, self._siteName, True)
+    if not isinstance(self.repoStatus, dict):
+      report['status'] = "Repo {0} failed call to drush status during update".format(self._siteName)
+      return report
     # Ensure update module is enabled.
     drush.call(['en', 'update', '-y'], self._siteName)
     updates = self.runUpdates()
@@ -88,16 +107,17 @@ class siteupdate():
     # Call dr.call() without site alias argument, aliaes comes after dd argument
     dd = drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
-    rebuilt = self.rebuildWebRoot()
-    if not rebuilt:
-      report['status'] = "The webroot re-build failed."
-      if self.settings.get('useMakeFile'):
-        makeErr = " Ensure the make file format is correct "
-        makeErr += "and drush make didn't fail on a bad patch."
-        report['status'] += makeErr
-      return report
     if self.settings.get('buildSource') == 'make':
       shutil.rmtree(self.siteWebroot)
+    else:
+      rebuilt = self.rebuildWebRoot()
+      if not rebuilt:
+        report['status'] = "The webroot re-build failed."
+        if self.settings.get('useMakeFile'):
+          makeErr = " Ensure the make file format is correct "
+          makeErr += "and drush make didn't fail on a bad patch."
+          report['status'] += makeErr
+        return report
     gitRepo = self.gitChanges()
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
@@ -115,23 +135,23 @@ class siteupdate():
     file or both.
 
     """
+    updates = False
     if self.settings.get('useMakeFile'):
       updatesRet = drush.call(self.upsCmds, self._siteName, True)
-      updates = []
       if isinstance(updatesRet, dict):
+        updates = []
         for module, update in updatesRet.iteritems():
           api = update['api_version']
           current = update['existing_version'].replace(api + '-', '')
           candidate = update['candidate_version'].replace(api + '-', '')
           self.updateMakeFile(module, current, candidate)
           updates.append("Update {0} from {1} to {2}".format(module, current, candidate))
+      if not self.settings.get('buildSource') == 'make':
+        self.utilities.makeSite(self._siteName, self.siteDir)
     else:
       updatesRet = drush.call(self.upCmds, self._siteName)
       updates = self.readUpdateReport(updatesRet)
-    if len(updates) <= 1:
-      return False
-    else:
-      return updates
+    return updates
 
   def readUpdateReport(self, lst, updates = []):
     """ Read the report produced the the Drush pm-update command. """
@@ -143,6 +163,8 @@ class siteupdate():
         updates.append(x)
       else:
         break
+    if len(updates) <= 1:
+      updates = False
     return updates
 
   def updateMakeFile(self, module, current, candidate):
@@ -178,15 +200,21 @@ class siteupdate():
     """ add/remove changed files, ignore file mode changes. """
     os.chdir (self.siteDir)
     repository = Repo(self.siteDir)
+    # FIXME: move ot the use of the Repo.index object
+    # @see http://gitpython.readthedocs.org/en/latest/tutorial.html#the-index-object
     gitRepo = repository.git
+    if self._moduleDir and self.settings.get('ignoreCustomModules'):
+      customModuleDir = os.path.join(self.siteWebroot, self._moduleDir, 'custom')
+      try:
+        gitRepo.checkout(customModuleDir)
+      except git.exc.GitCommandError as e:
+        print "Failed to re-instantiate the custom modules folder \n {0}".format(e)
     g = git.Git('.')
-    fileMode = g.config("core.fileMode")
     g.config("core.fileMode", "false")
     gitRepo.add('./')
     deleted = gitRepo.ls_files('--deleted')
     for f in deleted.split():
       gitRepo.rm(f)
-    g.config("core.fileMode", fileMode)
     return gitRepo
 
   def rebuildWebRoot(self):
@@ -202,13 +230,7 @@ class siteupdate():
     if addDir:
       repository = Repo(self.siteDir)
       gitRepo = repository.git
-      if self.settings.get('useMakeFile'):
-        make = self.utilities.makeSite(self._siteName, self.siteDir)
-        if not os.path.isdir(self.siteWebroot):
-          print self.siteWebroot
-          return False
-      else:
-        gitRepo.checkout(addDir)
+      gitRepo.checkout(addDir)
     else:
       repository = Repo.init(self.siteDir)
       try:
@@ -223,6 +245,12 @@ class siteupdate():
       except git.exc.GitCommandError as e:
         gitRepo.checkout(self.workingBranch)
       addDir = self._siteName
+    self._moduleDir = self.repoStatus.get('modules', "")
+    if self._moduleDir:
+      shutil.rmtree(os.path.join(self.siteWebroot, self._moduleDir))
+    themeDir = self.repoStatus.get('themes', "")
+    if themeDir:
+      shutil.rmtree(os.path.join(self.siteWebroot, themeDir))
     self.utilities.rmCommon(self.siteWebroot, tempDir)
     try:
       distutils.dir_util.copy_tree(tempDir + '/' + addDir, self.siteWebroot)

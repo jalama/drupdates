@@ -11,6 +11,7 @@
 * successfully built the site.
 *
 */
+$needles = array('.', '-');
 $aliases = array();
 $dir_handle = new DirectoryIterator('$path');
 while($dir_handle->valid()) {
@@ -32,7 +33,7 @@ while($dir_handle->valid()) {
               'password' => $basename . '_pass',
               'port' => '$port',
               'host' => '$host',
-              'database' => $basename,
+              'database' => str_replace($needles, '_', $basename),
             ),
           ),
         ),

@@ -17,7 +17,7 @@ class utils(object):
       try:
         shutil.rmtree(directory)
       except OSError as e:
-        print "Cannot remove the site {0} directory\n Error: {1}".format(self._siteName, e.strerror)
+        print "Cannot remove the site {0} directory\n Error: {1}".format(directory, e.strerror)
         return False
     return True
 
@@ -38,13 +38,15 @@ class utils(object):
   def makeSite(self, siteName, siteDir):
     """ Build a webroot based on a make file. """
     webRoot = self.settings.get('webrootDir')
-    folder = siteDir +'/' + webRoot
+    folder = os.path.join(siteDir, webRoot)
     makeFile = self.findMakeFile(siteName, siteDir)
     utils.removeDir(folder)
     if makeFile and webRoot:
       # Run drush make
       # Get the repo webroot
-      makeCmds = ['make', makeFile, folder, '--no-patch-txt', '--force-complete']
+      makeOpts = self.settings.get('makeOpts')
+      makeCmds = ['make', makeFile, folder]
+      makeCmds += makeOpts
       make = drush.call(makeCmds)
       return make
 
@@ -156,13 +158,6 @@ class utils(object):
       os.remove(dirDelete + '/' + fileName)
     for directory in dcmp.common_dirs:
       shutil.rmtree(dirDelete + '/' + directory)
-    # Now deal with sites directory
-    shutil.rmtree(dirDelete + '/sites/all')
-    for f in os.listdir(dirDelete + '/sites'):
-      if os.path.isdir(dirDelete + '/sites/' + f) and f not in ignore:
-        for fDir in os.listdir(dirDelete + '/sites/' + f):
-          if fDir not in ignore:
-            shutil.rmtree(dirDelete + '/sites/' + f + '/' + fDir, onerror=self.force_delete)
 
   def force_delete(self, func, path, excinfo):
     """ shutil.rmtree callback to deal with files, symlinks etc..."""

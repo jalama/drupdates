@@ -1,7 +1,7 @@
+import git
 from drupdates.utils import *
 from drupdates.drush import *
 from drupdates.constructors.datastores import *
-import git, shutil
 from git import *
 
 class sitebuild():
@@ -69,35 +69,40 @@ class sitebuild():
       make = self.utilities.makeSite(self._siteName, self.siteDir)
     stCmds = ['st']
     repoStatus = drush.call(stCmds, self._siteName, True)
-    if not type(repoStatus) is dict:
+    if not isinstance(repoStatus, dict):
+      print "{0} failed to respond to drush status".format(self._siteName)
       return False
     drupalSite = repoStatus.get('drupal-version', "")
     # If this is not a Drupal repo move to the next repo
     if not drupalSite:
+      print "{0}, response from drush pm-status indictaes this isn't a drupal site".format(self._siteName)
       return False
     bootstrap = repoStatus.get('bootstrap', "")
     ret = True
     if not bootstrap:
       # Re-build database if it fails go to the next repo
-      ret = self.constructSite()
+      site = os.path.basename(repoStatus.get('site', 'default'))
+      ret = self.constructSite(site)
     if ret and self.settings.get('importBackup'):
       # Import the backup file
       ret = self.importBackup()
     self.utilities.sysCommands(self, 'postBuildCmds')
     return ret
 
-  def constructSite(self):
+  def constructSite(self, site):
     """ Rebulid the Drupal site: build DB, settings.php, etc..."""
     buildDB = datastores().build(self._siteName)
     if not buildDB:
+      print "Site database build failed for {0}".format(self._siteName)
       return False
     # Perform Drush site-install to get a base settings.php file
-    siCmds = ['si', 'minimal', '-y']
+    siCmds = ['si', 'minimal', '-y', '--sites-subdir=' + site]
     install = drush.call(siCmds, self._siteName)
     stCmds = ['st']
     repoStatus = drush.call(stCmds, self._siteName, True)
     bootstrap = repoStatus.get('bootstrap', "")
     if not bootstrap:
+      print "Bootstrap failed after site install for {0}".format(self._siteName)
       return False
     dd = drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
@@ -107,7 +112,7 @@ class sitebuild():
     return True
 
   def importBackup(self):
-    """ Imprt a site back-up
+    """ Import a site back-up
 
     Note: the back-up sife most follow the <siteName>.sql" naming convention"
 

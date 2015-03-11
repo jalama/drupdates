@@ -15,7 +15,7 @@ class sendmail(Reports):
 
     msg = MIMEText(reportText)
     msg["From"] = self.settings.get('reportSender')
-    msg["To"] = self.settings.get('resportRecipient')
+    msg["To"] = self.settings.get('reportRecipient')
     msg["Subject"] = "Drupdates report {0}.".format(today)
     p = Popen(["sendmail", "-t"], stdin=PIPE)
     p.communicate(msg.as_string())
