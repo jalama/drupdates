@@ -1,10 +1,8 @@
 # YAML
+# Core Settings
 workingBranch:
   value: ""
   prompt: What is the default Git working branch
-commitAuthor:
-  value: ""
-  prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
 workingDir:
   value: /var/www/
   prompt: What is the working directory (default /var/www/)
@@ -18,6 +16,23 @@ blacklist:
   value: ""
   format: list
   prompt: Name of site alias(es) you want ignored (seperate with spaces)
+singleSite:
+  value: ""
+  prompt: Do you want to run the script on a single site (which alias)
+importBackup:
+  value: ""
+  prompt: Do you want to import a backup
+buildRepos:
+  value: Yes
+  prompt: Do you want to (re)build the site directories
+runUpdates:
+  value: Yes
+  prompt: Do you want to run the site update(s)
+postBuildCmds:
+  value: ""
+  prompt: OS command/options to run after a site built (separate with spaces)
+  format: list
+# Git related settings
 drushSiFiles:
   value:
     - sites/default/settings.php
@@ -25,56 +40,9 @@ drushSiFiles:
     - sites/default
     - sites/default/files/.htaccess
   prompt: What files will drush si set to file mode 0444
-deploymentTickets:
-  value:
-    - Staging
-    - Production
-  prompt: What are environments are you deploying to (default Staging Production)
-  format: list
-targetDate:
+commitAuthor:
   value: ""
-  prompt: What date should the deployment ticket(s) target?
-# Note: this is one of the more important settings regarding Drupates behavior
-# change it only if you understand its implications regarding how the
-# Drush pm-update (up) command will behave.
-upCmds:
-  value:
-    - up
-    - -y
-    - --security-only
-    - --no-backup
-    - --check-disabled
-  format: list
-  prompt: Arguments and options for drush pm-update cmd (separate with spaces)
-drushAliasFile:
-  value: drupdates.aliases.drushrc.php
-datastore:
-  value: sql
-datastoreDriver:
-  value: mysql
-  prompt: What is the default datastore (i.e. database) driver (default mysql)
-singleSite:
-  value: ""
-  prompt: Do you want to run the script on a single site (which alias)
-submitDeployTicket:
-  value: Yes
-  prompt: Do yo want to submit a deployment ticket
-buildRepos:
-  value: Yes
-  prompt: Do you want to (re)build the site directories
-runUpdates:
-  value: Yes
-  prompt: Do you want to run the site update(s)
-importBackup:
-  value: ""
-  prompt: Do you want to import a backup
-postBuildCmds:
-  value: ""
-  prompt: OS command/options to run after a site built (separate with spaces)
-  format: list
-reportingTool:
-  value: "sendmail"
-  prompt: Tool to used to send the final report
+  prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
 commonIgnore:
   value:
     - .git
@@ -87,6 +55,44 @@ commonIgnore:
     - files
     - default
   prompt: What files and folders that ship with core are unique to local install (separate with spaces)
+ignoreCustomModules:
+  value: True
+# Project Management Settings
+submitDeployTicket:
+  value: Yes
+  prompt: Do yo want to submit a deployment ticket
+deploymentTickets:
+  value:
+    - Staging
+    - Production
+  prompt: What are environments are you deploying to (default Staging Production)
+  format: list
+targetDate:
+  value: ""
+  prompt: What date should the deployment ticket(s) target?
+# Drush related settings
+# Note: this is one of the more important settings regarding Drupates behavior
+# change it only if you understand its implications regarding how the
+# Drush pm-update (up) command will behave.
+upCmds:
+  value:
+    - up
+    - -y
+    - --security-only
+    - --no-backup
+    - --check-disabled
+  format: list
+  prompt: Arguments and options for drush pm-update cmd (separate with spaces)
+upsCmds:
+  value:
+    - ups
+    - --security-only
+    - --check-disabled
+  format: list
+  prompt: Arguments and options for drush pm-updatestatus cmd (separate with spaces)
+drushAliasFile:
+  value: drupdates.aliases.drushrc.php
+# Drush make related
 useMakeFile:
   value: ""
   prompt: Build the site using a make file (note the make file will be updated)
@@ -100,17 +106,18 @@ makeFolder:
 buildSource:
   value: git
   prompt: How will the site be built (using drush make or git)
-upsCmds:
-  value:
-    - ups
-    - --security-only
-    - --check-disabled
-  format: list
-  prompt: Arguments and options for drush pm-updatestatus cmd (separate with spaces)
 makeOpts:
   value:
     - --no-patch-txt
     - --force-complete
     - --no-gitinfofile
-ignoreCustomModules:
-  value: True
+# Database/Datastore related
+datastore:
+  value: sql
+datastoreDriver:
+  value: mysql
+  prompt: What is the default datastore (i.e. database) driver (default mysql)
+# Reporting related
+reportingTool:
+  value: "sendmail"
+  prompt: Tool to used to send the final report
