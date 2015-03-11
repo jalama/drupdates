@@ -79,6 +79,13 @@ class siteupdate():
   def repoStatus(self, value):
       self._repoStatus = value
 
+  @property
+  def _moduleDir(self):
+      return self.__moduleDir
+  @_moduleDir.setter
+  def _moduleDir(self, value):
+      self.__moduleDir = value
+
   def update(self):
     """ Set-up to and run Drush update(s) (i.e. up or ups). """
     report = {}
@@ -193,7 +200,15 @@ class siteupdate():
     """ add/remove changed files, ignore file mode changes. """
     os.chdir (self.siteDir)
     repository = Repo(self.siteDir)
+    # FIXME: move ot the use of the Repo.index object
+    # @see http://gitpython.readthedocs.org/en/latest/tutorial.html#the-index-object
     gitRepo = repository.git
+    if self._moduleDir and self.settings.get('ignoreCustomModules'):
+      customModuleDir = os.path.join(self.siteWebroot, self._moduleDir, 'custom')
+      try:
+        gitRepo.checkout(customModuleDir)
+      except git.exc.GitCommandError as e:
+        print "Failed to re-instantiate the custom modules folder \n {0}".format(e)
     g = git.Git('.')
     g.config("core.fileMode", "false")
     gitRepo.add('./')
@@ -230,9 +245,9 @@ class siteupdate():
       except git.exc.GitCommandError as e:
         gitRepo.checkout(self.workingBranch)
       addDir = self._siteName
-    moduleDir = self.repoStatus.get('modules', "")
-    if moduleDir:
-      shutil.rmtree(os.path.join(self.siteWebroot, moduleDir))
+    self._moduleDir = self.repoStatus.get('modules', "")
+    if self._moduleDir:
+      shutil.rmtree(os.path.join(self.siteWebroot, self._moduleDir))
     themeDir = self.repoStatus.get('themes', "")
     if themeDir:
       shutil.rmtree(os.path.join(self.siteWebroot, themeDir))

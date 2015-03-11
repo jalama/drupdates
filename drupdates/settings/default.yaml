@@ -112,3 +112,5 @@ makeOpts:
     - --no-patch-txt
     - --force-complete
     - --no-gitinfofile
+ignoreCustomModules:
+  value: True
