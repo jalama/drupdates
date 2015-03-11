@@ -195,13 +195,11 @@ class siteupdate():
     repository = Repo(self.siteDir)
     gitRepo = repository.git
     g = git.Git('.')
-    fileMode = g.config("core.fileMode")
     g.config("core.fileMode", "false")
     gitRepo.add('./')
     deleted = gitRepo.ls_files('--deleted')
     for f in deleted.split():
       gitRepo.rm(f)
-    g.config("core.fileMode", fileMode)
     return gitRepo
 
   def rebuildWebRoot(self):
