@@ -1,4 +1,4 @@
-import distutils.core, tempfile, os, git, shutil, copy
+import distutils.core, tempfile, git, copy
 from drupdates.utils import *
 from drupdates.drush import *
 from git import *
@@ -72,10 +72,22 @@ class siteupdate():
   def commitHash(self, value):
       self._commitHash = value
 
+  @property
+  def repoStatus(self):
+      return self._repoStatus
+  @repoStatus.setter
+  def repoStatus(self, value):
+      self._repoStatus = value
+
   def update(self):
     """ Set-up to and run Drush update(s) (i.e. up or ups). """
     report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
+    stCmds = ['st']
+    self.repoStatus = drush.call(stCmds, self._siteName, True)
+    if not isinstance(self.repoStatus, dict):
+      report['status'] = "Repo {0} failed call to drush status during update".format(self._siteName)
+      return report
     # Ensure update module is enabled.
     drush.call(['en', 'update', '-y'], self._siteName)
     updates = self.runUpdates()
@@ -85,19 +97,20 @@ class siteupdate():
       report['status'] = "Did not have any updates to apply"
       return report
     msg = '\n'.join(updates)
-    # Call dr.call() without site alias argument, aliaes comes after dd argument
-    dd = drush.call(['dd', '@drupdates.' + self._siteName])
-    self.siteWebroot = dd[0]
-    rebuilt = self.rebuildWebRoot()
-    if not rebuilt:
-      report['status'] = "The webroot re-build failed."
-      if self.settings.get('useMakeFile'):
-        makeErr = " Ensure the make file format is correct "
-        makeErr += "and drush make didn't fail on a bad patch."
-        report['status'] += makeErr
-      return report
     if self.settings.get('buildSource') == 'make':
       shutil.rmtree(self.siteWebroot)
+    else:
+      # Call dr.call() without site alias argument, aliaes comes after dd argument
+      dd = drush.call(['dd', '@drupdates.' + self._siteName])
+      self.siteWebroot = dd[0]
+      rebuilt = self.rebuildWebRoot()
+      if not rebuilt:
+        report['status'] = "The webroot re-build failed."
+        if self.settings.get('useMakeFile'):
+          makeErr = " Ensure the make file format is correct "
+          makeErr += "and drush make didn't fail on a bad patch."
+          report['status'] += makeErr
+        return report
     gitRepo = self.gitChanges()
     commitAuthor = self.settings.get('commitAuthor')
     gitRepo.commit(m=msg, author=commitAuthor)
@@ -126,6 +139,8 @@ class siteupdate():
           candidate = update['candidate_version'].replace(api + '-', '')
           self.updateMakeFile(module, current, candidate)
           updates.append("Update {0} from {1} to {2}".format(module, current, candidate))
+      if not self.settings.get('buildSource') == 'make':
+        self.utilities.makeSite(self._siteName, self.siteDir)
     else:
       updatesRet = drush.call(self.upCmds, self._siteName)
       updates = self.readUpdateReport(updatesRet)
@@ -202,13 +217,7 @@ class siteupdate():
     if addDir:
       repository = Repo(self.siteDir)
       gitRepo = repository.git
-      if self.settings.get('useMakeFile'):
-        make = self.utilities.makeSite(self._siteName, self.siteDir)
-        if not os.path.isdir(self.siteWebroot):
-          print self.siteWebroot
-          return False
-      else:
-        gitRepo.checkout(addDir)
+      gitRepo.checkout(addDir)
     else:
       repository = Repo.init(self.siteDir)
       try:
@@ -223,6 +232,12 @@ class siteupdate():
       except git.exc.GitCommandError as e:
         gitRepo.checkout(self.workingBranch)
       addDir = self._siteName
+    moduleDir = self.repoStatus.get('modules', "")
+    if moduleDir:
+      shutil.rmtree(os.path.join(self.siteWebroot, moduleDir))
+    themeDir = self.repoStatus.get('themes', "")
+    if themeDir:
+      shutil.rmtree(os.path.join(self.siteWebroot, themeDir))
     self.utilities.rmCommon(self.siteWebroot, tempDir)
     try:
       distutils.dir_util.copy_tree(tempDir + '/' + addDir, self.siteWebroot)
