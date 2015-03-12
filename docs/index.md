@@ -53,13 +53,13 @@ folder/<site alias>.
 
 - Lack of a back-up will not stop Drupdates from updating the Drupal codebase.
 
-- Any [Make](docs/make.md) file used to build a site will be named the same as the site folder.
+- Any [Make](make.md) file used to build a site will be named the same as the site folder.
 
 Configuration
 ===========
 
 Out of the box some basic configuration is in place but you will need to work
-with the Drupdates [settings](docs/settings.md) system to complete the set-up
+with the Drupdates [settings](settings.md) system to complete the set-up
 to meet the needs of you Drupal site(s) and development system(s).
 
 Please note out of the box the following settings are assumed:

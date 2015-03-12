@@ -1,6 +1,6 @@
 Drupdates
 ===========
-Script to maintain web sitescode bases, specifically Drupal, using [Drush](http://www.drush.org)
+Script to maintain Drupal web site(s) code base using [Drush](http://www.drush.org)
 
 This script performs 4 major functions (ie phases):
 
