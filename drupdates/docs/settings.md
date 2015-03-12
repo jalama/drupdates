@@ -13,11 +13,11 @@ Here's how it works:
 Settings are built from either YAML files or options passed when run on CLI.
 
 -  Settings are loaded in this order:
-  -  Core settings file, ie drupdates/settings/default.yaml
-  -  Plugin settings files, ie *plugin dir*/settings/default.yaml
-  -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
-  -  Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
-  -  Prompts to end user, only if required and not value found above
+    -  Core settings file, ie drupdates/settings/default.yaml
+    -  Plugin settings files, ie *plugin dir*/settings/default.yaml
+    -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
+    -  Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
+    -  Prompts to end user, only if required and not value found above
 
 Settings loaded later take precident over the same setting loaded earlier,
 ie if it's set at runtime it will overwrite anything set in the Core settings
@@ -49,6 +49,7 @@ setting:
 ```
 1 Surround with '' if value contains special cahracters.  For list of YAML
 special characters @see http://www.yaml.org/refcard.html.
+
 2 If setting is required and is empty, the end user will be asked for a value.
 
 **Sample Files:**
@@ -56,19 +57,19 @@ special characters @see http://www.yaml.org/refcard.html.
 
 - *Basic Settings:* use a manual repo list, submit deployment ticket to AtTask,
 print report to the terminal screen, use MYSQL, MYSQL root user/password = root:
-  - https://gist.github.com/jalama/c14c3e8880f7274dbb90
+    - [Basic Settings Gist](https://gist.github.com/jalama/c14c3e8880f7274dbb90)
 
-- *Basic Make file settings:* use a make file to build the site,
+- *Basic Make file Settings:* use a make file to build the site,
 manual repo list, submit a deployment ticket to AtTask,
 print report to the terminal screen, use MYSQL, MYSQL root user/password = root:
-  - https://gist.github.com/jalama/28aee650f3250cf92a55
+    - [Basic Make file Settings Gist](https://gist.github.com/jalama/28aee650f3250cf92a55)
 
 - *Basic Make file and full repo:*  Use a make file to build the site and ship
 with the complete repo, manual repo list, submit deployment ticket to AtTask,
 print report to the terminal screen, use MYSQL, MYSQL root user/password = root:
-  - https://gist.github.com/jalama/29091db65a263ec021af
+    - [Basic Make file and full repo Gist](https://gist.github.com/jalama/29091db65a263ec021af)
 
 - *Using Stash/Slack*: Repo list in Stash user forks, Slack for reporting,
 use a make file and ship with complete repo, submit deployment ticket to AtTask,
 print report to the terminal screen, use MYSQL, MYSQL root user/password = root:
-  - https://gist.github.com/jalama/6798bf4e1b8e28a31088
+    - [Using Stash/Slack Gist](https://gist.github.com/jalama/6798bf4e1b8e28a31088)
