@@ -14,7 +14,7 @@ Settings are built from either YAML files or options passed when run on CLI.
 
 -  Settings are loaded in this order:
     -  Core settings file, ie drupdates/settings/default.yaml
-    -  Plugin settings files, ie *plugin dir*/settings/default.yaml
+    -  [Plugin](plugins.md) settings files, ie *plugin dir*/settings/default.yaml
     -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
     -  Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
     -  Prompts to end user, only if required and not value found above
@@ -23,16 +23,15 @@ Settings loaded later take precident over the same setting loaded earlier,
 ie if it's set at runtime it will overwrite anything set in the Core settings
 or local settings files.
 
-The Core settings file is /drupdates/settings/default.yaml or
-https://github.com/jalama/drupdates/blob/master/drupdates/settings/default.yaml.
-Additionally, each plugin ships with it's own default.yaml file in its
-respective settings directory.
+The Core settings file is [/drupdates/settings/default.yaml](https://github.com/jalama/drupdates/blob/master/drupdates/settings default.yaml). Additionally, each plugin ships with it's own default.yaml file
+ in its respective settings directory.
 
 Settings Format:
 
 Each setting in the YAML file needs to be a dictionary with the following keys.
 Each setting should formatted like below or it will be assumed to be blank
-(ie "") there are notes on what each line means for clarities sake.
+(ie "") there are notes on what each line means for clarities sake. Note: Python
+interprets "" as False.
 
 ```
 setting: the name of the setting
@@ -71,5 +70,6 @@ print report to the terminal screen, use MYSQL, MYSQL root user/password = root:
 
 - *Using Stash/Slack*: Repo list in Stash user forks, Slack for reporting,
 use a make file and ship with complete repo, submit deployment ticket to AtTask,
-print report to the terminal screen, use MYSQL, MYSQL root user/password = root:
+print report to the terminal screen, use MYSQL, MYSQL root user/password = root,
+will run only on www.example.com:
     - [Using Stash/Slack Gist](https://gist.github.com/jalama/6798bf4e1b8e28a31088)
