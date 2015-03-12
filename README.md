@@ -27,7 +27,7 @@ $ drupdates --workingDir=/opt/
 
 Requirements
 ============
-Drush (preferably Drush 7)
+Drush 7
 Git 1.7+
 
 Assumptions
