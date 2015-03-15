@@ -1,5 +1,5 @@
 from drupdates.utils import *
-from drupdates.drush import *
+from drupdates.drush import Drush
 from drupdates.constructors.datastores import *
 import os
 from os.path import expanduser
@@ -79,7 +79,7 @@ class sql(datastore):
       if not self.writeMyCnf():
         return False
     createCmds = ['sql-create', '-y', '--db-su=' + suser, '--db-su-pw=' + spwd]
-    drush.call(createCmds, site)
+    Drush.call(createCmds, site)
     return True
 
   def aliases(self):

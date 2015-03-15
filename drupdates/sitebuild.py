@@ -1,6 +1,6 @@
 import git
 from drupdates.utils import *
-from drupdates.drush import *
+from drupdates.drush import Drush
 from drupdates.constructors.datastores import *
 from git import *
 
@@ -13,7 +13,7 @@ class sitebuild():
     self._siteName = siteName
     self.siteDir = os.path.join(self.settings.get('workingDir'), self._siteName)
     self.ssh = ssh
-    self.dr = drush()
+    self.dr = Drush()
     self.utilities = utils()
 
   @property
@@ -69,7 +69,7 @@ class sitebuild():
     if self.settings.get('useMakeFile'):
       make = self.utilities.makeSite(self._siteName, self.siteDir)
     stCmds = ['st']
-    repoStatus = drush.call(stCmds, self._siteName, True)
+    repoStatus = Drush.call(stCmds, self._siteName, True)
     if not isinstance(repoStatus, dict):
       print "{0} failed to respond to drush status".format(self._siteName)
       return False
@@ -98,14 +98,14 @@ class sitebuild():
       return False
     # Perform Drush site-install to get a base settings.php file
     siCmds = ['si', 'minimal', '-y', '--sites-subdir=' + site]
-    install = drush.call(siCmds, self._siteName)
+    install = Drush.call(siCmds, self._siteName)
     stCmds = ['st']
-    repoStatus = drush.call(stCmds, self._siteName, True)
+    repoStatus = Drush.call(stCmds, self._siteName, True)
     bootstrap = repoStatus.get('bootstrap', "")
     if not bootstrap:
       print "Bootstrap failed after site install for {0}".format(self._siteName)
       return False
-    dd = drush.call(['dd', '@drupdates.' + self._siteName])
+    dd = Drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
     siFiles = self.settings.get('drushSiFiles')
     for f in siFiles:
@@ -118,5 +118,5 @@ class sitebuild():
     Note: the back-up sife most follow the <siteName>.sql" naming convention"
 
     """
-    importDB = self.dr.dbImport(self._siteName)
+    importDB = self.dr.db_import(self._siteName)
     return importDB

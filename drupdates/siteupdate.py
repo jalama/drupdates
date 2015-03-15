@@ -1,6 +1,8 @@
-import distutils.core, tempfile, git, copy
-from drupdates.utils import *
-from drupdates.drush import *
+""" Module handles the heavy lifting, building the various seit directories. """
+import distutils.core, tempfile, git, shutil, os, yaml
+from drupdates.utils import utils
+from drupdates.settings import Settings
+from drupdates.drush import Drush
 from git import *
 
 class siteupdate():
@@ -92,12 +94,12 @@ class siteupdate():
     report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
     stCmds = ['st']
-    self.repoStatus = drush.call(stCmds, self._siteName, True)
+    self.repoStatus = Drush.call(stCmds, self._siteName, True)
     if not isinstance(self.repoStatus, dict):
       report['status'] = "Repo {0} failed call to drush status during update".format(self._siteName)
       return report
     # Ensure update module is enabled.
-    drush.call(['en', 'update', '-y'], self._siteName)
+    Drush.call(['en', 'update', '-y'], self._siteName)
     updates = self.runUpdates()
     # If no updates move to the next repo
     if not updates:
@@ -106,7 +108,7 @@ class siteupdate():
       return report
     msg = '\n'.join(updates)
     # Call dr.call() without site alias argument, aliaes comes after dd argument
-    dd = drush.call(['dd', '@drupdates.' + self._siteName])
+    dd = Drush.call(['dd', '@drupdates.' + self._siteName])
     self.siteWebroot = dd[0]
     if self.settings.get('buildSource') == 'make':
       shutil.rmtree(self.siteWebroot)
@@ -116,7 +118,7 @@ class siteupdate():
         report['status'] = "The webroot re-build failed."
         if self.settings.get('useMakeFile'):
           makeErr = " Ensure the make file format is correct "
-          makeErr += "and drush make didn't fail on a bad patch."
+          makeErr += "and Drush make didn't fail on a bad patch."
           report['status'] += makeErr
         return report
     gitRepo = self.gitChanges()
@@ -138,7 +140,7 @@ class siteupdate():
     """
     updates = False
     if self.settings.get('useMakeFile'):
-      updatesRet = drush.call(self.upsCmds, self._siteName, True)
+      updatesRet = Drush.call(self.upsCmds, self._siteName, True)
       if isinstance(updatesRet, dict):
         updates = []
         for module, update in updatesRet.iteritems():
@@ -150,7 +152,7 @@ class siteupdate():
       if not self.settings.get('buildSource') == 'make':
         self.utilities.makeSite(self._siteName, self.siteDir)
     else:
-      updatesRet = drush.call(self.upCmds, self._siteName)
+      updatesRet = Drush.call(self.upCmds, self._siteName)
       updates = self.readUpdateReport(updatesRet)
     return updates
 
@@ -201,8 +203,6 @@ class siteupdate():
     """ add/remove changed files, ignore file mode changes. """
     os.chdir (self.siteDir)
     repository = Repo(self.siteDir)
-    # FIXME: move ot the use of the Repo.index object
-    # @see http://gitpython.readthedocs.org/en/latest/tutorial.html#the-index-object
     gitRepo = repository.git
     if self._moduleDir and self.settings.get('ignoreCustomModules'):
       customModuleDir = os.path.join(self.siteWebroot, self._moduleDir, 'custom')
@@ -221,7 +221,7 @@ class siteupdate():
   def rebuildWebRoot(self):
     """ Rebuild the web root folder completely after running pm-update.
 
-    drush pm-update of Drupal Core deletes the .git folder therefore need to
+    Drush pm-update of Drupal Core deletes the .git folder therefore need to
     move the updated folder to a temp dir and re-build the webroot folder.
 
     """

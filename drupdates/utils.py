@@ -1,7 +1,7 @@
 import datetime, requests, os, imp, yaml, urlparse, subprocess, shutil, filecmp, sys
 from filecmp import dircmp
-from drupdates.settings import *
-from drupdates.drush import *
+from drupdates.settings import Settings
+from drupdates.drush import Drush
 from os.path import expanduser
 
 
@@ -57,7 +57,7 @@ class utils(object):
       makeOpts = self.settings.get('makeOpts')
       makeCmds = ['make', makeFile, folder]
       makeCmds += makeOpts
-      make = drush.call(makeCmds)
+      make = Drush.call(makeCmds)
       return make
 
   @staticmethod
