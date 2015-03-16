@@ -15,6 +15,11 @@ easy_install https://github.com/jalama/drupdates/tarball/master
 
 note: you may need sudo to run easy_install
 
+Upgrade
+============
+
+easy_install --upgrade duprdates
+
 Execution
 ============
 
