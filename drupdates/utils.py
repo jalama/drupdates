@@ -169,56 +169,30 @@ class utils(object):
     for directory in dcmp.common_dirs:
       shutil.rmtree(dirDelete + '/' + directory)
 
-  def force_delete(self, func, path, excinfo):
-    """ shutil.rmtree callback to deal with files, symlinks etc..."""
-    if (func.__name__ == 'rmdir' or func.__name__ =='listdir') and excinfo[1] == "[Errno 2] No such file or directory":
-      os.remove(path)
-    elif func.__name__ == 'islink':
-      os.unlink(path)
+class Plugin(object):
+    """ Simple Plugin system.
 
-class Plugin(Settings):
-  """ Simple Plugin system.
+    This is shamelessly based on:
+    http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
+    """
 
-  This is shamelessly based on:
-  http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
-  """
+    def __init__(self):
+        self._plugin_folder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
+        self._main_module = "__init__"
+        self._plugins = self.get_plugins()
 
-  def __init__(self):
-    self._pluginFolder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
-    self._mainModule = "__init__"
-    self._plugins = ""
+    def get_plugins(self):
+        """ Collect Plugins from the plugins folder. """
+        plugins = {}
+        possibleplugins = os.listdir(self._plugin_folder)
+        for i in possibleplugins:
+            location = os.path.join(self._plugin_folder, i)
+            if not os.path.isdir(location) or not self._main_module + ".py" in os.listdir(location):
+                continue
+            info = imp.find_module(self._main_module, [location])
+            plugins[i] = ({"name": i, "info": info})
+        return plugins
 
-  @property
-  def _pluginFolder(self):
-      return self.__pluginFolder
-  @_pluginFolder.setter
-  def _pluginFolder(self, value):
-      self.__pluginFolder = value
-
-  @property
-  def _mainModule(self):
-      return self.__mainModule
-  @_mainModule.setter
-  def _mainModule(self, value):
-      self.__mainModule = value
-
-  @property
-  def _plugins(self):
-      return self.__plugins
-  @_plugins.setter
-  def _plugins(self, value):
-      self.__plugins = self.getPlugins()
-
-  def getPlugins(self):
-    plugins = {}
-    possibleplugins = os.listdir(self._pluginFolder)
-    for i in possibleplugins:
-      location = os.path.join(self._pluginFolder, i)
-      if not os.path.isdir(location) or not self._mainModule + ".py" in os.listdir(location):
-        continue
-      info = imp.find_module(self._mainModule, [location])
-      plugins[i] = ({"name": i, "info": info})
-    return plugins
-
-  def loadPlugin(self, plugin):
-    return imp.load_module(self._mainModule, *plugin["info"])
+    def load_plugin(self, plugin):
+        """ Load an individual plugin. """
+        return imp.load_module(self._main_module, *plugin["info"])

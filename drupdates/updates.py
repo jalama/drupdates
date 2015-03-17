@@ -1,6 +1,6 @@
 """ Primary Drupdates Module. """
 from drupdates.settings import Settings
-from drupdates.constructors.repos import repos
+from drupdates.constructors.repos import Repos
 from drupdates.constructors.pmtools import pmtools
 from drupdates.constructors.reports import reports
 from drupdates.constructors.datastores import datastores
@@ -11,7 +11,7 @@ def main():
     """ Drupdates main function. """
     settings = Settings()
     report = {}
-    sites = repos().get()
+    sites = Repos().get()
     pm_tool = pmtools()
     blacklist = settings.get('blacklist')
     single_site = settings.get('singleSite')

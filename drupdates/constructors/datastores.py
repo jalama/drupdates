@@ -1,4 +1,5 @@
-from drupdates.utils import *
+from drupdates.settings import Settings
+from drupdates.utils import Plugin
 import abc
 
 class datastores(Plugin):
@@ -24,7 +25,7 @@ class datastores(Plugin):
   @_plugin.setter
   def _plugin(self, value):
     plugins = self._plugins
-    self.__plugin = self.loadPlugin(plugins[value])
+    self.__plugin = self.load_plugin(plugins[value])
 
   @property
   def _instance(self):

@@ -30,6 +30,11 @@ Drupdates to use /opt/ as the working directory in lieu of /var/www/
 
 $ drupdates --workingDir=/opt/
 
+Uninstall
+============
+
+(sudo) pip uninstall drupdates
+
 Requirements
 ============
 Drush 7
