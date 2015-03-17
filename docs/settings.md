@@ -15,7 +15,7 @@ Settings are built from either YAML files or options passed when run on CLI.
 -  Settings are loaded in this order:
     -  Core settings file, ie drupdates/settings/default.yaml
     -  [Plugin](plugins.md) settings files, ie *plugin dir*/settings/default.yaml
-    -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
+    -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.yaml
     -  Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
     -  Prompts to end user, only if required and not value found above
 
@@ -23,8 +23,13 @@ Settings loaded later take precident over the same setting loaded earlier,
 ie if it's set at runtime it will overwrite anything set in the Core settings
 or local settings files.
 
-The Core settings file is [/drupdates/settings/default.yaml](https://github.com/jalama/drupdates/blob/master/drupdates/settings default.yaml). Additionally, each plugin ships with it's own default.yaml file
- in its respective settings directory.
+The Core settings file is [/drupdates/settings/default.yaml](https://github.com/jalama/drupdates/blob/master/drupdates/settings default.yaml). Additionally, each plugin ships with it's own default.yaml file in its respective settings directory.
+
+Custom Settings file:
+
+You will need to overwirte settings file upon set-up.  To do this create a local
+settings file in $HOME/.drupdates/settings.yaml.  Sample settings files can be
+found below.
 
 Settings Format:
 
