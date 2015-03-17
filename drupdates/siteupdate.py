@@ -10,7 +10,7 @@ class siteupdate():
     self.settings = Settings(self.currentDir)
     self.workingBranch = self.settings.get('workingBranch')
     self._siteName = siteName
-    self.siteDir = self.settings.get('workingDir') + self._siteName
+    self.siteDir = os.path.join(self.settings.get('workingDir'), self._siteName)
     self.upCmds = self.settings.get('upCmds')
     self.upsCmds = self.settings.get('upsCmds')
     self.ssh = ssh

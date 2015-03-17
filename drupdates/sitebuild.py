@@ -11,7 +11,7 @@ class sitebuild():
     self.settings = Settings(self.currentDir)
     self._workingBranch = self.settings.get('workingBranch')
     self._siteName = siteName
-    self.siteDir = self.settings.get('workingDir') + self._siteName
+    self.siteDir = os.path.join(self.settings.get('workingDir'), self._siteName)
     self.ssh = ssh
     self.dr = drush()
     self.utilities = utils()
