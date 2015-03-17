@@ -30,11 +30,11 @@ def main():
         continue
 
     if settings.get('runUpdates'):
-      updater = siteupdate(siteName, ssh)
+      updater = Siteupdate(siteName, ssh)
       update = updater.update()
       report[siteName] = update
-      if settings.get('submitDeployTicket') and updater.commitHash:
-        deploys = pmTool.deployTicket(siteName, updater.commitHash)
+      if settings.get('submitDeployTicket') and updater.commit_hash:
+        deploys = pmTool.deployTicket(siteName, updater.commit_hash)
         report[siteName]['pmtool'] = deploys
 
   datastore.cleanFiles()
