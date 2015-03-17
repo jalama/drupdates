@@ -52,6 +52,7 @@ class sitebuild():
       self._siteWebRoot = value
 
   def build(self):
+    utils.check_working_dir(self.settings.get('workingDir'))
     """ Build site folder from Git repository."""
     if not utils.removeDir(self.siteDir):
       return False

@@ -88,6 +88,7 @@ class siteupdate():
 
   def update(self):
     """ Set-up to and run Drush update(s) (i.e. up or ups). """
+    utils.check_working_dir(self.settings.get('workingDir'))
     report = {}
     self.utilities.sysCommands(self, 'preUpdateCmds')
     stCmds = ['st']

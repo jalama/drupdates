@@ -1,4 +1,4 @@
-import datetime, requests, os, imp, yaml, urlparse, subprocess, shutil, filecmp
+import datetime, requests, os, imp, yaml, urlparse, subprocess, shutil, filecmp, sys
 from filecmp import dircmp
 from drupdates.settings import *
 from drupdates.drush import *
@@ -9,6 +9,16 @@ class utils(object):
 
   def __init__(self):
     self.settings = Settings()
+
+  @staticmethod
+  def check_working_dir(directory):
+    filepath = os.path.join(directory, "text.txt")
+    try:
+     open(filepath, "w")
+    except IOError:
+      sys.exit('Unable to write to working directory {0} \n Exiting Drupdates'.format(directory))
+      return False
+    return True
 
   @staticmethod
   def removeDir(directory):
