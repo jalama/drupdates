@@ -17,7 +17,8 @@ class stash(repoTool):
     gitRepoName = self.settings.get('gitRepoName')
     stashUser = self.settings.get('stashUser')
     stashPword = self.settings.get('stashPword')
-    r = utils.apiCall(stashURL, gitRepoName, 'get', auth=(stashUser, stashPword))
+    stash_cert_verify = self.settings.get('stashCertVerify')
+    r = utils.apiCall(stashURL, gitRepoName, 'get', auth=(stashUser, stashPword), verify=stash_cert_verify)
     if not r == False:
       repos = self.__parseRepos(r['values'])
       return repos

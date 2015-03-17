@@ -12,3 +12,6 @@ stashPword:
   value: ""
   prompt: What is you Stash password
   required: True
+stashCertVerify:
+  value: False
+  prompt: Verify the authenticy of the SSL cert for Stash
