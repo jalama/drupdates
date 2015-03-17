@@ -33,6 +33,10 @@ postBuildCmds:
   prompt: OS command/options to run after a site built (separate with spaces)
   format: list
 # Git related settings
+gitRepoName:
+  value: ""
+  prompt: Where is the list of git repos stored
+  required: True
 drushSiFiles:
   value:
     - sites/default/settings.php
