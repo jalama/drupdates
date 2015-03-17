@@ -7,7 +7,7 @@
 * This script will:
 * - Recurse through the directories
 * - test if it's a Drupal repo
-* - set-up the database credentials, assuming the sitebuild class has
+* - set-up the database credentials, assuming the Sitebuild class has
 * successfully built the site.
 *
 */

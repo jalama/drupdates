@@ -110,7 +110,7 @@ class utils(object):
 
     Note: the format of the setting is a multi-dimensional list
 
-    Example (form sitebuild.build():
+    Example (from Sitebuild.build():
       postBuildCmds:
         value:
           -
@@ -121,7 +121,7 @@ class utils(object):
 
     Note: You can refer to an attribute in the calling class, assuming they are
     set, by prefixing them with "att_" in the settings yaml above,
-    ex. att_siteDir would pass the sitebuild.siteDir attribute
+    ex. att_site_dir would pass the Sitebuild.site_dir attribute
 
     Keyword arguments:
     phase -- the phase the script is at when sysCommands is called (default "")

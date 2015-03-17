@@ -3,7 +3,7 @@ from drupdates.constructors.repos import *
 from drupdates.constructors.pmtools import *
 from drupdates.constructors.reports import *
 from drupdates.constructors.datastores import *
-from drupdates.sitebuild import *
+from drupdates.sitebuild import Sitebuild
 from drupdates.siteupdate import *
 
 def main():
@@ -24,7 +24,7 @@ def main():
       continue
 
     if settings.get('buildRepos'):
-      builder = sitebuild(siteName, ssh)
+      builder = Sitebuild(siteName, ssh)
       build = builder.build()
       if not build:
         continue
