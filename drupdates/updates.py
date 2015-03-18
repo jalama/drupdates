@@ -1,7 +1,7 @@
 """ Primary Drupdates Module. """
 from drupdates.settings import Settings
 from drupdates.constructors.repos import Repos
-from drupdates.constructors.pmtools import pmtools
+from drupdates.constructors.pmtools import Pmtools
 from drupdates.constructors.reports import Reports
 from drupdates.constructors.datastores import Datastores
 from drupdates.sitebuild import Sitebuild
@@ -12,7 +12,7 @@ def main():
     settings = Settings()
     report = {}
     sites = Repos().get()
-    pm_tool = pmtools()
+    pm_tool = Pmtools()
     blacklist = settings.get('blacklist')
     single_site = settings.get('singleSite')
     datastore = Datastores()
@@ -35,7 +35,7 @@ def main():
             update = updater.update()
             report[site_name] = update
             if settings.get('submitDeployTicket') and updater.commit_hash:
-                deploys = pm_tool.deployTicket(site_name, updater.commit_hash)
+                deploys = pm_tool.deploy_ticket(site_name, updater.commit_hash)
                 report[site_name]['pmtool'] = deploys
 
     datastore.clean_files()

@@ -1,71 +1,55 @@
+""" Parent class for plugins work with Project Management Tools. """
 from drupdates.settings import Settings
 from drupdates.utils import Plugin
 import abc, datetime
 
-class pmtools(Plugin):
+class Pmtools(Plugin):
+    """ Submit requests to Project Management tools. """
 
-  def __init__(self):
-    Plugin.__init__(self)
-    self.settings = Settings()
-    self._tool = self.settings.get('pmName').lower()
-    self._plugin = self._tool
-    self._instance = ""
+    def __init__(self):
+        Plugin.__init__(self)
+        plugins = self._plugins
+        self.settings = Settings()
+        tool = self.settings.get('pmName').title()
+        self._plugin = self.load_plugin(plugins[tool])
+        class_ = getattr(self._plugin, tool)
+        self._instance = class_()
 
-  @property
-  def _tool(self):
-    return self.__tool
-  @_tool.setter
-  def _tool(self, value):
-    self.__tool = value
+    def target_date(self):
+        """ Get the date string for the following Friday. """
+        value = self.settings.get('targetDate')
+        if not value:
+            today = datetime.date.today()
+            # If today is a Friday, we skip to next Friday
+            if datetime.datetime.today().weekday() == 4:
+                friday = str(today + datetime.timedelta((3-today.weekday()) % 7 + 1))
+            else:
+                friday = str(today + datetime.timedelta((4-today.weekday()) % 7))
+            return friday
+        else:
+            return value
 
-  @property
-  def _plugin(self):
-    return self.__plugin
-  @_plugin.setter
-  def _plugin(self, value):
-    plugins = self._plugins
-    self.__plugin = self.load_plugin(plugins[value])
+    @staticmethod
+    def description(site, git_hash):
+        """ Collect data for ticket's descriotion field. """
+        description_list = []
+        description_list.append("Git Hash = <" + git_hash + ">")
+        description_list.append("Post deployment steps:")
+        description_list.append("drush @" + site +" updb -y")
+        return '\n'.join(description_list)
 
-  @property
-  def _instance(self):
-    return self.__instance
-  @_instance.setter
-  def _instance(self, value):
-    class_ = getattr(self._plugin, self._tool)
-    self.__instance = class_()
+    def deploy_ticket(self, site, commit_hash):
+        """ Submit ticket requesting deployment(s). """
+        description = Pmtools.description(site, commit_hash)
+        environments = self.settings.get('deploymentTickets')
+        target = self.target_date()
+        return self._instance.submit_deploy_ticket(site, environments, description, target)
 
-  @property
-  def _targetDate(self):
-    return self.__targetDate
-  @_targetDate.setter
-  def _targetDate(self, value):
-    # Get the date string for the following Friday
-    if not value:
-      today = datetime.date.today()
-      # If today is a Friday, we skip to next Friday
-      if datetime.datetime.today().weekday() == 4:
-        friday = str(today + datetime.timedelta( (3-today.weekday())%7+1 ))
-      else:
-        friday = str(today + datetime.timedelta( (4-today.weekday()) % 7 ))
-      self.__targetDate = friday
-    else:
-        self.__targetDate = value
+class Pmtool(object):
+    """ Abstract class to work with Project Management tool. """
+    __metaclass__ = abc.ABCMeta
 
-  def description(self, site, gitHash):
-    descriptionList = []
-    descriptionList.append("Git Hash = <" + gitHash + ">")
-    descriptionList.append("Post deployment steps:")
-    descriptionList.append("drush @" + site +" updb -y")
-    return '\n'.join(descriptionList)
-
-  def deployTicket(self, site, commitHash):
-    description = self.description(site, commitHash)
-    environments = self.settings.get('deploymentTickets')
-    self._targetDate = self.settings.get('targetDate')
-    return self._instance.submitDeployTicket(site, environments, description, self._targetDate)
-
-class pmTool(object):
-  __metaclass__ = abc.ABCMeta
-
-  @abc.abstractmethod
-  def submitDeployTicket(self, site, environments, description, targetDate): pass
+    @abc.abstractmethod
+    def submit_deploy_ticket(self, site, environments, description, target_date):
+        """ Abstract method ticket requesting deployment(s). """
+        pass
