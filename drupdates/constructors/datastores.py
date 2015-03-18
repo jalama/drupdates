@@ -1,58 +1,49 @@
+""" Parent class for plugins that work with various data storage engines. """
 from drupdates.settings import Settings
 from drupdates.utils import Plugin
 import abc
 
-class datastores(Plugin):
+class Datastores(Plugin):
+    """ Work with various data storage engines. """
 
-  def __init__(self):
-    # load the Plugin _plugins property
-    Plugin.__init__(self)
-    self.settings = Settings()
-    self._tool = self.settings.get('datastore').lower()
-    self._plugin = self._tool
-    self._instance = ""
+    def __init__(self):
+        # load the Plugin _plugins property
+        Plugin.__init__(self)
+        plugins = self._plugins
+        self.settings = Settings()
+        tool = self.settings.get('datastore').title()
+        self._plugin = self.load_plugin(plugins[tool])
+        class_ = getattr(self._plugin, tool)
+        self._instance = class_()
 
-  @property
-  def _tool(self):
-    return self.__tool
-  @_tool.setter
-  def _tool(self, value):
-    self.__tool = value
+    def build(self, site):
+        """ Build a database etc... """
+        return self._instance.create(site)
 
-  @property
-  def _plugin(self):
-    return self.__plugin
-  @_plugin.setter
-  def _plugin(self, value):
-    plugins = self._plugins
-    self.__plugin = self.load_plugin(plugins[value])
+    def create_alises(self):
+        """ Create an alias file. """
+        return self._instance.aliases()
 
-  @property
-  def _instance(self):
-    return self.__instance
-  @_instance.setter
-  def _instance(self, value):
-    class_ = getattr(self._plugin, self._tool)
-    self.__instance = class_()
+    def clean_files(self):
+        """ Clean up any files used by sotrage engine. """
+        return self._instance.delete_files()
 
-  def build(self, site):
-    return self._instance.create(site)
+class Datastore(object):
+    """ Abstract class for data storage engines. """
+    __metaclass__ = abc.ABCMeta
 
-  def createAlises(self):
-    return self._instance.aliases()
+    @abc.abstractmethod
+    def create(self, site):
+        """ Abstract method for creating database or collection. """
+        pass
 
-  def cleanFiles(self):
-    return self._instance.deleteFiles()
+    @abc.abstractmethod
+    def aliases(self):
+        """ Abstract method for creating alias files. """
+        pass
 
-class datastore(object):
-  __metaclass__ = abc.ABCMeta
-
-  @abc.abstractmethod
-  def create(self, site): pass
-
-  @abc.abstractmethod
-  def aliases(self): pass
-
-  @abc.abstractmethod
-  def deleteFiles(self): pass
+    @abc.abstractmethod
+    def delete_files(self):
+        """ Abstract class for file cleanup. """
+        pass
 

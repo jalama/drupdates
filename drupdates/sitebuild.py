@@ -3,7 +3,7 @@ import git, os
 from drupdates.utils import utils
 from drupdates.settings import Settings
 from drupdates.drush import Drush
-from drupdates.constructors.datastores import datastores
+from drupdates.constructors.datastores import Datastores
 from git import Repo
 
 class Sitebuild(object):
@@ -63,7 +63,7 @@ class Sitebuild(object):
 
     def construct_site(self, site='default'):
         """ Rebulid the Drupal site: build DB, settings.php, etc..."""
-        build_db = datastores().build(self._site_name)
+        build_db = Datastores().build(self._site_name)
         if not build_db:
             print "Site database build failed for {0}".format(self._site_name)
             return False

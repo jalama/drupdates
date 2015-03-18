@@ -1,55 +1,41 @@
+""" Parent class for plugins that print Drupdates final report. """
 from drupdates.settings import Settings
 from drupdates.utils import Plugin
 import abc
 
-class reports(Plugin):
+class Reports(Plugin):
+    """ Class for print reports. """
 
-  def __init__(self):
-    # load the Plugin _plugins property
-    Plugin.__init__(self)
-    self.settings = Settings()
-    self._tool = self.settings.get('reportingTool').lower()
-    self._plugin = self._tool
-    self._instance = ""
+    def __init__(self):
+        # load the Plugin _plugins property
+        Plugin.__init__(self)
+        plugins = self._plugins
+        self.settings = Settings()
+        tool = self.settings.get('reportingTool').title()
+        self._plugin = self.load_plugin(plugins[tool])
+        class_ = getattr(self._plugin, tool)
+        self._instance = class_()
 
-  @property
-  def _tool(self):
-    return self.__tool
-  @_tool.setter
-  def _tool(self, value):
-    self.__tool = value
+    def format_report(self, report, text=""):
+        """ Format the report dictionary into a string. """
+        for line in report:
+            if isinstance(report[line], dict):
+                text += "{0} \n".format(line)
+                text = self.format_report(report[line], text)
+            else:
+                text += "\t{0} : {1} \n".format(line, report[line])
+        return text
 
-  @property
-  def _plugin(self):
-    return self.__plugin
-  @_plugin.setter
-  def _plugin(self, value):
-    plugins = self._plugins
-    self.__plugin = self.load_plugin(plugins[value])
+    def send(self, report):
+        """ Deliverythe report. """
+        report_text = self.format_report(report)
+        return self._instance.send_message(report_text)
 
-  @property
-  def _instance(self):
-    return self.__instance
-  @_instance.setter
-  def _instance(self, value):
-    class_ = getattr(self._plugin, self._tool)
-    self.__instance = class_()
+class Report(object):
+    """ Abstract class for report Plugins. """
+    __metaclass__ = abc.ABCMeta
 
-  def formatReport(self, report, text = ""):
-    for x in report:
-      if isinstance(report[x], dict):
-        text += "{0} \n".format(x)
-        text = self.formatReport(report[x], text)
-      else:
-        text += "\t{0} : {1} \n".format(x, report[x])
-    return text
-
-  def send(self, report):
-    reportText = self.formatReport(report)
-    return self._instance.sendMessage(reportText)
-
-class Reports(object):
-  __metaclass__ = abc.ABCMeta
-
-  @abc.abstractmethod
-  def sendMessage(self): pass
+    @abc.abstractmethod
+    def send_message(self, report_text):
+        """ Abstract method to send report. """
+        pass
