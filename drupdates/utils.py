@@ -89,7 +89,7 @@ class Utils(object):
         except ValueError:
             return response
         #If API call errors out print the error and quit the script
-        if response.status_code not in  [200, 201]:
+        if response.status_code not in [200, 201]:
             if 'errors' in response_dictionary:
                 errors = response_dictionary.pop('errors')
                 first_error = errors.pop()

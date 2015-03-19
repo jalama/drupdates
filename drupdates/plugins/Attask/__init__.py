@@ -3,6 +3,7 @@ from drupdates.settings import Settings
 from drupdates.utils import Utils
 from drupdates.constructors.pmtools import Pmtool
 import os
+from urlparse import urljoin
 
 class Attask(Pmtool):
     """ Plugin to wotk with AtTask. """
@@ -13,14 +14,15 @@ class Attask(Pmtool):
         self._pm_label = self.settings.get('pmName')
         base = self.settings.get('attaskBaseURL')
         api = self.settings.get('attaskAPIVersion')
-        self._attask_api_url = base + 'attask/api/' + api + '/'
+        api_base = urljoin(base, 'attask/api/')
+        self._attask_api_url = urljoin(api_base, api)
 
     def get_session_id(self):
         """ Get a session ID from AtTask. """
         attask_pword = self.settings.get('attaskPword')
         attask_user = self.settings.get('attaskUser')
         at_params = {'username': attask_user, 'password': attask_pword}
-        login_url = self._attask_api_url + self.settings.get('attaskLoginUrl')
+        login_url = urljoin(self._attask_api_url, self.settings.get('attaskLoginUrl'))
         response = Utils.api_call(login_url, self._pm_label, 'post', params=at_params)
         if response == False:
             return False
@@ -48,7 +50,7 @@ class Attask(Pmtool):
         dev_ops_team_id = self.settings.get('devOpsTeamID')
         attask_base_url = self.settings.get('attaskBaseURL')
         attask_assignee_type = self.settings.get('attaskAssigneeType')
-        task_url = self._attask_api_url + self.settings.get('attaskTaskURL')
+        task_url = urljoin(self._attask_api_url, self.settings.get('attaskTaskURL'))
         message = {}
         for environment in environments:
             title = environment + ' Deployment for ' + site +' w.e. ' + target_date
