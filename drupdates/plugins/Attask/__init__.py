@@ -1,6 +1,6 @@
 """ Plugin to wotk with AtTask. """
 from drupdates.settings import Settings
-from drupdates.utils import utils
+from drupdates.utils import Utils
 from drupdates.constructors.pmtools import Pmtool
 import os
 
@@ -21,7 +21,7 @@ class Attask(Pmtool):
         attask_user = self.settings.get('attaskUser')
         at_params = {'username': attask_user, 'password': attask_pword}
         login_url = self._attask_api_url + self.settings.get('attaskLoginUrl')
-        response = utils.apiCall(login_url, self._pm_label, 'post', params=at_params)
+        response = Utils.api_call(login_url, self._pm_label, 'post', params=at_params)
         if response == False:
             return False
         else:
@@ -54,8 +54,8 @@ class Attask(Pmtool):
             title = environment + ' Deployment for ' + site +' w.e. ' + target_date
             at_params = {'name': title, 'projectID': attask_project_id,
                          attask_assignee_type: dev_ops_team_id, 'description': description}
-            response = utils.apiCall(task_url, self._pm_label, 'post',
-                                     params=at_params, headers=sessparam)
+            response = Utils.api_call(task_url, self._pm_label, 'post',
+                                      params=at_params, headers=sessparam)
             if not response == False:
                 data = response['data']
                 msg = "The {0} deploy ticket is".format(environment)

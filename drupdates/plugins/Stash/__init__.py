@@ -1,6 +1,6 @@
 """ Plugin to pull a git repo list from the Stash. """
 from drupdates.settings import Settings
-from drupdates.utils import utils
+from drupdates.utils import Utils
 from drupdates.constructors.repos import Repotool
 import os
 
@@ -22,8 +22,8 @@ class Stash(Repotool):
         stash_user = self.settings.get('stashUser')
         stash_pword = self.settings.get('stashPword')
         stash_cert_verify = self.settings.get('stashCertVerify')
-        response = utils.apiCall(stash_url, git_repo_name, 'get',
-                                 auth=(stash_user, stash_pword), verify=stash_cert_verify)
+        response = Utils.api_call(stash_url, git_repo_name, 'get',
+                                  auth=(stash_user, stash_pword), verify=stash_cert_verify)
         if not response == False:
             repos = Stash.parse_repos(response['values'])
             return repos

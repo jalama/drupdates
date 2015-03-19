@@ -1,6 +1,6 @@
 """ Module handles the heavy lifting, building the various seit directories. """
 import distutils.core, tempfile, git, shutil, os, yaml
-from drupdates.utils import utils
+from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.drush import Drush
 from git import Repo
@@ -15,7 +15,7 @@ class Siteupdate(object):
         self._site_name = site_name
         self.site_dir = os.path.join(self.settings.get('workingDir'), self._site_name)
         self.ssh = ssh
-        self.utilities = utils()
+        self.utilities = Utils()
         self.site_web_root = None
         self._commit_hash = None
         self.repo_status = None
@@ -32,9 +32,9 @@ class Siteupdate(object):
 
     def update(self):
         """ Set-up to and run Drush update(s) (i.e. up or ups). """
-        utils.check_working_dir(self.settings.get('workingDir'))
+        Utils.check_working_dir(self.settings.get('workingDir'))
         report = {}
-        self.utilities.sysCommands(self, 'preUpdateCmds')
+        self.utilities.sys_commands(self, 'preUpdateCmds')
         st_cmds = ['st']
         self.repo_status = Drush.call(st_cmds, self._site_name, True)
         if not isinstance(self.repo_status, dict):
@@ -71,7 +71,7 @@ class Siteupdate(object):
         git_repo.push(self._site_name, self.working_branch)
         report['status'] = "The following updates were applied \n {0}".format(msg)
         report['commit'] = "The commit hash is {0}".format(self.commit_hash)
-        self.utilities.sysCommands(self, 'postUpdateCmds')
+        self.utilities.sys_commands(self, 'postUpdateCmds')
         return report
 
     def run_updates(self):
@@ -96,7 +96,7 @@ class Siteupdate(object):
                     self.update_make_file(module, current, candidate)
                     updates.append("Update {0} from {1} to {2}".format(module, current, candidate))
             if not self.settings.get('buildSource') == 'make':
-                self.utilities.makeSite(self._site_name, self.site_dir)
+                self.utilities.make_site(self._site_name, self.site_dir)
         else:
             up_cmds = self.settings.get('upCmds')
             updates_ret = Drush.call(up_cmds, self._site_name)
@@ -127,7 +127,7 @@ class Siteupdate(object):
         candidate -- the version to update two
 
         """
-        make_file = self.utilities.findMakeFile(self._site_name, self.site_dir)
+        make_file = self.utilities.find_make_file(self._site_name, self.site_dir)
         make_format = self.settings.get('makeFormat')
         if make_format == 'make':
             openfile = open(make_file)
@@ -200,7 +200,7 @@ class Siteupdate(object):
         if 'themes' in self.repo_status:
             theme_dir = self.repo_status['themes']
             shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
-        self.utilities.rmCommon(self.site_web_root, temp_dir)
+        self.utilities.rm_common(self.site_web_root, temp_dir)
         try:
             distutils.dir_util.copy_tree(temp_dir + '/' + add_dir, self.site_web_root)
         except IOError as error:

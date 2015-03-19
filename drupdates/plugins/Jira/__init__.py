@@ -1,5 +1,5 @@
 """ Plugin to wotk with JIRA. """
-from drupdates.utils import utils
+from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.constructors.pmtools import Pmtool
 import json, os
@@ -25,7 +25,7 @@ class Jira(Pmtool):
         for environment in environments:
             request = self.build_reqest(site, environment, description, target_date)
             headers = {'content-type': 'application/json'}
-            response = utils.apiCall(issue_url, 'Jira', 'post', data=request,
+            response = Utils.apiCall(issue_url, 'Jira', 'post', data=request,
                                      auth=(jira_user, jira_pword), headers=headers)
             if not response == False:
                 url = response['key']

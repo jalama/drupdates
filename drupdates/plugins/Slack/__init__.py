@@ -1,6 +1,6 @@
 """ Send report using Slack. """
 from drupdates.settings import Settings
-from drupdates.utils import utils
+from drupdates.utils import Utils
 from drupdates.constructors.reports import Report
 import json, os
 
@@ -24,6 +24,6 @@ class Slack(Report):
             payload['channel'] = '@' + direct
         elif channel:
             payload['channel'] = '#' + direct
-        utils.apiCall(url, 'Slack', 'post', data=json.dumps(payload))
+        Utils.api_call(url, 'Slack', 'post', data=json.dumps(payload))
 
 

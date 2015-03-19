@@ -1,6 +1,6 @@
 """ Drupdates Site building module. """
 import git, os
-from drupdates.utils import utils
+from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.drush import Drush
 from drupdates.constructors.datastores import Datastores
@@ -16,15 +16,15 @@ class Sitebuild(object):
         self.site_dir = os.path.join(self.settings.get('workingDir'), self._site_name)
         self.ssh = ssh
         self.drush = Drush()
-        self.utilities = utils()
+        self.utilities = Utils()
 
     def build(self):
         """ Core build method. """
         working_branch = self.settings.get('workingBranch')
-        utils.check_working_dir(self.settings.get('workingDir'))
-        if not utils.removeDir(self.site_dir):
+        Utils.check_working_dir(self.settings.get('workingDir'))
+        if not Utils.remove_dir(self.site_dir):
             return False
-        self.utilities.sysCommands(self, 'preBuildCmds')
+        self.utilities.sys_commands(self, 'preBuildCmds')
         repository = Repo.init(self.site_dir)
         remote = git.Remote.create(repository, self._site_name, self.ssh)
         try:
@@ -37,7 +37,7 @@ class Sitebuild(object):
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
         if self.settings.get('useMakeFile'):
-            self.utilities.makeSite(self._site_name, self.site_dir)
+            self.utilities.make_site(self._site_name, self.site_dir)
         st_cmds = ['st']
         repo_status = Drush.call(st_cmds, self._site_name, True)
         if not isinstance(repo_status, dict):
@@ -58,7 +58,7 @@ class Sitebuild(object):
         if ret and self.settings.get('importBackup'):
             # Import the backup file
             ret = self.import_backup()
-        self.utilities.sysCommands(self, 'postBuildCmds')
+        self.utilities.sys_commands(self, 'postBuildCmds')
         return ret
 
     def construct_site(self, site='default'):
