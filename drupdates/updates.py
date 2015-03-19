@@ -36,7 +36,8 @@ def main():
             report[site_name] = update
             if settings.get('submitDeployTicket') and updater.commit_hash:
                 deploys = pm_tool.deploy_ticket(site_name, updater.commit_hash)
-                report[site_name]['pmtool'] = deploys
+                pm_name = settings.get('pmName').title()
+                report[site_name][pm_name] = deploys
 
     datastore.clean_files()
     reporting = Reports()
