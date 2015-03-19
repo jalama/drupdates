@@ -1,47 +1,33 @@
-from drupdates.utils import *
+""" Parent class for plugins that create Git repository list. """
+from drupdates.settings import Settings
+from drupdates.utils import Plugin
 import abc
 
-class repos(Plugin):
+class Repos(Plugin):
+    """ Build Git repository list. """
 
-  def __init__(self):
-    # load the Plugin _plugins property
-    Plugin.__init__(self)
-    self.settings = Settings()
-    self._tool = self.settings.get('gitRepoName').lower()
-    self._plugin = self._tool
-    self._instance = ""
+    def __init__(self):
+        # load the Plugin _plugins property
+        Plugin.__init__(self)
+        plugins = self._plugins
+        self.settings = Settings()
+        tool = self.settings.get('gitRepoName').title()
+        self._plugin = self.load_plugin(plugins[tool])
+        class_ = getattr(self._plugin, tool)
+        self._instance = class_()
 
-  @property
-  def _tool(self):
-    return self.__tool
-  @_tool.setter
-  def _tool(self, value):
-    self.__tool = value
+    def get(self):
+        """ Get repository list from plugin. """
+        return self._instance.git_repos()
 
-  @property
-  def _plugin(self):
-    return self.__plugin
-  @_plugin.setter
-  def _plugin(self, value):
-    plugins = self._plugins
-    self.__plugin = self.loadPlugin(plugins[value])
+class Repotool(object):
+    """ Abstract class for repo list plugins. """
+    __metaclass__ = abc.ABCMeta
 
-  @property
-  def _instance(self):
-    return self.__instance
-  @_instance.setter
-  def _instance(self, value):
-    class_ = getattr(self._plugin, self._tool)
-    self.__instance = class_()
-
-  def get(self):
-    return self._instance.gitRepos()
-
-class repoTool(object):
-  __metaclass__ = abc.ABCMeta
-
-  @abc.abstractmethod
-  def gitRepos(self): pass
+    @abc.abstractmethod
+    def git_repos(self):
+        """ Abstract Method to get repo list. """
+        pass
 
 
 

@@ -9,11 +9,18 @@ This script performs 4 major functions (ie phases):
 3. Submit a deployment ticket for the updated codebase.
 4. Report on the site(s) Drupdates attempted to update.
 
+
+System Requirements
+============
+Drush 7
+
+Git 1.7+
+
 Installation
 ============
-easy_install https://github.com/jalama/drupdates/tarball/master
+(sudo) easy_install https://github.com/jalama/drupdates/tarball/master
 
-note: you may need sudo to run easy_install
+Once installed please follow the post install [set-up instructions](setup.md)
 
 Upgrade
 ============
@@ -30,11 +37,10 @@ Drupdates to use /opt/ as the working directory in lieu of /var/www/
 
 $ drupdates --workingDir=/opt/
 
-Requirements
+Uninstall
 ============
-Drush 7
 
-Git 1.7+
+(sudo) pip uninstall drupdates
 
 Assumptions
 ===========
@@ -71,5 +77,6 @@ Please note out of the box the following settings are assumed:
 - MYSQL is the database storing your Drupal site
 - Only Security updates are being run
 - You Drupal sites are being installed at /var/www
-- sendmail wil be used to send reports
+- sendmail will be used to send reports (other options are printing to the screen,
+via stdout or sending to a Slack channel)
 

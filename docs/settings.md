@@ -12,7 +12,7 @@ Here's how it works:
 
 Settings are built from either YAML files or options passed when run on CLI.
 
--  Settings are loaded in this order:
+-  Settings are loaded in this order:<a name="overrides"></a>
     -  Core settings file, ie drupdates/settings/default.yaml
     -  [Plugin](plugins.md) settings files, ie *plugin dir*/settings/default.yaml
     -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.yaml
@@ -56,7 +56,7 @@ special characters @see http://www.yaml.org/refcard.html.
 
 2 If setting is required and is empty, the end user will be asked for a value.
 
-**Sample Files:**
+**Sample Files:**<a name="samples"></a>
 =================
 
 - *Basic Settings:* use a manual repo list, submit deployment ticket to AtTask,

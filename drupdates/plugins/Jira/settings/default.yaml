@@ -1,10 +1,10 @@
 #YAML
 jiraIssueURL:
   value: issue
-  prompt: Url suffix for jira tasks (change with care)
+  prompt: Url suffix for Jira tasks (change with care)
 jiraAPIVersion:
   value: '2'
-  prompt: Jira API version (defaults to 4.0)
+  prompt: Jira API version (defaults to 2)
 jiraUser:
   value: ""
   prompt: What is your Jira user name?
