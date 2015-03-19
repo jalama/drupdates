@@ -59,6 +59,9 @@ class Settings(object):
                     error += "{0} setting is fomatted improperly".format(setting)
                     sys.exit(error)
             settings = self.merge(settings, __local)
+        else:
+            print "Exiting Drupdates, Local settings file, {0}, does not exist".format(local_file)
+            sys.exit(1)
         return settings
 
     def options(self):
