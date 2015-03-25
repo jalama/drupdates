@@ -17,8 +17,8 @@ Using a POSIX system the commands would look something like this (assuming your 
 
 ```
 $mkdir ~/.drupdates
-$touch ~/drupdates/settings.yaml
-$vim ~/drupdates/settings.yaml
+$touch ~/.drupdates/settings.yaml
+$vim ~/.drupdates/settings.yaml
 ```
 
 This local settings file will override any settings that ship with Drupdates, the
