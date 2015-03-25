@@ -5,6 +5,7 @@ try:
     import argparse
     ARG_LOADED = True
 except ImportError:
+    # Python 2.6
     from optparse import OptionParser
     ARG_LOADED = False
 
@@ -81,7 +82,8 @@ class Settings(object):
                 setting_complete = self.merge(model, setting)
                 parser.add_option("--" + key, action="store", dest=key, type="string",
                                   help=setting_complete['prompt'])
-            (options) = parser.parse_args()
+            parsed_options = parser.parse_args()
+            options = parsed_options[0]
         return options
 
     @staticmethod
