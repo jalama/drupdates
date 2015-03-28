@@ -6,7 +6,7 @@ from drupdates.drush import Drush
 
 
 class Utils(object):
-    """ Class of untilities used throughout the module. """
+    """ Class of utilities used throughout the module. """
 
     def __init__(self):
         self.settings = Settings()

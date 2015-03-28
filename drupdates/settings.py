@@ -9,15 +9,14 @@ except ImportError:
     from optparse import OptionParser
     ARG_LOADED = False
 
-class Settings(object):
-    """ Base Settings class """
-    def __init__(self, current_dir=""):
-        if not current_dir:
-            current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.settings = self._settings(current_dir)
+class _Settings(object):
+    """ Internal settings instance. """
+
+    def __init__(self):
+        self.settings = self._settings()
         self._options = self.options()
 
-    def _settings(self, current_dir):
+    def _settings(self):
         """ Build the settings used through the drupdates project.
 
         Settings are built from either YAML files or options passed when run on CLI.
@@ -38,12 +37,6 @@ class Settings(object):
         package_default = open(package_default_yaml + '/settings/default.yaml', 'r')
         settings = yaml.load(package_default)
         package_default.close()
-        ## this will load a Plugins default settings
-        if not package_default_yaml == current_dir:
-            default = open(current_dir + '/settings/default.yaml', 'r')
-            __plugin = yaml.load(default)
-            default.close()
-            settings = self.merge(settings, __plugin)
         path = __name__
         local_file = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
         # If there is an override file in the home dir
@@ -102,7 +95,7 @@ class Settings(object):
         """ Query the user for a partiular setting. """
         prompt = "Please provide the setting, {0}, {1}:".format(setting, complete['prompt'])
         value = raw_input(prompt)
-        self.set(setting, value, complete)
+        self.set(setting, value, complete['format'])
 
     def get(self, setting):
         """ Getter for Settings class """
@@ -123,12 +116,25 @@ class Settings(object):
         else:
             return ""
 
-    def set(self, setting, value, complete):
+    def add(self, settings_file):
+        """ Load settings from a YAML file.
+
+        Method assumes that the current_dir has a sub directory called settings,
+        which contains a settings file called default.yaml.
+
+        """
+        default = open(settings_file, 'r')
+        new = yaml.load(default)
+        default.close()
+        self.settings = self.merge(new, self.settings)
+        self._options = self.options()
+
+    def set(self, setting, value, setting_format='str'):
         """ Setter function for Settings class. """
-        if 'format' in complete:
-            if complete['format'] == 'list':
+        if setting_format:
+            if setting_format == 'list':
                 value = value.split()
-            elif complete['format'] == 'dict':
+            elif setting_format == 'dict':
                 value = json.loads(value)
         self.settings[setting]['value'] = value
 
@@ -145,3 +151,28 @@ class Settings(object):
             else:
                 target[key] = source[key]
         return target
+
+class Settings(object):
+    """ Base Settings class. """
+
+    instance = None
+    def __new__(cls):
+        if not Settings.instance:
+            Settings.instance = _Settings()
+        return Settings.instance
+
+    @staticmethod
+    def get(setting):
+        """ Get the setting. """
+        return Settings.instance.get(setting)
+
+    @staticmethod
+    def set(setting, value, setting_format=''):
+        """ Set the setting. """
+        return Settings.instance.set(setting, value, setting_format)
+
+    @staticmethod
+    def add(settings_file):
+        """ Load settings form a YAML file. """
+        return Settings.instance.add(settings_file)
+

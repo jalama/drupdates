@@ -1,7 +1,5 @@
 """ Run Drush related commands. """
-import subprocess
-import json
-import os
+import subprocess, json, os, copy
 from drupdates.settings import Settings
 
 class Drush(object):
@@ -11,7 +9,7 @@ class Drush(object):
         self.settings = Settings()
 
     @staticmethod
-    def call(commands, alias='', json_ret=False):
+    def call(cmds, alias='', json_ret=False):
         """ Run a drush comand and return a list/dictionary of the results.
 
         Keyword arguments:
@@ -20,6 +18,7 @@ class Drush(object):
         json -- binary deermining if the given command can/should return json
 
         """
+        commands = copy.copy(cmds)
         if alias:
             commands.insert(0, '@drupdates.' + alias)
         if json_ret:

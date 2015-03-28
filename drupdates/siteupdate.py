@@ -9,8 +9,7 @@ class Siteupdate(object):
     """ Update the modules and/or core in a completely built Drupal site. """
 
     def __init__(self, site_name, ssh):
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.settings = Settings(current_dir)
+        self.settings = Settings()
         self.working_branch = self.settings.get('workingBranch')
         self._site_name = site_name
         self.site_dir = os.path.join(self.settings.get('workingDir'), self._site_name)

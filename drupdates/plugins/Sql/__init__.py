@@ -11,7 +11,9 @@ class Sql(Datastore):
 
     def __init__(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.settings = Settings(current_dir)
+        settings_file = current_dir + '/settings/default.yaml'
+        self.settings = Settings()
+        self.settings.add(settings_file)
         self._alias_file = None
 
     @property
@@ -120,13 +122,13 @@ class Sql(Datastore):
         except OSError as error:
             print "Could not create {0} folder\n Error: {1}".format(self.alias_file, error.strerror)
             return ret
-        webroot_set = self.settings.get('webrootDir')
+        webroot_dir = self.settings.get('webrootDir')
         host_set = self.settings.get('datastoreHost')
         driver_set = self.settings.get('datastoreDriver')
         path_set = self.settings.get('workingDir')
         port_set = self.settings.get('datastorePort')
         filepath.write(template.safe_substitute(host=host_set, driver=driver_set,
-                                                path=path_set, webroot=webroot_set, port=port_set))
+                                                path=path_set, webroot=webroot_dir, port=port_set))
         filepath.close()
         ret = True
         return ret

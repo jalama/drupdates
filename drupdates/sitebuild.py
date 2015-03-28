@@ -10,8 +10,7 @@ class Sitebuild(object):
     """ Build out the repository folder. """
 
     def __init__(self, siteName, ssh):
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.settings = Settings(current_dir)
+        self.settings = Settings()
         self._site_name = siteName
         self.site_dir = os.path.join(self.settings.get('workingDir'), self._site_name)
         self.ssh = ssh
