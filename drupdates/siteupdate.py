@@ -65,7 +65,7 @@ class Siteupdate(object):
                     report['status'] += make_err
                 return report
         git_repo = self.git_changes()
-        commit_author = self.settings.get('commit_author')
+        commit_author = self.settings.get('commitAuthor')
         git_repo.commit(m=msg, author=commit_author)
         self.commit_hash = git_repo.rev_parse('head')
         git_repo.push(self._site_name, self.working_branch)
