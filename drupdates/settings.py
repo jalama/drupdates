@@ -179,7 +179,7 @@ class Settings(object):
         return Settings.instance.set(setting, value, setting_format)
 
     @staticmethod
-    def add(settings_file):
+    def add(settings_file, force=False):
         """ Load settings form a YAML file. """
-        return Settings.instance.add(settings_file)
+        return Settings.instance.add(settings_file, force)
 
