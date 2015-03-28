@@ -21,6 +21,9 @@ class Sitebuild(object):
         """ Core build method. """
         working_branch = self.settings.get('workingBranch')
         Utils.check_working_dir(self.settings.get('workingDir'))
+        working_settings = os.path.join(self.settings.get('workingDir'), '.drupdates/settings.yaml')
+        if os.path.isfile(working_settings):
+            self.settings.add(working_settings)
         if not Utils.remove_dir(self.site_dir):
             return False
         self.utilities.sys_commands(self, 'preBuildCmds')

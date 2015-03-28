@@ -71,7 +71,7 @@ class Utils(object):
         Keyword arguments:
         uri -- the uri of the Restful Web Service (required)
         name -- the human readable label for the service being called (required)
-        method -- HTTP method to use (defaul = 'get')
+        method -- HTTP method to use (default = 'get')
         kwargs -- dictionary of arguments passed directly to requests module method
 
         """

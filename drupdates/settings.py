@@ -1,5 +1,5 @@
 """ Class to set-up the configuration used throughout Drupdates """
-import os, yaml, sys, json, os, yaml
+import os, yaml, sys, json, yaml, copy
 from os.path import expanduser
 try:
     import argparse
@@ -10,17 +10,10 @@ except ImportError:
     ARG_LOADED = False
 
 class _Settings(object):
-    """ Internal settings instance. """
+    """ Build the settings used throughout the drupdates project.
 
-    def __init__(self):
-        self.settings = self._settings()
-        self._options = self.options()
-
-    def _settings(self):
-        """ Build the settings used through the drupdates project.
-
-        Settings are built from either YAML files or options passed when run on CLI.
-        Settings are loaded in this order:
+        Settings are built from either YAML files or options passed when run on
+        CLI. Settings are loaded in this order:
         - Core settings file, ie drupdates/settings/default.yaml
         - Plugin settings files, ie <plugin dir>/settings/default.yaml
         - Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
@@ -31,32 +24,28 @@ class _Settings(object):
         runtime it will overwrite anything set in the Core settings or local
         settings file.
 
-        """
-        settings = {}
-        package_default_yaml = os.path.dirname(os.path.realpath(__file__))
-        package_default = open(package_default_yaml + '/settings/default.yaml', 'r')
-        settings = yaml.load(package_default)
-        package_default.close()
+    """
+
+    def __init__(self):
+        self.settings = {}
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        settings_file = current_dir + '/settings/default.yaml'
+        self.add(settings_file)
+        self._custom_settings()
+        self.core_settings = copy.copy(self.settings)
+        self._options = self.options()
+
+    def _custom_settings(self):
+        """ Load custom settings file in $HOME/.drupdates/settings.yaml. """
         path = __name__
         local_file = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
         # If there is an override file in the home dir
         # (ex. ~/.drupdates/settings.yaml)
         if os.path.isfile(local_file):
-            local = open(local_file, 'r')
-            __local = yaml.load(local)
-            local.close()
-            for setting, item in __local.iteritems():
-                if not isinstance(item, dict):
-                    error = "Exiting Drupdates \n"
-                    error += "Fatal Error: Custom settngs file, {0}, ".format(local_file)
-                    error += "failed to load or parse properly. \n"
-                    error += "{0} setting is fomatted improperly".format(setting)
-                    sys.exit(error)
-            settings = self.merge(settings, __local)
+            self.add(local_file, True)
         else:
             print "Exiting Drupdates, Local settings file, {0}, does not exist".format(local_file)
             sys.exit(1)
-        return settings
 
     def options(self):
         """ Read the options set at runtime. """
@@ -116,17 +105,28 @@ class _Settings(object):
         else:
             return ""
 
-    def add(self, settings_file):
-        """ Load settings from a YAML file.
+    def add(self, settings_file, force=False):
+        """ Load/Add settings from a YAML file.
 
-        Method assumes that the current_dir has a sub directory called settings,
-        which contains a settings file called default.yaml.
+        Keyword arguments:
+        settings_file -- file path to a settings YAML file (required)
+        force -- Incoming settings overwrite current settings (default = False)
 
         """
         default = open(settings_file, 'r')
         new = yaml.load(default)
         default.close()
-        self.settings = self.merge(new, self.settings)
+        for setting, item in new.iteritems():
+            if not isinstance(item, dict):
+                error = "Exiting Drupdates \n"
+                error += "Fatal Error: Settngs file, {0}, ".format(settings_file)
+                error += "failed to load or parse properly. \n"
+                error += "{0} setting is fomatted improperly".format(setting)
+                sys.exit(error)
+        if not force:
+            self.settings = self.merge(new, self.settings)
+        else:
+            self.settings = self.merge(self.settings, new)
         self._options = self.options()
 
     def set(self, setting, value, setting_format='str'):
@@ -139,7 +139,10 @@ class _Settings(object):
         self.settings[setting]['value'] = value
 
     def merge(self, target, source, path=None):
-        """ Utiliity used to merge two dictionaries, merges source into target. """
+        """ Utiliity used to merge two dictionaries, merges source into target.
+
+        If target and source contain same key, return will contain source value.
+        """
         if path is None:
             path = []
         for key in source:
@@ -151,6 +154,10 @@ class _Settings(object):
             else:
                 target[key] = source[key]
         return target
+
+    def reset(self):
+        """ Reset the settings attribute. """
+        self.settings = self.core_settings
 
 class Settings(object):
     """ Base Settings class. """
