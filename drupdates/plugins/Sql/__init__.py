@@ -92,7 +92,7 @@ class Sql(Datastore):
         Drush.call(create_cmds, site)
         return True
 
-    def aliases(self):
+    def aliases(self, working_dir):
         """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
 
         Notes:
@@ -125,10 +125,11 @@ class Sql(Datastore):
         webroot_dir = self.settings.get('webrootDir')
         host_set = self.settings.get('datastoreHost')
         driver_set = self.settings.get('datastoreDriver')
-        path_set = self.settings.get('workingDir')
         port_set = self.settings.get('datastorePort')
         filepath.write(template.safe_substitute(host=host_set, driver=driver_set,
-                                                path=path_set, webroot=webroot_dir, port=port_set))
+                                                path=working_dir, webroot=webroot_dir,
+                                                port=port_set))
+
         filepath.close()
         ret = True
         return ret

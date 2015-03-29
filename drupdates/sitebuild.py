@@ -9,10 +9,12 @@ from git import Repo
 class Sitebuild(object):
     """ Build out the repository folder. """
 
-    def __init__(self, siteName, ssh):
+    def __init__(self, siteName, ssh, working_dir):
+        Utils.check_working_dir(working_dir)
         self.settings = Settings()
+        self.working_dir_settings(working_dir)
         self._site_name = siteName
-        self.site_dir = os.path.join(self.settings.get('workingDir'), self._site_name)
+        self.site_dir = os.path.join(working_dir, self._site_name)
         self.ssh = ssh
         self.drush = Drush()
         self.utilities = Utils()
@@ -20,10 +22,6 @@ class Sitebuild(object):
     def build(self):
         """ Core build method. """
         working_branch = self.settings.get('workingBranch')
-        Utils.check_working_dir(self.settings.get('workingDir'))
-        working_settings = os.path.join(self.settings.get('workingDir'), '.drupdates/settings.yaml')
-        if os.path.isfile(working_settings):
-            self.settings.add(working_settings, True)
         if not Utils.remove_dir(self.site_dir):
             return False
         self.utilities.sys_commands(self, 'preBuildCmds')
@@ -62,6 +60,12 @@ class Sitebuild(object):
             ret = self.import_backup()
         self.utilities.sys_commands(self, 'postBuildCmds')
         return ret
+
+    def working_dir_settings(self, working_dir):
+        """ Add custom settings for the working direcotry. """
+        working_settings = os.path.join(working_dir, '.drupdates/settings.yaml')
+        if os.path.isfile(working_settings):
+            self.settings.add(working_settings, True)
 
     def construct_site(self, site='default'):
         """ Rebulid the Drupal site: build DB, settings.php, etc..."""

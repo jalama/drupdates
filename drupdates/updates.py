@@ -16,7 +16,8 @@ def main():
     blacklist = settings.get('blacklist')
     single_site = settings.get('singleSite')
     datastore = Datastores()
-    datastore.create_alises()
+    working_dir = settings.get('workingDir')
+    datastore.create_alises(working_dir)
     if single_site:
         sites = {single_site : sites[single_site]}
     for site_name, ssh in sites.iteritems():
@@ -25,13 +26,13 @@ def main():
             continue
 
         if settings.get('buildRepos'):
-            builder = Sitebuild(site_name, ssh)
+            builder = Sitebuild(site_name, ssh, working_dir)
             build = builder.build()
             if not build:
                 continue
 
         if settings.get('runUpdates'):
-            updater = Siteupdate(site_name, ssh)
+            updater = Siteupdate(site_name, ssh, working_dir)
             update = updater.update()
             report[site_name] = update
             if settings.get('submitDeployTicket') and updater.commit_hash:

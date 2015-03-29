@@ -20,9 +20,9 @@ class Datastores(Plugin):
         """ Build a database etc... """
         return self._instance.create(site)
 
-    def create_alises(self):
+    def create_alises(self, working_dir):
         """ Create an alias file. """
-        return self._instance.aliases()
+        return self._instance.aliases(working_dir)
 
     def clean_files(self):
         """ Clean up any files used by sotrage engine. """
@@ -38,7 +38,7 @@ class Datastore(object):
         pass
 
     @abc.abstractmethod
-    def aliases(self):
+    def aliases(self, working_dir):
         """ Abstract method for creating alias files. """
         pass
 

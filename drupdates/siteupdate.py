@@ -8,11 +8,12 @@ from git import Repo
 class Siteupdate(object):
     """ Update the modules and/or core in a completely built Drupal site. """
 
-    def __init__(self, site_name, ssh):
+    def __init__(self, site_name, ssh, working_dir):
+        Utils.check_working_dir(working_dir)
         self.settings = Settings()
         self.working_branch = self.settings.get('workingBranch')
         self._site_name = site_name
-        self.site_dir = os.path.join(self.settings.get('workingDir'), self._site_name)
+        self.site_dir = os.path.join(working_dir, self._site_name)
         self.ssh = ssh
         self.utilities = Utils()
         self.site_web_root = None
@@ -31,7 +32,6 @@ class Siteupdate(object):
 
     def update(self):
         """ Set-up to and run Drush update(s) (i.e. up or ups). """
-        Utils.check_working_dir(self.settings.get('workingDir'))
         report = {}
         self.utilities.sys_commands(self, 'preUpdateCmds')
         st_cmds = ['st']
