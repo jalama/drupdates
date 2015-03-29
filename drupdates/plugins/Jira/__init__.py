@@ -32,7 +32,6 @@ class Jira(Pmtool):
             headers = {'content-type': 'application/json'}
             response = Utils.api_call(issue_url, 'Jira', 'post', data=request,
                                       auth=(jira_user, jira_pword), headers=headers)
-            print response
             if not response == False:
                 url = response['key']
                 message[environment] = "The {0} deploy ticket is {1}".format(environment, url)
