@@ -20,6 +20,10 @@ Drush 7
 
 Git 1.7+
 
+Drupal running locally: You must be able to stand-up and Drupal site (ie you
+will need to be able to successfully run "drush st --format=json" and
+see the "bootstrap": "Successful" value for a locally installed Drupal site)
+
 Assumptions
 ===========
 
