@@ -31,3 +31,10 @@ Once you have a local settings file you will be able to run Drupdates simply by 
 ```
 $drupdates
 ```
+
+If you have downloaded the source code, go to the drupdates folder (where setup.py is)
+
+```
+(sudo) python setup.py install
+```
+
