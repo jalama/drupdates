@@ -1,5 +1,5 @@
 """ Python __init__ file. """
-from drupdates.updates import main
+from drupdates.updates import Updates
 
 if __name__ == '__main__':
-    main()
+    Updates().run_updates()

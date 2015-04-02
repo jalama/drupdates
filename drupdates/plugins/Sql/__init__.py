@@ -120,7 +120,7 @@ class Sql(Datastore):
         try:
             filepath = open(self.alias_file, 'w')
         except OSError as error:
-            print "Could not create {0} folder\n Error: {1}".format(self.alias_file, error.strerror)
+            print "Could not create {0} file\n Error: {1}".format(self.alias_file, error.strerror)
             return ret
         webroot_dir = self.settings.get('webrootDir')
         host_set = self.settings.get('datastoreHost')

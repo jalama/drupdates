@@ -12,17 +12,6 @@ class Utils(object):
         self.settings = Settings()
 
     @staticmethod
-    def check_working_dir(directory):
-        """ Ensure the directory is writable. """
-        filepath = os.path.join(directory, "text.txt")
-        try:
-            open(filepath, "w")
-        except IOError:
-            sys.exit('Unable to write to directory {0} \n Exiting Drupdates'.format(directory))
-            return False
-        return True
-
-    @staticmethod
     def remove_dir(directory):
         """ Try and remove the directory. """
         if os.path.isdir(directory):

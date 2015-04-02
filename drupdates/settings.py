@@ -182,4 +182,8 @@ class Settings(object):
     def add(settings_file, force=False):
         """ Load settings form a YAML file. """
         return Settings.instance.add(settings_file, force)
+    @staticmethod
+    def reset():
+        """ Reset the settings. """
+        Settings.instance.reset()
 

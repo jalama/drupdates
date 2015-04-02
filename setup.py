@@ -23,7 +23,7 @@ setup(
     include_package_data=True,
     install_requires=['nose', 'gitpython', 'requests', 'pyyaml'],
     entry_points={
-        'console_scripts': ['drupdates = drupdates.updates:main'],
+        'console_scripts': ['drupdates = drupdates.cli:main'],
     },
     packages=['drupdates'],
     classifiers=[
