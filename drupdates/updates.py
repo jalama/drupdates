@@ -72,6 +72,7 @@ class Updates(object):
         except IOError:
             print 'Unable to write to directory {0} \n Exiting Drupdates'.format(directory)
             return False
+        os.remove(filepath)
         return True
 
     def working_dir_settings(self, working_dir):
