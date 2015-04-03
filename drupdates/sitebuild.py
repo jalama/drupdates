@@ -58,7 +58,7 @@ class Sitebuild(object):
             ret = self.import_backup()
         self.utilities.sys_commands(self, 'postBuildCmds')
         return ret
-
+        
     def construct_site(self, site='default'):
         """ Rebulid the Drupal site: build DB, settings.php, etc..."""
         build_db = Datastores().build(self._site_name)
@@ -76,8 +76,10 @@ class Sitebuild(object):
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         site_webroot = drush_dd[0]
         si_files = self.settings.get('drushSiFiles')
-        for files in si_files:
-            os.chmod(site_webroot + files, 0777)
+        for name in si_files:
+            complete_name = os.path.join(site_webroot, name)
+            if os.path.isfile(complete_name) or os.path.isdir(complete_name):
+                os.chmod(complete_name, 0777)
         return True
 
     def import_backup(self):
