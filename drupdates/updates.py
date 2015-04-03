@@ -22,7 +22,8 @@ class Updates(object):
         if isinstance(working_dirs, str):
             working_dirs = [working_dirs]
         for current_working_dir in working_dirs:
-            if not Updates.check_working_dir(current_working_dir):
+            current_working_dir = Updates.check_working_dir(current_working_dir)
+            if not current_working_dir:
                 continue
             self.working_dir_settings(current_working_dir)
             update = self.update_site(current_working_dir)
@@ -66,14 +67,29 @@ class Updates(object):
     @staticmethod
     def check_working_dir(directory):
         """ Ensure the directory is writable. """
+        parts = directory.split('/')
+        if parts[0] == '~' or parts[0].upper() == '$HOME':
+            del parts[0]
+            directory = os.path.join(os.path.expanduser('~'), '/'.join(parts))
+        if not os.path.isdir(directory):
+            try:
+                os.makedirs(directory)
+            except OSError as error:
+                msg = 'Unable to create non-existant directory {0} \n'.format(directory)
+                msg += 'Error: {0}\n'.format(error.strerror)
+                msg += 'Moving to next working directory, if applicable'
+                print msg
+                return False
         filepath = os.path.join(directory, "text.txt")
         try:
             open(filepath, "w")
         except IOError:
-            print 'Unable to write to directory {0} \n Exiting Drupdates'.format(directory)
+            msg = 'Unable to write to directory {0} \n'.format(directory)
+            msg += 'Moving to next working directory, if applicable'
+            print msg
             return False
         os.remove(filepath)
-        return True
+        return directory
 
     def working_dir_settings(self, working_dir):
         """ Add custom settings for the working direcotry. """
