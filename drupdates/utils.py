@@ -70,14 +70,17 @@ class Utils(object):
             return False
         func = getattr(requests, method)
         args = {}
+        args['timeout'] = (10, 10)
         for key, value in kwargs.iteritems():
             args[key] = value
         try:
             response = func(uri, **args)
         except requests.exceptions.Timeout:
             print "The api call to {0} timed out".format(uri)
+            sys.exit(1)
         except requests.exceptions.TooManyRedirects:
             print "The api call to {0} appears incorrect, returned: too many re-directs".format(uri)
+            sys.exit(1)
         except requests.exceptions.RequestException as error:
             print "The api call to {0} failed\n Error {1}".format(uri, error)
             sys.exit(1)
