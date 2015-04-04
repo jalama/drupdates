@@ -1,5 +1,5 @@
 """ Drupdates Site building module. """
-import git, os
+import git, os, subprocess
 from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.drush import Drush
@@ -58,7 +58,7 @@ class Sitebuild(object):
             ret = self.import_backup()
         self.utilities.sys_commands(self, 'postBuildCmds')
         return ret
-        
+
     def construct_site(self, site='default'):
         """ Rebulid the Drupal site: build DB, settings.php, etc..."""
         build_db = Datastores().build(self._site_name)
@@ -83,10 +83,20 @@ class Sitebuild(object):
         return True
 
     def import_backup(self):
-        """ Import a site back-up
+        """ Import a SQL dump using drush sqlc.
 
-        Note: the back-up sife most follow the <siteName>.sql" naming convention"
+        alias -- A Drush alias
 
         """
-        import_db = self.drush.db_import(self._site_name)
-        return import_db
+        alias = self._site_name
+        backport_dir = self.settings.get('backupDir')
+        if os.path.isfile(backport_dir + alias + '.sql'):
+            commands = ['drush', '@drupdates.' + alias, 'sqlc']
+            popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            results = popen.communicate(file(backport_dir + alias + '.sql').read())
+            if results[1]:
+                print "{0} DB import error: {1}".format(alias, results[1])
+                return False
+        else:
+            print "{0} could not find backup file, skipping import".format(alias)
+        return True

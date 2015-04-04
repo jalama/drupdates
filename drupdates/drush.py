@@ -41,21 +41,3 @@ class Drush(object):
         else:
             ret = stdout.split('\n')
         return ret
-
-    def db_import(self, alias):
-        """ Import a SQL dump using drush sqlc.
-
-        alias -- A Drush alias
-
-        """
-        backport_dir = self.settings.get('backupDir')
-        if os.path.isfile(backport_dir + alias + '.sql'):
-            commands = ['drush', '@drupdates.' + alias, 'sqlc']
-            popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            results = popen.communicate(file(backport_dir + alias + '.sql').read())
-            if results[1]:
-                print "{0} DB import error: {1}".format(alias, results[1])
-                return False
-        else:
-            print "{0} could not find backup file, skipping import".format(alias)
-        return True
