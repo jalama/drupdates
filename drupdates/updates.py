@@ -14,14 +14,16 @@ class Updates(object):
 
     def __init__(self):
         self.settings = Settings()
+        self.working_dirs = self.settings.get('workingDir')
+        self.single_site = ''
+        if isinstance(self.working_dirs, str):
+            self.working_dirs = [self.working_dirs]
+            self.single_site = self.settings.get('singleSite')
 
     def run_updates(self):
         """ Drupdates main function. """
         report = {}
-        working_dirs = self.settings.get('workingDir')
-        if isinstance(working_dirs, str):
-            working_dirs = [working_dirs]
-        for current_working_dir in working_dirs:
+        for current_working_dir in self.working_dirs:
             current_working_dir = Updates.check_working_dir(current_working_dir)
             if not current_working_dir:
                 continue
@@ -34,13 +36,12 @@ class Updates(object):
     def update_site(self, working_dir):
         """ Run updates for an individual working directory. """
         report = {}
-        blacklist = self.settings.get('blacklist')
-        single_site = self.settings.get('singleSite')
         datastore = Datastores()
         datastore.create_alises(working_dir)
+        blacklist = self.settings.get('blacklist')
         sites = Repos().get()
-        if single_site:
-            sites = {single_site : sites[single_site]}
+        if self.single_site:
+            sites = {self.single_site : sites[self.single_site]}
         for site_name, ssh in sites.iteritems():
             report[site_name] = {}
             if site_name in blacklist:
