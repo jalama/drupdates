@@ -1,6 +1,6 @@
 """ Parent class for plugins that print Drupdates final report. """
 from drupdates.settings import Settings
-from drupdates.utils import Plugin
+from drupdates.plugins import Plugin
 import abc
 
 class Reports(Plugin):

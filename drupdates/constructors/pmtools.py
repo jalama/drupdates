@@ -1,6 +1,6 @@
 """ Parent class for plugins work with Project Management Tools. """
 from drupdates.settings import Settings
-from drupdates.utils import Plugin
+from drupdates.plugins import Plugin
 import abc, datetime
 
 class Pmtools(Plugin):

@@ -1,6 +1,6 @@
 """ Parent class for plugins that work with various data storage engines. """
 from drupdates.settings import Settings
-from drupdates.utils import Plugin
+from drupdates.plugins import Plugin
 import abc
 
 class Datastores(Plugin):

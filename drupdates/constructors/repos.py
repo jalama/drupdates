@@ -1,6 +1,6 @@
 """ Parent class for plugins that create Git repository list. """
 from drupdates.settings import Settings
-from drupdates.utils import Plugin
+from drupdates.plugins import Plugin
 import abc
 
 class Repos(Plugin):
