@@ -15,6 +15,7 @@ class Sql(Datastore):
         self.settings = Settings()
         self.settings.add(settings_file)
         self._alias_file = None
+        self.local_file = os.path.join(expanduser('~'), self.settings.get('mysqlSettingsFile'))
 
     @property
     def alias_file(self):
@@ -33,42 +34,39 @@ class Sql(Datastore):
         Without ~/.my.cnf file drush sql-create won't pass the --db-su option.
 
         """
-        my_file = self.settings.get('mysqlSettingsFile')
-        local_file = expanduser('~') + '/' + my_file
         ret = False
-        if os.path.isfile(local_file):
-            ret = True
-        else:
-            try:
-                filepath = open(local_file, 'w')
-            except IOError as error:
-                print "Could not write the {0} file\n Error: {1}".format(local_file, error.strerror)
-                return ret
-            userline = "user = {0} \n".format(self.settings.get('datastoreSuperUser'))
-            password = self.settings.get('datastoreSuperPword')
-            settings = self.settings.get('mysqlSettings')
-            filepath.write("#This file was written by the Drupdates script\n")
-            for setting in settings:
-                settingline = "[{0}]\n".format(setting)
-                filepath.write(settingline)
-                filepath.write(userline)
-                if password:
-                    passline = "password = {0} \n".format(password)
-                    filepath.write(passline)
-                filepath.write("\n")
-            filepath.close()
-            ret = True
+        if os.path.isfile(self.local_file):
+            fileread = open(self.local_file, 'r')
+            note = fileread.read(1)
+            if not note == "#This file was written by the Drupdates script\n":
+                ret = True
+            fileread.close()
+        try:
+            filepath = open(self.local_file, 'w')
+        except IOError as error:
+            print "Could not write the {0}\n Error: {1}".format(self.local_file, error.strerror)
+            return ret
+        userline = "user = {0} \n".format(self.settings.get('datastoreSuperUser'))
+        passline = 'password = "" \n'
+        settings = self.settings.get('mysqlSettings')
+        filepath.write("#This file was written by the Drupdates script\n")
+        for setting in settings:
+            settingline = "[{0}]\n".format(setting)
+            filepath.write(settingline)
+            filepath.write(userline)
+            filepath.write(passline)
+            filepath.write("\n")
+        filepath.close()
+        ret = True
         return ret
 
     def delete_files(self):
         """ Clean-up my.cnf file."""
-        my_file = self.settings.get('mysqlSettingsFile')
-        local_file = expanduser('~') + '/' + my_file
-        if os.path.isfile(local_file):
+        if os.path.isfile(self.local_file):
             try:
-                os.remove(local_file)
+                os.remove(self.local_file)
             except OSError as error:
-                msg = "Clean-up error, couldn't remove {0}\n".format(local_file)
+                msg = "Clean-up error, couldn't remove {0}\n".format(self.local_file)
                 msg += "Error: {1}".format(error.strerror)
                 print msg
         if os.path.isfile(self.alias_file):
@@ -103,8 +101,8 @@ class Sql(Datastore):
 
         ret = False
         alias_file_name = self.settings.get('drushAliasFile')
-        drush_folder = expanduser('~') + '/.drush'
-        self.alias_file = drush_folder + "/" + alias_file_name
+        drush_folder = os.path.join(expanduser('~'), '.drush')
+        self.alias_file = os.path.join(drush_folder, alias_file_name)
         if not os.path.isdir(drush_folder):
             try:
                 os.makedirs(drush_folder)
