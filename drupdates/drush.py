@@ -1,5 +1,5 @@
 """ Run Drush related commands. """
-import subprocess, json, os, copy
+import subprocess, json, copy
 from drupdates.settings import Settings
 
 class Drush(object):
