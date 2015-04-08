@@ -9,6 +9,22 @@ except ImportError:
     from optparse import OptionParser
     ARG_LOADED = False
 
+class DrupdatesError(Exception):
+    """ Parent Drupdates error.
+
+    level notes:
+
+    Warning  =< 10
+    Critical =< 20
+    Fatal > 20
+
+    """
+    def __init__(self, level, msg):
+        Exception.__init__(self)
+        self.level = level
+        self.msg = msg
+
+
 class _Settings(object):
     """ Build the settings used throughout the drupdates project.
 

@@ -1,6 +1,7 @@
 """ Primary Drupdates Module. """
-import os
+import os, sys
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
 from drupdates.constructors.repos import Repos
 from drupdates.constructors.pmtools import Pmtools
 from drupdates.constructors.reports import Reports
@@ -23,15 +24,17 @@ class Updates(object):
     def run_updates(self):
         """ Drupdates main function. """
         report = {}
-        for current_working_dir in self.working_dirs:
-            current_working_dir = Updates.check_working_dir(current_working_dir)
-            if not current_working_dir:
-                continue
-            self.working_dir_settings(current_working_dir)
-            update = self.update_site(current_working_dir)
-            report[current_working_dir] = update
-        reporting = Reports()
-        reporting.send(report)
+        try:
+            for current_working_dir in self.working_dirs:
+                current_working_dir = Updates.check_working_dir(current_working_dir)
+                if not current_working_dir:
+                    continue
+                self.working_dir_settings(current_working_dir)
+                update = self.update_site(current_working_dir)
+                report[current_working_dir] = update
+        finally:
+            reporting = Reports()
+            reporting.send(report)
 
     def update_site(self, working_dir):
         """ Run updates for an individual working directory. """
@@ -49,14 +52,23 @@ class Updates(object):
 
             if self.settings.get('buildRepos'):
                 builder = Sitebuild(site_name, ssh, working_dir)
-                build = builder.build()
-                if not build:
-                    continue
+                try:
+                    builder.build()
+                except DrupdatesError as build_error:
+                    build_msg = build_error.msg
+                    if build_error.level == 20:
+                        continue
+                    elif build_error.level > 20:
+                        sys.exit()
+                else:
+                    build_msg = "Site build for {0} successful".format(site_name)
+                finally:
+                    report[site_name]['build'] = build_msg
 
             if self.settings.get('runUpdates'):
                 updater = Siteupdate(site_name, ssh, working_dir)
                 update = updater.update()
-                report[site_name] = update
+                report[site_name]['updates'] = update
                 if self.settings.get('submitDeployTicket') and updater.commit_hash:
                     deploys = Pmtools().deploy_ticket(site_name, updater.commit_hash)
                     pm_name = self.settings.get('pmName').title()

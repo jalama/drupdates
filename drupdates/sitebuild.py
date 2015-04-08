@@ -2,9 +2,19 @@
 import git, os, subprocess
 from drupdates.utils import Utils
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
 from drupdates.constructors.datastores import Datastores
 from git import Repo
+
+class DrupdatesBuildError(DrupdatesError):
+    """ Parent Drupdates site build error. """
+
+class DrupdatesImportError(DrupdatesError):
+    """ Error importing back-up database. """
+
+class DrupdatesConstructError(DrupdatesError):
+    """ Error importing back-up database. """
 
 class Sitebuild(object):
     """ Build out the repository folder. """
@@ -20,8 +30,10 @@ class Sitebuild(object):
     def build(self):
         """ Core build method. """
         working_branch = self.settings.get('workingBranch')
-        if not Utils.remove_dir(self.site_dir):
-            return False
+        try:
+            Utils.remove_dir(self.site_dir)
+        except DrupdatesError as remove_error:
+            raise DrupdatesBuildError(20, remove_error.msg)
         self.utilities.sys_commands(self, 'preBuildCmds')
         repository = Repo.init(self.site_dir)
         remote = git.Remote.create(repository, self._site_name, self.ssh)
@@ -30,8 +42,7 @@ class Sitebuild(object):
         except git.exc.GitCommandError as error:
             msg = "{0}: Could not checkout {1}. \n".format(self._site_name, working_branch)
             msg += "Error: {2}".format(error)
-            print msg
-            return False
+            raise DrupdatesBuildError(20, msg)
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
         if self.settings.get('useMakeFile'):
@@ -39,48 +50,56 @@ class Sitebuild(object):
         st_cmds = ['st']
         repo_status = Drush.call(st_cmds, self._site_name, True)
         if not isinstance(repo_status, dict):
-            print "{0} failed to respond to drush status".format(self._site_name)
-            return False
+            msg = "{0} failed to respond to drush status".format(self._site_name)
+            raise DrupdatesBuildError(20, msg)
         # If this is not a Drupal repo move to the next repo
         if not 'drupal-version' in repo_status:
-            print "{0}, from drush pm-status: this isn't a drupal site".format(self._site_name)
-            return False
-        ret = True
+            msg = "{0}, from drush pm-status: this isn't a drupal site".format(self._site_name)
+            raise DrupdatesBuildError(20, msg)
         if not 'bootstrap' in repo_status:
             # Re-build database if it fails go to the next repo
             if 'site' in repo_status:
                 site = os.path.basename(repo_status['site'])
             else:
                 site = 'default'
-            ret = self.construct_site(site)
-        if ret and self.settings.get('importBackup'):
+            try:
+                self.construct_site(site)
+            except DrupdatesError as construct_error:
+                raise construct_error
+        if self.settings.get('importBackup'):
             # Import the backup file
-            ret = self.import_backup()
+            try:
+                self.import_backup()
+            except DrupdatesError as import_error:
+                raise import_error
         self.utilities.sys_commands(self, 'postBuildCmds')
-        return ret
 
     def construct_site(self, site='default'):
         """ Rebulid the Drupal site: build DB, settings.php, etc..."""
         build_db = Datastores().build(self._site_name)
         if not build_db:
-            print "Site database build failed for {0}".format(self._site_name)
-            return False
+            msg = "Site database build failed for {0}\n".format(self._site_name)
+            msg += "Ensure database is running and credentials are valid."
+            raise DrupdatesConstructError(20, msg)
         # Perform Drush site-install to get a base settings.php file
         si_cmds = ['si', 'minimal', '-y', '--sites-subdir=' + site]
         Drush.call(si_cmds, self._site_name)
         st_cmds = ['st']
         repo_status = Drush.call(st_cmds, self._site_name, True)
         if not 'bootstrap' in repo_status:
-            print "Bootstrap failed after site install for {0}".format(self._site_name)
-            return False
+            msg = "Bootstrap failed after site install for {0}".format(self._site_name)
+            raise DrupdatesConstructError(20, msg)
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         site_webroot = drush_dd[0]
         si_files = self.settings.get('drushSiFiles')
         for name in si_files:
             complete_name = os.path.join(site_webroot, name)
             if os.path.isfile(complete_name) or os.path.isdir(complete_name):
-                os.chmod(complete_name, 0777)
-        return True
+                try:
+                    os.chmod(complete_name, 0777)
+                except OSError:
+                    msg = "Couldn't change file permission for {0}".format(complete_name)
+                    raise DrupdatesConstructError(20, msg)
 
     def import_backup(self):
         """ Import a SQL dump using drush sqlc.
@@ -95,8 +114,8 @@ class Sitebuild(object):
             popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             results = popen.communicate(file(backport_dir + alias + '.sql').read())
             if results[1]:
-                print "{0} DB import error: {1}".format(alias, results[1])
-                return False
+                msg = "{0} DB import error: {1}".format(alias, results[1])
+                raise DrupdatesImportError(20, msg)
         else:
-            print "{0} could not find backup file, skipping import".format(alias)
-        return True
+            msg = "{0} could not find backup file, skipping import".format(alias)
+            raise DrupdatesImportError(20, msg)

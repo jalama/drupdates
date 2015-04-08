@@ -2,6 +2,7 @@
 import requests, os, urlparse, subprocess, shutil, sys
 from filecmp import dircmp
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
 
 
@@ -18,8 +19,8 @@ class Utils(object):
             try:
                 shutil.rmtree(directory)
             except OSError as error:
-                print "Can't remove site dir {0}\n Error: {1}".format(directory, error.strerror)
-                return False
+                msg = "Can't remove site dir {0}\n Error: {1}".format(directory, error.strerror)
+                raise DrupdatesError(20, msg)
         return True
 
     def find_make_file(self, site_name, directory):

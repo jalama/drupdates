@@ -2,8 +2,12 @@
 import distutils.core, tempfile, git, shutil, os, yaml
 from drupdates.utils import Utils
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
 from git import Repo
+
+class DrupdatesUpdateError(DrupdatesError):
+    """ Parent Drupdates site update error. """
 
 class Siteupdate(object):
     """ Update the modules and/or core in a completely built Drupal site. """
