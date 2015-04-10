@@ -58,9 +58,9 @@ class Updates(object):
                 except DrupdatesError as error:
                     result = error.msg
                     if error.level < 30:
-                        continue
+                        break
                     if error.level >= 30:
-                        msg = "Drupdates: fatal error\n Drush returned: {0}".format(result)
+                        msg = "Drupdates: fatal error\n Drupdates returned: {0}".format(result)
                         raise DrupdatesError(error.level, msg)
                 finally:
                     report[site_name][phase['name']] = result
