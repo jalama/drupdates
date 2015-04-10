@@ -70,7 +70,7 @@ class Utils(object):
         # Ensure uri is valid
         if not bool(urlparse.urlparse(uri).netloc):
             msg = ("Error: {0} is not a valid url").format(uri)
-            DrupdatesAPIError(20, msg)
+            raise DrupdatesAPIError(20, msg)
         func = getattr(requests, method)
         args = {}
         args['timeout'] = (10, 10)
@@ -80,13 +80,13 @@ class Utils(object):
             response = func(uri, **args)
         except requests.exceptions.Timeout:
             msg = "The api call to {0} timed out".format(uri)
-            DrupdatesAPIError(20, msg)
+            raise DrupdatesAPIError(20, msg)
         except requests.exceptions.TooManyRedirects:
             msg = "The api call to {0} appears incorrect, returned: too many re-directs".format(uri)
-            DrupdatesAPIError(20, msg)
+            raise DrupdatesAPIError(20, msg)
         except requests.exceptions.RequestException as error:
             msg = "The api call to {0} failed\n Error {1}".format(uri, error)
-            DrupdatesAPIError(20, msg)
+            raise DrupdatesAPIError(20, msg)
         try:
             response_dictionary = response.json()
         except ValueError:
@@ -103,7 +103,7 @@ class Utils(object):
             msg = "{0} returned an error, exiting the script.\n".format(name)
             msg += "Status Code: {0} \n".format(response.status_code)
             msg += "Error: {0}".format(first_error['message'])
-            DrupdatesAPIError(20, msg)
+            raise DrupdatesAPIError(20, msg)
         else:
             return response_dictionary
 
