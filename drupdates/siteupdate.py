@@ -236,10 +236,10 @@ class Siteupdate(object):
         self.utilities.rm_common(self.site_web_root, temp_dir)
         try:
             distutils.dir_util.copy_tree(temp_dir + '/' + add_dir, self.site_web_root)
-        except IOError as error:
+        except distutils.errors.DistutilsFileError as error:
             msg = "Can't copy updates from: \n"
             msg += "{0} temp dir to {1}\n".format(temp_dir, self.site_web_root)
-            msg += "Error: {2}".format(error.strerror)
+            msg += "Error: {0}".format(error)
             raise DrupdatesUpdateError(20, msg)
         try:
             shutil.rmtree(temp_dir)
