@@ -1,6 +1,10 @@
 """ Run Drush related commands. """
 import subprocess, json, copy
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
+
+class DrupdatesDrushError(DrupdatesError):
+    """ Parent Drupdates site build error. """
 
 class Drush(object):
     """ Base class to run Drush commands. """
@@ -29,15 +33,21 @@ class Drush(object):
             popen = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError as error:
             msg = "Cannot run drush.call(),"
-            msg += "most likely because python can't find drush\n Error: {0}".format(error.strerror)
-            print msg
+            msg += "most likely because Python can't find Drush\n Error: {0}".format(error.strerror)
+            raise DrupdatesDrushError(30, msg)
         results = popen.communicate()
+        if popen.returncode != 0:
+            msg = "Drush.call() error, Drush command passed was {0}".format(commands)
+            msg += "Drush error message: {0}".format(results[1])
+            raise DrupdatesDrushError(20, msg)
         stdout = results[0]
         if json_ret:
             try:
                 ret = json.loads(stdout)
             except ValueError:
-                ret = "For {0}, No JSON returned for status, though it was requested".format(alias)
+                msg = "{0}, No JSON returned from Drush, though it was requested\n".format(alias)
+                msg += "Drush command passed was {0}".format(commands)
+                raise DrupdatesDrushError(20, msg)
         else:
             ret = stdout.split('\n')
         return ret

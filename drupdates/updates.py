@@ -1,14 +1,10 @@
 """ Primary Drupdates Module. """
-import os, sys
+import os
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.constructors.repos import Repos
-from drupdates.constructors.pmtools import Pmtools
 from drupdates.constructors.reports import Reports
 from drupdates.constructors.datastores import Datastores
-from drupdates.sitebuild import Sitebuild
-from drupdates.siteupdate import Siteupdate
-
 
 class Updates(object):
     """ Run through the working directories and sites updating them. """
@@ -24,17 +20,20 @@ class Updates(object):
     def run_updates(self):
         """ Drupdates main function. """
         report = {}
-        try:
-            for current_working_dir in self.working_dirs:
+        for current_working_dir in self.working_dirs:
+            try:
                 current_working_dir = Updates.check_working_dir(current_working_dir)
-                if not current_working_dir:
-                    continue
                 self.working_dir_settings(current_working_dir)
                 update = self.update_site(current_working_dir)
                 report[current_working_dir] = update
-        finally:
-            reporting = Reports()
-            reporting.send(report)
+            except DrupdatesError as update_error:
+                report[current_working_dir] = update_error.msg
+                if update_error.level >= 30:
+                    break
+                else:
+                    continue
+        reporting = Reports()
+        reporting.send(report)
 
     def update_site(self, working_dir):
         """ Run updates for an individual working directory. """
@@ -49,30 +48,23 @@ class Updates(object):
             report[site_name] = {}
             if site_name in blacklist:
                 continue
-
-            if self.settings.get('buildRepos'):
-                builder = Sitebuild(site_name, ssh, working_dir)
+            for phase in self.settings.get("drupdatesPhases"):
+                mod = __import__('drupdates.' + phase['name'].lower(), fromlist=[phase])
+                class_ = getattr(mod, phase['name'])
+                instance = class_(site_name, ssh, working_dir)
                 try:
-                    builder.build()
-                except DrupdatesError as build_error:
-                    build_msg = build_error.msg
-                    if build_error.level == 20:
+                    call = getattr(instance, phase['method'])
+                    result = call()
+                except DrupdatesError as error:
+                    result = error.msg
+                    if error.level < 30:
                         continue
-                    elif build_error.level > 20:
-                        sys.exit()
-                else:
-                    build_msg = "Site build for {0} successful".format(site_name)
+                    if error.level >= 30:
+                        msg = "Drupdates: fatal error\n Drush returned: {0}".format(result)
+                        raise DrupdatesError(error.level, msg)
                 finally:
-                    report[site_name]['build'] = build_msg
+                    report[site_name][phase['name']] = result
 
-            if self.settings.get('runUpdates'):
-                updater = Siteupdate(site_name, ssh, working_dir)
-                update = updater.update()
-                report[site_name]['updates'] = update
-                if self.settings.get('submitDeployTicket') and updater.commit_hash:
-                    deploys = Pmtools().deploy_ticket(site_name, updater.commit_hash)
-                    pm_name = self.settings.get('pmName').title()
-                    report[site_name][pm_name] = deploys
         self.settings.reset()
         datastore.clean_files()
         return report
@@ -91,16 +83,14 @@ class Updates(object):
                 msg = 'Unable to create non-existant directory {0} \n'.format(directory)
                 msg += 'Error: {0}\n'.format(error.strerror)
                 msg += 'Moving to next working directory, if applicable'
-                print msg
-                return False
+                raise DrupdatesError(20, msg)
         filepath = os.path.join(directory, "text.txt")
         try:
             open(filepath, "w")
         except IOError:
             msg = 'Unable to write to directory {0} \n'.format(directory)
             msg += 'Moving to next working directory, if applicable'
-            print msg
-            return False
+            raise DrupdatesError(20, msg)
         os.remove(filepath)
         return directory
 

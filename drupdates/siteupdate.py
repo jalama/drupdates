@@ -4,6 +4,7 @@ from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
+from drupdates.constructors.pmtools import Pmtools
 from git import Repo
 
 class DrupdatesUpdateError(DrupdatesError):
@@ -45,7 +46,10 @@ class Siteupdate(object):
             return report
         # Ensure update module is enabled.
         Drush.call(['en', 'update', '-y'], self._site_name)
-        updates = self.run_updates()
+        try:
+            updates = self.run_updates()
+        except DrupdatesError as updates_error:
+            raise updates_error
         # If no updates move to the next repo
         if not updates:
             self.commit_hash = ""
@@ -54,12 +58,16 @@ class Siteupdate(object):
         msg = '\n'.join(updates)
         # Call dr.call() without site alias argument, aliaes comes after dd argument
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
-        self.site_web_root = drush_dd[0]
+        try:
+            self.site_web_root = drush_dd[0]
+        except DrupdatesError as update_error:
+            raise update_error
         if self.settings.get('buildSource') == 'make':
             shutil.rmtree(self.site_web_root)
         else:
-            rebuilt = self.rebuild_web_root()
-            if not rebuilt:
+            try:
+                self.rebuild_web_root()
+            except DrupdatesError:
                 report['status'] = "The webroot re-build failed."
                 if self.settings.get('useMakeFile'):
                     make_err = " Ensure the make file format is correct "
@@ -74,6 +82,14 @@ class Siteupdate(object):
         report['status'] = "The following updates were applied \n {0}".format(msg)
         report['commit'] = "The commit hash is {0}".format(self.commit_hash)
         self.utilities.sys_commands(self, 'postUpdateCmds')
+        if self.settings.get('submitDeployTicket') and self.commit_hash:
+            report[self._site_name] = {}
+            pm_name = self.settings.get('pmName').title()
+            try:
+                report[self._site_name][pm_name] = Pmtools().deploy_ticket(self._site_name,
+                                                                           self.commit_hash)
+            except DrupdatesError as api_error:
+                report[self._site_name][pm_name] = api_error.msg
         return report
 
     def run_updates(self):
@@ -87,9 +103,11 @@ class Siteupdate(object):
         if self.settings.get('useMakeFile'):
             ups_cmds = self.settings.get('upsCmds')
             updates_ret = {}
-            if isinstance(updates_ret, dict):
+            try:
                 updates_ret = Drush.call(ups_cmds, self._site_name, True)
-            if isinstance(updates_ret, dict):
+            except DrupdatesError as updates_error:
+                raise updates_error
+            else:
                 updates = []
                 for module, update in updates_ret.iteritems():
                     api = update['api_version']
@@ -101,8 +119,12 @@ class Siteupdate(object):
                 self.utilities.make_site(self._site_name, self.site_dir)
         else:
             up_cmds = self.settings.get('upCmds')
-            updates_ret = Drush.call(up_cmds, self._site_name)
-            updates = Siteupdate.read_update_report(updates_ret)
+            try:
+                updates_ret = Drush.call(up_cmds, self._site_name)
+            except DrupdatesError as updates_error:
+                raise updates_error
+            else:
+                updates = Siteupdate.read_update_report(updates_ret)
         return updates
 
     @staticmethod
@@ -158,8 +180,8 @@ class Siteupdate(object):
             custom_module_dir = os.path.join(self.site_web_root, self._module_dir, 'custom')
             try:
                 git_repo.checkout(custom_module_dir)
-            except git.exc.GitCommandError as error:
-                print "Failed to re-instantiate the custom modules folder \n {0}".format(error)
+            except git.exc.GitCommandError:
+                pass
         full_repo = git.Git('.')
         full_repo.config("core.fileMode", "false")
         git_repo.add('./')
@@ -188,7 +210,8 @@ class Siteupdate(object):
                 remote = git.Remote.create(repository, self._site_name, self.ssh)
             except git.exc.GitCommandError as error:
                 if not error.status == 128:
-                    print "Could not establish a remote for the {0} repo".format(self._site_name)
+                    msg = "Could not establish a remote for the {0} repo".format(self._site_name)
+                    raise DrupdatesUpdateError(20, msg)
             remote.fetch(self.working_branch)
             git_repo = repository.git
             try:
@@ -198,10 +221,18 @@ class Siteupdate(object):
             add_dir = self._site_name
         if 'modules' in self.repo_status:
             self._module_dir = self.repo_status['modules']
-            shutil.rmtree(os.path.join(self.site_web_root, self._module_dir))
+            try:
+                shutil.rmtree(os.path.join(self.site_web_root, self._module_dir))
+            except OSError:
+                msg = "Could not remove module directory {0}".format(self._module_dir)
+                raise DrupdatesUpdateError(20, msg)
         if 'themes' in self.repo_status:
             theme_dir = self.repo_status['themes']
-            shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
+            try:
+                shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
+            except OSError:
+                msg = "Could not remove theme directory {0}".format(theme_dir)
+                raise DrupdatesUpdateError(20, msg)
         self.utilities.rm_common(self.site_web_root, temp_dir)
         try:
             distutils.dir_util.copy_tree(temp_dir + '/' + add_dir, self.site_web_root)
@@ -209,7 +240,9 @@ class Siteupdate(object):
             msg = "Can't copy updates from: \n"
             msg += "{0} temp dir to {1}\n".format(temp_dir, self.site_web_root)
             msg += "Error: {2}".format(error.strerror)
-            print msg
-            return False
-        shutil.rmtree(temp_dir)
-        return True
+            raise DrupdatesUpdateError(20, msg)
+        try:
+            shutil.rmtree(temp_dir)
+        except OSError:
+            msg = "Could not remove temporary directory {0}".format(temp_dir)
+            raise DrupdatesUpdateError(20, msg)

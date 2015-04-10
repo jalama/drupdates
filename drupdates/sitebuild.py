@@ -24,7 +24,6 @@ class Sitebuild(object):
         self._site_name = siteName
         self.site_dir = os.path.join(working_dir, self._site_name)
         self.ssh = ssh
-        self.drush = Drush()
         self.utilities = Utils()
 
     def build(self):
@@ -73,17 +72,20 @@ class Sitebuild(object):
             except DrupdatesError as import_error:
                 raise import_error
         self.utilities.sys_commands(self, 'postBuildCmds')
+        ret = "Site build for {0} successful".format(self._site_name)
+        return ret
 
     def construct_site(self, site='default'):
         """ Rebulid the Drupal site: build DB, settings.php, etc..."""
-        build_db = Datastores().build(self._site_name)
-        if not build_db:
-            msg = "Site database build failed for {0}\n".format(self._site_name)
-            msg += "Ensure database is running and credentials are valid."
-            raise DrupdatesConstructError(20, msg)
+        Datastores().build(self._site_name)
         # Perform Drush site-install to get a base settings.php file
         si_cmds = ['si', 'minimal', '-y', '--sites-subdir=' + site]
-        Drush.call(si_cmds, self._site_name)
+        try:
+            Drush.call(si_cmds, self._site_name)
+        except DrupdatesError as install_error:
+            msg = "Drush site install (si) failed.\n"
+            msg += "Drush output {0}".format(install_error.msg)
+            raise DrupdatesConstructError(30, msg)
         st_cmds = ['st']
         repo_status = Drush.call(st_cmds, self._site_name, True)
         if not 'bootstrap' in repo_status:

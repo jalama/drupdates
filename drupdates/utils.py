@@ -1,10 +1,12 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, urlparse, subprocess, shutil, sys
+import requests, os, urlparse, subprocess, shutil
 from filecmp import dircmp
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
 
+class DrupdatesAPIError(DrupdatesError):
+    """ Error thrown bu api_call. """
 
 class Utils(object):
     """ Class of utilities used throughout the module. """
@@ -67,8 +69,8 @@ class Utils(object):
         """
         # Ensure uri is valid
         if not bool(urlparse.urlparse(uri).netloc):
-            print("Error: {0} is not a valid url").format(uri)
-            return False
+            msg = ("Error: {0} is not a valid url").format(uri)
+            DrupdatesAPIError(20, msg)
         func = getattr(requests, method)
         args = {}
         args['timeout'] = (10, 10)
@@ -77,14 +79,14 @@ class Utils(object):
         try:
             response = func(uri, **args)
         except requests.exceptions.Timeout:
-            print "The api call to {0} timed out".format(uri)
-            sys.exit(1)
+            msg = "The api call to {0} timed out".format(uri)
+            DrupdatesAPIError(20, msg)
         except requests.exceptions.TooManyRedirects:
-            print "The api call to {0} appears incorrect, returned: too many re-directs".format(uri)
-            sys.exit(1)
+            msg = "The api call to {0} appears incorrect, returned: too many re-directs".format(uri)
+            DrupdatesAPIError(20, msg)
         except requests.exceptions.RequestException as error:
-            print "The api call to {0} failed\n Error {1}".format(uri, error)
-            sys.exit(1)
+            msg = "The api call to {0} failed\n Error {1}".format(uri, error)
+            DrupdatesAPIError(20, msg)
         try:
             response_dictionary = response.json()
         except ValueError:
@@ -101,8 +103,7 @@ class Utils(object):
             msg = "{0} returned an error, exiting the script.\n".format(name)
             msg += "Status Code: {0} \n".format(response.status_code)
             msg += "Error: {0}".format(first_error['message'])
-            print msg
-            return False
+            DrupdatesAPIError(20, msg)
         else:
             return response_dictionary
 

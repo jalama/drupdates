@@ -22,12 +22,16 @@ singleSite:
 importBackup:
   value: ""
   prompt: Do you want to import a backup
-buildRepos:
-  value: Yes
-  prompt: Do you want to (re)build the site directories
-runUpdates:
-  value: Yes
-  prompt: Do you want to run the site update(s)
+# This setting determines what Drupdates will do
+# Change with care
+drupdatesPhases:
+  value:
+    - name: Sitebuild
+      method: build
+    - name: Siteupdate
+      method: update
+  prompt: 'What phases should Drupdates perform, ie Sitebuild and Siteupdate (seperate with spaces)'
+  format: list
 postBuildCmds:
   value: ""
   prompt: OS command/options to run after a site built (separate with spaces)
