@@ -106,7 +106,11 @@ class Siteupdate(object):
             try:
                 updates_ret = Drush.call(ups_cmds, self._site_name, True)
             except DrupdatesError as updates_error:
-                raise updates_error
+                parse_error = updates_error.msg.split('\n')
+                if parse_error[2].strip() == "Drush message:":
+                    updates = []
+                else:
+                    raise updates_error
             else:
                 updates = []
                 for module, update in updates_ret.iteritems():
