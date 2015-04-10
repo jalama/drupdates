@@ -40,7 +40,7 @@ class Sitebuild(object):
             remote.fetch(working_branch)
         except git.exc.GitCommandError as error:
             msg = "{0}: Could not checkout {1}. \n".format(self._site_name, working_branch)
-            msg += "Error: {2}".format(error)
+            msg += "Error: {0}".format(error)
             raise DrupdatesBuildError(20, msg)
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
