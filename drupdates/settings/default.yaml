@@ -92,14 +92,24 @@ upCmds:
     - --no-backup
     - --check-disabled
   format: list
-  prompt: Arguments and options for drush pm-update cmd (separate with spaces)
+  prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
 upsCmds:
   value:
     - ups
     - --security-only
     - --check-disabled
   format: list
-  prompt: Arguments and options for drush pm-updatestatus cmd (separate with spaces)
+  prompt: Arguments and options for drush pm-updatestatus (ups) cmd (separate with spaces)
+qdCmds:
+  value:
+    - qd
+    - --use-existing
+    - --writable
+    - -y
+    - --no-server
+    - --no-browser
+  format: list
+  prompt: Arguments and options for drush core-quick-drupal (qd) cmd (separate with commas)
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
 # Drush make related
