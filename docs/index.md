@@ -74,7 +74,7 @@ with the Drupdates [settings](settings.md) system to complete the set-up
 to meet the needs of you Drupal site(s) and development system(s).
 
 Please note out of the box the following settings are assumed:
-- MYSQL is the database storing your Drupal site
+- SQLite is the database storing your Drupal site
 - Only Security updates are being run
 - You Drupal sites are being installed at /var/www
 - sendmail will be used to send reports (other options are printing to the screen,
