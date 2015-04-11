@@ -1,6 +1,6 @@
 recursive-include drupdates/plugins *.py
 recursive-include drupdates/plugins *.yaml
-recursive-include drupdates/plugins *.template
+recursive-include drupdates/templates *.template
 recursive-include drupdates/settings *.yaml
 recursive-include drupdates/constructors *.py
 
