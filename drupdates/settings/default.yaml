@@ -19,9 +19,6 @@ blacklist:
 singleSite:
   value: ""
   prompt: Do you want to run the script on a single site (which alias)
-importBackup:
-  value: ""
-  prompt: Do you want to import a backup
 # This setting determines what Drupdates will do
 # Change with care
 drupdatesPhases:
@@ -89,7 +86,6 @@ upCmds:
     - up
     - -y
     - --security-only
-    - --no-backup
     - --check-disabled
   format: list
   prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
@@ -131,12 +127,6 @@ makeOpts:
     - --no-patch-txt
     - --force-complete
     - --no-gitinfofile
-# Database/Datastore related
-datastore:
-  value: sql
-datastoreDriver:
-  value: mysql
-  prompt: What is the default datastore (i.e. database) driver (default mysql)
 # Reporting related
 reportingTool:
   value: "sendmail"

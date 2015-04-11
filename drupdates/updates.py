@@ -1,10 +1,11 @@
 """ Primary Drupdates Module. """
 import os
+from os.path import expanduser
+from string import Template
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.constructors.repos import Repos
 from drupdates.constructors.reports import Reports
-from drupdates.constructors.datastores import Datastores
 
 class Updates(object):
     """ Run through the working directories and sites updating them. """
@@ -13,6 +14,7 @@ class Updates(object):
         self.settings = Settings()
         self.working_dirs = self.settings.get('workingDir')
         self.single_site = ''
+        self.alias_file = None
         if isinstance(self.working_dirs, str):
             self.working_dirs = [self.working_dirs]
             self.single_site = self.settings.get('singleSite')
@@ -38,8 +40,7 @@ class Updates(object):
     def update_site(self, working_dir):
         """ Run updates for an individual working directory. """
         report = {}
-        datastore = Datastores()
-        datastore.create_alises(working_dir)
+        self.aliases(working_dir)
         blacklist = self.settings.get('blacklist')
         sites = Repos().get()
         if self.single_site:
@@ -66,7 +67,7 @@ class Updates(object):
                     report[site_name][phase['name']] = result
 
         self.settings.reset()
-        datastore.clean_files()
+        self.delete_files()
         return report
 
     @staticmethod
@@ -99,3 +100,53 @@ class Updates(object):
         working_settings = os.path.join(working_dir, '.drupdates/settings.yaml')
         if os.path.isfile(working_settings):
             self.settings.add(working_settings, True)
+
+    def aliases(self, working_dir):
+        """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
+
+        Notes:
+        The file name is controlled by the drushAliasFile settings
+        All of the aliases will be prefixed with "drupdates" if he default file name
+          is retained
+        """
+
+        alias_file_name = self.settings.get('drushAliasFile')
+        drush_folder = os.path.join(expanduser('~'), '.drush')
+        self.alias_file = os.path.join(drush_folder, alias_file_name)
+        if not os.path.isdir(drush_folder):
+            try:
+                os.makedirs(drush_folder)
+            except OSError as error:
+                msg = "Could not create ~/.drush folder \n Error: {0}".format(error.strerror)
+                raise DrupdatesError(30, msg)
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        # Symlink the Drush aliases file
+        src = os.path.join(current_dir, "templates/aliases.template")
+        doc = open(src)
+        template = Template(doc.read())
+        doc.close()
+        try:
+            filepath = open(self.alias_file, 'w')
+        except OSError as error:
+            msg = "Could not create {0} file\n Error: {1}".format(self.alias_file, error.strerror)
+            raise DrupdatesError(30, msg)
+        webroot_dir = self.settings.get('webrootDir')
+        host_set = self.settings.get('datastoreHost')
+        driver_set = self.settings.get('datastoreDriver')
+        port_set = self.settings.get('datastorePort')
+        filepath.write(template.safe_substitute(host=host_set, driver=driver_set,
+                                                path=working_dir, webroot=webroot_dir,
+                                                port=port_set))
+
+        filepath.close()
+
+    def delete_files(self):
+        """ Clane up files used by Drupdates. """
+        if os.path.isfile(self.alias_file):
+            try:
+                os.remove(self.alias_file)
+            except OSError as error:
+                msg = "Clean-up error, couldn't remove {0}\n".format(self.alias_file)
+                msg += "Error: {1}".format(error.strerror)
+                print msg
+        return True

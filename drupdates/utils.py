@@ -30,13 +30,18 @@ class Utils(object):
         make_format = self.settings.get('makeFormat')
         make_folder = self.settings.get('makeFolder')
         make_file = site_name + '.make'
+        make_file_short = site_name
         if make_format == 'yaml':
             make_file += '.yaml'
+            make_file_short += '.yaml'
         if make_folder:
-            directory += '/' + make_folder
-        file_name = directory + '/' + make_file
+            directory += os.path.join(directory, make_folder)
+        file_name = os.path.join(directory, make_file)
+        file_name_short = os.path.join(directory, make_file_short)
         if os.path.isfile(file_name):
             return file_name
+        if os.path.isfile(file_name_short):
+            return file_name_short
         return False
 
     def make_site(self, site_name, site_dir):
