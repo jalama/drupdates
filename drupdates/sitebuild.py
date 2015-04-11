@@ -37,30 +37,34 @@ class Sitebuild(object):
             raise DrupdatesBuildError(20, msg)
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
-        self.standup_site()
+        web_root = self.settings.get('webrootDir')
+        site_webroot = os.path.join(self.site_dir, web_root)
+        self.standup_site(site_webroot)
         st_cmds = ['st']
         try:
             repo_status = Drush.call(st_cmds, self._site_name, True)
         except DrupdatesError as st_error:
             raise DrupdatesBuildError(20, st_error.msg)
         finally:
-            web_root = self.settings.get('webrootDir')
-            folder = os.path.join(self.site_dir, web_root)
-            self.file_cleanup(folder)
+            self.file_cleanup(site_webroot)
         if not 'bootstrap' in repo_status:
             msg = "{0} failed to Stand-up properly after running drush qd".format(self._site_name)
             raise DrupdatesBuildError(20, msg)
         self.utilities.sys_commands(self, 'postBuildCmds')
         return "Site build for {0} successful".format(self._site_name)
 
-    def standup_site(self):
+    def standup_site(self, site_webroot):
         """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
+        qd_cmds = []
         qd_cmds = self.settings.get('qdCmds')
         if self.settings.get('useMakeFile'):
             make_file = self.utilities.find_make_file(self._site_name, self.site_dir)
-            qd_cmds += "--makefile={0}".format(make_file)
+            qd_cmds.insert(1, '--root=' + site_webroot)
+            qd_cmds.insert(2, '--makefile=' + make_file)
+        if self.settings.get('buildSource') == 'make':
+            del qd_cmds[3]
         try:
-            Drush.call(qd_cmds, self._site_name)
+            Drush.call(qd_cmds)
         except DrupdatesError as standup_error:
             raise standup_error
 
