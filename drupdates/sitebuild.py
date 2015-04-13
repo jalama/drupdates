@@ -55,14 +55,13 @@ class Sitebuild(object):
 
     def standup_site(self, site_webroot):
         """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
-        qd_cmds = []
         qd_cmds = self.settings.get('qdCmds')
+        qd_cmds += ['--root=' + site_webroot]
         if self.settings.get('useMakeFile'):
             make_file = self.utilities.find_make_file(self._site_name, self.site_dir)
-            qd_cmds.insert(1, '--root=' + site_webroot)
-            qd_cmds.insert(2, '--makefile=' + make_file)
+            qd_cmds += ['--makefile=' + make_file]
         if self.settings.get('buildSource') == 'make':
-            del qd_cmds[3]
+            qd_cmds.remove('--use-existing')
         try:
             Drush.call(qd_cmds)
         except DrupdatesError as standup_error:
