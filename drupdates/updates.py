@@ -53,6 +53,7 @@ class Updates(object):
                 mod = __import__('drupdates.' + phase['name'].lower(), fromlist=[phase])
                 class_ = getattr(mod, phase['name'])
                 instance = class_(site_name, ssh, working_dir)
+                result = ''
                 try:
                     call = getattr(instance, phase['method'])
                     result = call()

@@ -1,5 +1,6 @@
 """ Drupdates Site building module. """
 import git, os
+from os.path import expanduser
 from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
@@ -57,6 +58,16 @@ class Sitebuild(object):
         """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
         qd_cmds = self.settings.get('qdCmds')
         qd_cmds += ['--root=' + site_webroot]
+        backup_dir = self.settings.get('backupDir')
+        parts = backup_dir.split('/')
+        if parts[0] == '~' or parts[0].upper() == '$HOME':
+            del parts[0]
+            backup_dir = os.path.join(os.path.expanduser('~'), '/'.join(parts))
+        qd_cmds += ['--backup-dir=' + backup_dir]
+        try:
+            qd_cmds.remove('--no-backup')
+        except ValueError:
+            pass
         if self.settings.get('useMakeFile'):
             make_file = self.utilities.find_make_file(self._site_name, self.site_dir)
             qd_cmds += ['--makefile=' + make_file]
