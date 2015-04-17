@@ -19,12 +19,21 @@ class Updates(object):
             self.working_dirs = [self.working_dirs]
             self.single_site = self.settings.get('singleSite')
 
+
+    def install(self):
+        """ Basic Installation of Drupdates. """
+        base_dir = self.settings.get('baseDir')
+        backup_dir = self.settings.get('backupDir')
+        dirs = [backup_dir, base_dir]
+        for directory in dirs:
+            Updates.check_dir(directory)
+
     def run_updates(self):
         """ Drupdates main function. """
         report = {}
         for current_working_dir in self.working_dirs:
             try:
-                current_working_dir = Updates.check_working_dir(current_working_dir)
+                current_working_dir = Updates.check_dir(current_working_dir)
                 self.working_dir_settings(current_working_dir)
                 update = self.update_site(current_working_dir)
                 report[current_working_dir] = update
@@ -72,7 +81,7 @@ class Updates(object):
         return report
 
     @staticmethod
-    def check_working_dir(directory):
+    def check_dir(directory):
         """ Ensure the directory is writable. """
         parts = directory.split('/')
         if parts[0] == '~' or parts[0].upper() == '$HOME':

@@ -3,9 +3,14 @@
 workingBranch:
   value: ""
   prompt: What is the default Git working branch
+baseDir:
+  value: ~/.drupdates
+backupDir:
+  value: ~/.drupdates/backups
+  prompt: Directory where site build backups are saved (default ~/.drupdates/backups)
 workingDir:
-  value: /var/www/
-  prompt: What is the working directory (default /var/www/)
+  value: ~/.drupdates/builds
+  prompt: What is the working directory (default ~/.drupdates/builds)
 webrootDir:
   value: ""
   prompt: Any directory below the base site directory that acts as the web root
@@ -104,8 +109,6 @@ qdCmds:
     - --browser=none
   format: list
   prompt: Arguments and options for drush core-quick-drupal (qd) cmd (separate with commas)
-backupDir:
-  value: ~/.drupdates/backups
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
 # Drush make related
