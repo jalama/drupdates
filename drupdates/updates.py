@@ -100,7 +100,6 @@ class Updates(object):
             open(filepath, "w")
         except IOError:
             msg = 'Unable to write to directory {0} \n'.format(directory)
-            msg += 'Moving to next working directory, if applicable'
             raise DrupdatesError(20, msg)
         os.remove(filepath)
         return directory
