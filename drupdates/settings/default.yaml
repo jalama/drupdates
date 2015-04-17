@@ -6,9 +6,6 @@ workingBranch:
 workingDir:
   value: /var/www/
   prompt: What is the working directory (default /var/www/)
-backupDir:
-  value: ""
-  prompt: Directory where one can find database backups (ie /var/www/backups)
 webrootDir:
   value: ""
   prompt: Any directory below the base site directory that acts as the web root
@@ -132,5 +129,5 @@ makeOpts:
     - --no-gitinfofile
 # Reporting related
 reportingTool:
-  value: "sendmail"
+  value: stdout
   prompt: Tool to used to send the final report
