@@ -37,7 +37,7 @@ postBuildCmds:
   format: list
 # Git related settings
 gitRepoName:
-  value: ""
+  value: repolist
   prompt: Where is the list of git repos stored
   required: True
 drushSiFiles:
@@ -50,7 +50,7 @@ drushSiFiles:
     - sites/default/services.yml
   prompt: What files will drush si set to file mode 0444
 commitAuthor:
-  value: ""
+  value: Security Updates <updates@drupdates.org>
   prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
 commonIgnore:
   value:
@@ -68,7 +68,7 @@ ignoreCustomModules:
   value: True
 # Project Management Settings
 submitDeployTicket:
-  value: Yes
+  value: False
   prompt: Do yo want to submit a deployment ticket
 deploymentTickets:
   value:
