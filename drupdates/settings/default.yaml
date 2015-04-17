@@ -105,7 +105,6 @@ qdCmds:
     - --writable
     - -y
     - --no-server
-    - --no-browser
     - --browser=none
   format: list
   prompt: Arguments and options for drush core-quick-drupal (qd) cmd (separate with commas)
