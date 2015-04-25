@@ -12,6 +12,7 @@ class Updates(object):
 
     def __init__(self):
         self.settings = Settings()
+        self.install()
         self.working_dirs = self.settings.get('workingDir')
         self.single_site = ''
         self.alias_file = None
