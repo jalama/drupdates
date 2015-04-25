@@ -37,7 +37,7 @@ class Drush(object):
             raise DrupdatesDrushError(30, msg)
         results = popen.communicate()
         if popen.returncode != 0:
-            msg = "Drush.call() error, Drush command passed was {0}".format(commands)
+            msg = "Drush.call() error, Drush command passed was {0}\n".format(commands)
             msg += "Drush error message: {0}".format(results[1])
             raise DrupdatesDrushError(20, msg)
         stdout = results[0]
