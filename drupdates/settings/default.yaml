@@ -69,7 +69,7 @@ ignoreCustomModules:
 # Project Management Settings
 submitDeployTicket:
   value: False
-  prompt: Do yo want to submit a deployment ticket
+  prompt: Do you want to submit a deployment ticket
 deploymentTickets:
   value:
     - Staging
@@ -89,6 +89,7 @@ upCmds:
     - -y
     - --security-only
     - --check-disabled
+    - --check-updatedb=0
   format: list
   prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
 upsCmds:
