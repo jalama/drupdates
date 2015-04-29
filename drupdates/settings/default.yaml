@@ -85,11 +85,10 @@ targetDate:
 # Drush pm-update (up) command will behave.
 upCmds:
   value:
-    - up
+    - upc
     - -y
     - --security-only
     - --check-disabled
-    - --check-updatedb=0
   format: list
   prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
 upsCmds:
