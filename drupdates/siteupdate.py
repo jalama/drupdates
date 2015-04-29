@@ -169,6 +169,9 @@ class Siteupdate(object):
         os.chdir(self.site_dir)
         repository = Repo(self.site_dir)
         git_repo = repository.git
+        # os.chdir(self.site_web_root)
+        for ignore_file in self.settings.get('commonIgnore'):
+            git_repo.checkout(os.path.join(self.site_web_root, ignore_file))
         if self.repo_status['modules'] and self.settings.get('ignoreCustomModules'):
             custom_module_dir = os.path.join(self.site_web_root,
                                              self.repo_status['modules'], 'custom')

@@ -54,15 +54,9 @@ commitAuthor:
   prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
 commonIgnore:
   value:
-    - .git
     - .htaccess
-    - sites
     - robots.txt
     - web.config
-    - tmp
-    - settings.php
-    - files
-    - default
   prompt: What files and folders that ship with core are unique to local install (separate with spaces)
 ignoreCustomModules:
   value: True
