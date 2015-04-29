@@ -165,11 +165,14 @@ class Siteupdate(object):
             yaml.dump(makef, openfile, default_flow_style=False)
 
     def git_changes(self):
-        """ add/remove changed files, ignore file mode changes. """
+        """ add/remove changed files.
+
+        note: Will ignore file mode changes and anything in the commonIgnore setting.
+
+        """
         os.chdir(self.site_dir)
         repository = Repo(self.site_dir)
         git_repo = repository.git
-        # os.chdir(self.site_web_root)
         for ignore_file in self.settings.get('commonIgnore'):
             git_repo.checkout(os.path.join(self.site_web_root, ignore_file))
         if self.repo_status['modules'] and self.settings.get('ignoreCustomModules'):
