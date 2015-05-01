@@ -167,14 +167,23 @@ class Siteupdate(object):
     def git_changes(self):
         """ add/remove changed files.
 
-        note: Will ignore file mode changes and anything in the commonIgnore setting.
+        notes:
+        - Will ignore file mode changes and anything in the commonIgnore setting.
+        - Will attempt to ignore and sqlite databases left behind
 
         """
         os.chdir(self.site_dir)
         repository = Repo(self.site_dir)
         git_repo = repository.git
         for ignore_file in self.settings.get('commonIgnore'):
-            git_repo.checkout(os.path.join(self.site_web_root, ignore_file))
+            try:
+                git_repo.checkout(os.path.join(self.site_web_root, ignore_file))
+            except git.exc.GitCommandError:
+                pass
+        try:
+            os.remove(os.path.join(self.site_web_root, 'drupdates.sqlite'))
+        except OSError:
+            pass
         if self.repo_status['modules'] and self.settings.get('ignoreCustomModules'):
             custom_module_dir = os.path.join(self.site_web_root,
                                              self.repo_status['modules'], 'custom')

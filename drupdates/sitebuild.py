@@ -58,6 +58,8 @@ class Sitebuild(object):
         """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
         qd_cmds = self.settings.get('qdCmds')
         qd_cmds += ['--root=' + site_webroot]
+        site_db = os.path.join(site_webroot, 'drupdates.sqlite')
+        qd_cmds += ['--db-url=sqlite:' + site_db]
         backup_dir = self.settings.get('backupDir')
         parts = backup_dir.split('/')
         if parts[0] == '~' or parts[0].upper() == '$HOME':
