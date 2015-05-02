@@ -1,0 +1,11 @@
+# YAML
+# Core
+# Git Repo
+# This value must be changed to reflect a Drupal site 
+# repository or Drupdates will quit
+repoDict:
+  value:
+    example: ssh://git@example.com:sites/drupal
+# Build related
+workingBranch:
+  value: dev

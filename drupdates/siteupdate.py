@@ -1,5 +1,5 @@
-""" Module handles the heavy lifting, building the various seit directories. """
-import distutils.core, tempfile, git, shutil, os, yaml
+""" Module handles the heavy lifting, building the various site directories. """
+import git, shutil, os, yaml
 from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
@@ -23,7 +23,7 @@ class Siteupdate(object):
         self.site_web_root = None
         self._commit_hash = None
         self.repo_status = None
-        self._module_dir = None
+
 
     @property
     def commit_hash(self):
@@ -44,8 +44,6 @@ class Siteupdate(object):
             msg = "Repo {0} failed call to drush status during update".format(self._site_name)
             report['status'] = msg
             return report
-        # Ensure update module is enabled.
-        Drush.call(['en', 'update', '-y'], self._site_name)
         try:
             updates = self.run_updates()
         except DrupdatesError as updates_error:
@@ -58,22 +56,13 @@ class Siteupdate(object):
         msg = '\n'.join(updates)
         # Call dr.call() without site alias argument, aliaes comes after dd argument
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
-        try:
-            self.site_web_root = drush_dd[0]
-        except DrupdatesError as update_error:
-            raise update_error
+        self.site_web_root = drush_dd[0]
         if self.settings.get('buildSource') == 'make':
             shutil.rmtree(self.site_web_root)
-        else:
-            try:
-                self.rebuild_web_root()
-            except DrupdatesError:
-                report['status'] = "The webroot re-build failed."
-                if self.settings.get('useMakeFile'):
-                    make_err = " Ensure the make file format is correct "
-                    make_err += "and Drush make didn't fail on a bad patch."
-                    report['status'] += make_err
-                return report
+        drush_path = os.path.join(self.site_web_root, 'drush')
+        if os.path.isdir(drush_path):
+            self.utilities.remove_dir(drush_path)
+
         git_repo = self.git_changes()
         commit_author = self.settings.get('commitAuthor')
         git_repo.commit(m=msg, author=commit_author)
@@ -171,17 +160,33 @@ class Siteupdate(object):
             make = open(make_file)
             makef = yaml.load(make)
             make.close()
-            makef['projects'][module]['version'] = candidate
+            makef['projects'][module]['version'] = str(candidate)
             openfile = open(make_file, 'w')
             yaml.dump(makef, openfile, default_flow_style=False)
 
     def git_changes(self):
-        """ add/remove changed files, ignore file mode changes. """
+        """ add/remove changed files.
+
+        notes:
+        - Will ignore file mode changes and anything in the commonIgnore setting.
+        - Will attempt to ignore and sqlite databases left behind
+
+        """
         os.chdir(self.site_dir)
         repository = Repo(self.site_dir)
         git_repo = repository.git
-        if self._module_dir and self.settings.get('ignoreCustomModules'):
-            custom_module_dir = os.path.join(self.site_web_root, self._module_dir, 'custom')
+        for ignore_file in self.settings.get('commonIgnore'):
+            try:
+                git_repo.checkout(os.path.join(self.site_web_root, ignore_file))
+            except git.exc.GitCommandError:
+                pass
+        try:
+            os.remove(os.path.join(self.site_web_root, 'drupdates.sqlite'))
+        except OSError:
+            pass
+        if self.repo_status['modules'] and self.settings.get('ignoreCustomModules'):
+            custom_module_dir = os.path.join(self.site_web_root,
+                                             self.repo_status['modules'], 'custom')
             try:
                 git_repo.checkout(custom_module_dir)
             except git.exc.GitCommandError:
@@ -193,60 +198,3 @@ class Siteupdate(object):
         for filepath in deleted.split():
             git_repo.rm(filepath)
         return git_repo
-
-    def rebuild_web_root(self):
-        """ Rebuild the web root folder completely after running pm-update.
-
-        Drush pm-update of Drupal Core deletes the .git folder therefore need to
-        move the updated folder to a temp dir and re-build the webroot folder.
-
-        """
-        temp_dir = tempfile.mkdtemp(self._site_name)
-        shutil.move(self.site_web_root, temp_dir)
-        add_dir = self.settings.get('webrootDir')
-        if add_dir:
-            repository = Repo(self.site_dir)
-            git_repo = repository.git
-            git_repo.checkout(add_dir)
-        else:
-            repository = Repo.init(self.site_dir)
-            try:
-                remote = git.Remote.create(repository, self._site_name, self.ssh)
-            except git.exc.GitCommandError as error:
-                if not error.status == 128:
-                    msg = "Could not establish a remote for the {0} repo".format(self._site_name)
-                    raise DrupdatesUpdateError(20, msg)
-            remote.fetch(self.working_branch)
-            git_repo = repository.git
-            try:
-                git_repo.checkout('FETCH_HEAD', b=self.working_branch)
-            except git.exc.GitCommandError as error:
-                git_repo.checkout(self.working_branch)
-            add_dir = self._site_name
-        if 'modules' in self.repo_status:
-            self._module_dir = self.repo_status['modules']
-            try:
-                shutil.rmtree(os.path.join(self.site_web_root, self._module_dir))
-            except OSError:
-                msg = "Could not remove module directory {0}".format(self._module_dir)
-                raise DrupdatesUpdateError(20, msg)
-        if 'themes' in self.repo_status:
-            theme_dir = self.repo_status['themes']
-            try:
-                shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
-            except OSError:
-                msg = "Could not remove theme directory {0}".format(theme_dir)
-                raise DrupdatesUpdateError(20, msg)
-        self.utilities.rm_common(self.site_web_root, temp_dir)
-        try:
-            distutils.dir_util.copy_tree(temp_dir + '/' + add_dir, self.site_web_root)
-        except distutils.errors.DistutilsFileError as error:
-            msg = "Can't copy updates from: \n"
-            msg += "{0} temp dir to {1}\n".format(temp_dir, self.site_web_root)
-            msg += "Error: {0}".format(error)
-            raise DrupdatesUpdateError(20, msg)
-        try:
-            shutil.rmtree(temp_dir)
-        except OSError:
-            msg = "Could not remove temporary directory {0}".format(temp_dir)
-            raise DrupdatesUpdateError(20, msg)

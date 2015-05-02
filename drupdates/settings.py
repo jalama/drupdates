@@ -1,5 +1,5 @@
 """ Class to set-up the configuration used throughout Drupdates """
-import os, yaml, sys, json, yaml, copy
+import os, yaml, sys, json, copy
 from os.path import expanduser
 try:
     import argparse
@@ -24,7 +24,6 @@ class DrupdatesError(Exception):
         self.level = level
         self.msg = msg
 
-
 class _Settings(object):
     """ Build the settings used throughout the drupdates project.
 
@@ -34,11 +33,10 @@ class _Settings(object):
         - Plugin settings files, ie <plugin dir>/settings/default.yaml
         - Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
         - Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
-        - Prompts to end user, only if required and not value found above
+        - Prompts to end user, only if required and no value found above
 
         The later the setting is loaded the higher its weight, ie if it's set at
-        runtime it will overwrite anything set in the Core settings or local
-        settings file.
+        runtime it will overwrite anything set in the Core or local settings file.
 
     """
 
@@ -57,11 +55,10 @@ class _Settings(object):
         local_file = expanduser('~') + '/.' + '/'.join(path.split('.')) + '.yaml'
         # If there is an override file in the home dir
         # (ex. ~/.drupdates/settings.yaml)
-        if os.path.isfile(local_file):
+        try:
             self.add(local_file, True)
-        else:
-            print "Exiting Drupdates, Local settings file, {0}, does not exist".format(local_file)
-            sys.exit(1)
+        except DrupdatesError:
+            pass
 
     def options(self):
         """ Read the options set at runtime. """
@@ -129,7 +126,11 @@ class _Settings(object):
         force -- Incoming settings overwrite current settings (default = False)
 
         """
-        default = open(settings_file, 'r')
+        try:
+            default = open(settings_file, 'r')
+        except IOError as error:
+            msg = "Can't open or read settings file, {0}".format(settings_file)
+            raise DrupdatesError(20, msg)
         new = yaml.load(default)
         default.close()
         for setting, item in new.iteritems():
@@ -198,6 +199,7 @@ class Settings(object):
     def add(settings_file, force=False):
         """ Load settings form a YAML file. """
         return Settings.instance.add(settings_file, force)
+
     @staticmethod
     def reset():
         """ Reset the settings. """

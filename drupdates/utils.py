@@ -1,6 +1,5 @@
 """ Utilities class providing useful functions and methods. """
 import requests, os, urlparse, subprocess, shutil
-from filecmp import dircmp
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
@@ -30,13 +29,18 @@ class Utils(object):
         make_format = self.settings.get('makeFormat')
         make_folder = self.settings.get('makeFolder')
         make_file = site_name + '.make'
+        make_file_short = site_name
         if make_format == 'yaml':
             make_file += '.yaml'
+            make_file_short += '.yaml'
         if make_folder:
-            directory += '/' + make_folder
-        file_name = directory + '/' + make_file
+            directory = os.path.join(directory, make_folder)
+        file_name = os.path.join(directory, make_file)
+        file_name_short = os.path.join(directory, make_file_short)
         if os.path.isfile(file_name):
             return file_name
+        if os.path.isfile(file_name_short):
+            return file_name_short
         return False
 
     def make_site(self, site_name, site_dir):
@@ -158,22 +162,3 @@ class Utils(object):
                         print "Running {0}, \n Error: {1}".format(command, results[1])
                 else:
                     continue
-
-    def rm_common(self, dir_delete, dir_compare):
-        """ Delete files in dir_delete that are in dir_compare.
-
-        keyword arguments:
-        dir_delete -- The directory to have it's file/folders deleted.
-        dir_compare -- The directory to compare dirDelete with.
-
-        Iterate over the sites directory and delete any files/folders not in the
-        commonIgnore setting.
-        """
-        ignore = self.settings.get('commonIgnore')
-        if isinstance(ignore, str):
-            ignore = [ignore]
-        dcmp = dircmp(dir_delete, dir_compare, ignore)
-        for file_name in dcmp.common_files:
-            os.remove(dir_delete + '/' + file_name)
-        for directory in dcmp.common_dirs:
-            shutil.rmtree(dir_delete + '/' + directory)

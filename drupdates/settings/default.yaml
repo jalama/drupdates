@@ -3,12 +3,14 @@
 workingBranch:
   value: ""
   prompt: What is the default Git working branch
-workingDir:
-  value: /var/www/
-  prompt: What is the working directory (default /var/www/)
+baseDir:
+  value: ~/.drupdates
 backupDir:
-  value: ""
-  prompt: Directory where one can find database backups (ie /var/www/backups)
+  value: ~/.drupdates/backups
+  prompt: Directory where site build backups are saved (default ~/.drupdates/backups)
+workingDir:
+  value: ~/.drupdates/builds
+  prompt: What is the working directory (default ~/.drupdates/builds)
 webrootDir:
   value: ""
   prompt: Any directory below the base site directory that acts as the web root
@@ -19,9 +21,6 @@ blacklist:
 singleSite:
   value: ""
   prompt: Do you want to run the script on a single site (which alias)
-importBackup:
-  value: ""
-  prompt: Do you want to import a backup
 # This setting determines what Drupdates will do
 # Change with care
 drupdatesPhases:
@@ -38,7 +37,7 @@ postBuildCmds:
   format: list
 # Git related settings
 gitRepoName:
-  value: ""
+  value: repolist
   prompt: Where is the list of git repos stored
   required: True
 drushSiFiles:
@@ -51,26 +50,20 @@ drushSiFiles:
     - sites/default/services.yml
   prompt: What files will drush si set to file mode 0444
 commitAuthor:
-  value: ""
+  value: Security Updates <updates@drupdates.org>
   prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
 commonIgnore:
   value:
-    - .git
     - .htaccess
-    - sites
     - robots.txt
     - web.config
-    - tmp
-    - settings.php
-    - files
-    - default
   prompt: What files and folders that ship with core are unique to local install (separate with spaces)
 ignoreCustomModules:
   value: True
 # Project Management Settings
 submitDeployTicket:
-  value: Yes
-  prompt: Do yo want to submit a deployment ticket
+  value: False
+  prompt: Do you want to submit a deployment ticket
 deploymentTickets:
   value:
     - Staging
@@ -86,20 +79,29 @@ targetDate:
 # Drush pm-update (up) command will behave.
 upCmds:
   value:
-    - up
+    - upc
     - -y
     - --security-only
-    - --no-backup
     - --check-disabled
   format: list
-  prompt: Arguments and options for drush pm-update cmd (separate with spaces)
+  prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
 upsCmds:
   value:
     - ups
     - --security-only
     - --check-disabled
   format: list
-  prompt: Arguments and options for drush pm-updatestatus cmd (separate with spaces)
+  prompt: Arguments and options for drush pm-updatestatus (ups) cmd (separate with spaces)
+qdCmds:
+  value:
+    - qd
+    - --use-existing
+    - --writable
+    - -y
+    - --no-server
+    - --browser=none
+  format: list
+  prompt: Arguments and options for drush core-quick-drupal (qd) cmd (separate with commas)
 drushAliasFile:
   value: drupdates.aliases.drushrc.php
 # Drush make related
@@ -121,13 +123,7 @@ makeOpts:
     - --no-patch-txt
     - --force-complete
     - --no-gitinfofile
-# Database/Datastore related
-datastore:
-  value: sql
-datastoreDriver:
-  value: mysql
-  prompt: What is the default datastore (i.e. database) driver (default mysql)
 # Reporting related
 reportingTool:
-  value: "sendmail"
+  value: stdout
   prompt: Tool to used to send the final report
