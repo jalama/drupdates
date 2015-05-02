@@ -34,7 +34,7 @@ class Utils(object):
             make_file += '.yaml'
             make_file_short += '.yaml'
         if make_folder:
-            directory += os.path.join(directory, make_folder)
+            directory = os.path.join(directory, make_folder)
         file_name = os.path.join(directory, make_file)
         file_name_short = os.path.join(directory, make_file_short)
         if os.path.isfile(file_name):

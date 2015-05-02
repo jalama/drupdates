@@ -72,7 +72,11 @@ class Sitebuild(object):
             pass
         if self.settings.get('useMakeFile'):
             make_file = self.utilities.find_make_file(self._site_name, self.site_dir)
-            qd_cmds += ['--makefile=' + make_file]
+            if make_file:
+                qd_cmds += ['--makefile=' + make_file]
+            else:
+                msg = "Can't file make file in {0} for {1}".format(self.site_dir, self._site_name)
+                raise DrupdatesBuildError(20, msg)
         if self.settings.get('buildSource') == 'make':
             qd_cmds.remove('--use-existing')
         try:

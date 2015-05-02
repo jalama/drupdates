@@ -39,7 +39,7 @@ class Updates(object):
             sys.exit(1)
         current_settings = open(settings_file, 'r')
         settings = yaml.load(current_settings)
-        if 'example' in settings['repoDict']['value']:
+        if 'repoDict' in settings and 'example' in settings['repoDict']['value']:
             msg = "The default Settings file, {0}, needs updated. \n ".format(settings_file)
             msg += "See {0} for instructions".format(instructions_url)
             print msg
