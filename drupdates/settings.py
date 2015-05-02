@@ -164,7 +164,7 @@ class _Settings(object):
             path = []
         for key in source:
             if key in target:
-                if isinstance(target[key], dict) and isinstance(source[key], dict):
+                if isinstance(target[key], dict) and isinstance(source[key], dict) and key == 'value':
                     self.merge(target[key], source[key], path + [str(key)])
                 else:
                     target[key] = source[key]
@@ -197,7 +197,7 @@ class Settings(object):
 
     @staticmethod
     def add(settings_file, force=False):
-        """ Load settings form a YAML file. """
+        """ Load settings from a YAML file. """
         return Settings.instance.add(settings_file, force)
 
     @staticmethod
