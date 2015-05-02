@@ -160,7 +160,7 @@ class Siteupdate(object):
             make = open(make_file)
             makef = yaml.load(make)
             make.close()
-            makef['projects'][module]['version'] = candidate
+            makef['projects'][module]['version'] = str(candidate)
             openfile = open(make_file, 'w')
             yaml.dump(makef, openfile, default_flow_style=False)
 
