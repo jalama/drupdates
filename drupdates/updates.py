@@ -1,5 +1,5 @@
 """ Primary Drupdates Module. """
-import os
+import os, shutil, yaml, sys
 from os.path import expanduser
 from string import Template
 from drupdates.settings import Settings
@@ -20,7 +20,6 @@ class Updates(object):
             self.working_dirs = [self.working_dirs]
             self.single_site = self.settings.get('singleSite')
 
-
     def install(self):
         """ Basic Installation of Drupdates. """
         base_dir = self.settings.get('baseDir')
@@ -28,6 +27,23 @@ class Updates(object):
         dirs = [backup_dir, base_dir]
         for directory in dirs:
             Updates.check_dir(directory)
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        src = os.path.join(current_dir, "templates/settings.template")
+        settings_file = os.path.join(Updates.check_dir(base_dir), 'settings.yaml')
+        instructions_url = "http://drupdates.readthedocs.org/en/latest/setup/"
+        if not os.path.isfile(settings_file):
+            shutil.copy(src, settings_file)
+            msg = "The Settings file {0} was created and needs updated.\n".format(settings_file)
+            msg += "See {0} for instructions".format(instructions_url)
+            print msg
+            sys.exit(1)
+        current_settings = open(settings_file, 'r')
+        settings = yaml.load(current_settings)
+        if 'example' in settings['repoDict']['value']:
+            msg = "The default Settings file, {0}, needs updated. \n ".format(settings_file)
+            msg += "See {0} for instructions".format(instructions_url)
+            print msg
+            sys.exit(1)
 
     def run_updates(self):
         """ Drupdates main function. """
@@ -116,8 +132,8 @@ class Updates(object):
 
         Notes:
         The file name is controlled by the drushAliasFile settings
-        All of the aliases will be prefixed with "drupdates" if he default file name
-          is retained
+        All of the aliases will be prefixed with "drupdates" if the default file name
+        is retained
         """
 
         alias_file_name = self.settings.get('drushAliasFile')

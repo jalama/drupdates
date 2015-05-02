@@ -64,7 +64,7 @@ class Sitebuild(object):
         parts = backup_dir.split('/')
         if parts[0] == '~' or parts[0].upper() == '$HOME':
             del parts[0]
-            backup_dir = os.path.join(os.path.expanduser('~'), '/'.join(parts))
+            backup_dir = os.path.join(expanduser('~'), '/'.join(parts))
         qd_cmds += ['--backup-dir=' + backup_dir]
         try:
             qd_cmds.remove('--no-backup')
