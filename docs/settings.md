@@ -43,6 +43,7 @@ setting: the name of the setting
   value: required, value of the setting1
 ```
 Optionally each setting can have other attributes (@see Settings.model()):
+
 ```
 setting:
   value:
@@ -51,6 +52,7 @@ setting:
   required: optional, Is the setting required2
   requires: optional, does this setting require another setting
 ```
+
 1 Surround with '' if value contains special cahracters.  For list of YAML
 special characters @see http://www.yaml.org/refcard.html.
 

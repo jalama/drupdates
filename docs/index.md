@@ -53,18 +53,11 @@ Assumptions
 will only be run on local development machines.  Drupdates will need to store
 system user names and passwords in the $HOME/.drupdates directory.
 
-- Drupdates does not support multi-site installs out of the box.
+- Drupdates does not support Drupal's multi-site installs out of the box.
 
-- The entire script depends on the use of Drush site aliases named after the
-folders the sites are written to (prefixed with "drupdates".  Drupdates assumes
-any back-up files follow the pattern of being named after that same
-folder/<site alias>.
-  - example: site folder is /var/www/drupal the back-up file is
-<backports dir>/drupal.sql and the Drush alias will be @drupdates.drupal
+- Any [Make](docs/make.md) file used to build a site will be named the same as the site folder.
 
-- Lack of a back-up will not stop Drupdates from updating the Drupal codebase.
-
-- Any [Make](make.md) file used to build a site will be named the same as the site folder.
+- Git is being used to track changes to the Drupal code base
 
 Configuration
 ===========

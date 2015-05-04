@@ -16,13 +16,11 @@ See the [documentation](docs/index.md) for installation and set-up instructions.
 
 Basic Requirements
 ============
-Drush 7
+Drush 7 (requires composer)
 
 Git 1.7+
 
-Drupal running locally: You must be able to stand-up and Drupal site (ie you
-will need to be able to successfully run "drush st --format=json" and
-see the "bootstrap": "Successful" value for a locally installed Drupal site)
+SQLite
 
 Assumptions
 ===========
@@ -37,15 +35,7 @@ system user names and passwords in the $HOME/.drupdates directory.
 
 - Drupdates does not support Drupal's multi-site installs out of the box.
 
-- The entire script depends on the use of Drush site aliases named after the
-folders the sites are written to (prefixed with "drupdates".  Drupdates assumes
-any back-up files follow the pattern of being named after that same
-folder/<site alias>.
-  - The site aliases will be built dynamically by Drupdates.
-  - example: site folder is /var/www/drupal the back-up file is
-<backports dir>/drupal.sql and the Drush alias will be @drupdates.drupal
-
-- Lack of a back-up will not stop Drupdates from updating the Drupal codebase.
-
 - Any [Make](docs/make.md) file used to build a site will be named the same as the site folder.
+
+- Git is being used to track changes to the Drupal code base
 
