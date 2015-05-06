@@ -25,7 +25,7 @@ Once installed please follow the post install [set-up instructions](setup.md)
 Upgrade
 ============
 
-easy_install --upgrade duprdates
+easy_install --upgrade drupdates
 
 Execution
 ============

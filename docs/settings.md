@@ -25,7 +25,7 @@ or local settings files.
 
 The Core settings file is [/drupdates/settings/default.yaml](https://github.com/jalama/drupdates/blob/master/drupdates/settings default.yaml). Additionally, each plugin ships with it's own default.yaml file in its respective settings directory.
 
-Custom Settings file:
+Custom Settings file:**<a name="custom_settings"></a>
 
 You will need to overwirte settings file upon set-up.  To do this create a local
 settings file in $HOME/.drupdates/settings.yaml.  Sample settings files can be
@@ -59,7 +59,7 @@ special characters @see http://www.yaml.org/refcard.html.
 2 If setting is required and is empty, the end user will be asked for a value.
 
 **Sample Files:**<a name="samples"></a>
-=================
+===========
 
 - *Basic Settings:* use a manual repo list, submit deployment ticket to AtTask,
 print report to the terminal screen, use MYSQL, MYSQL root user/password = root:
@@ -80,3 +80,64 @@ use a make file and ship with complete repo, submit deployment ticket to AtTask,
 print report to the terminal screen, use MYSQL, MYSQL root user/password = root,
 will run only on www.example.com:
     - [Using Stash/Slack Gist](https://gist.github.com/jalama/6798bf4e1b8e28a31088)
+
+Working Directories
+===========
+
+Drupdates builds and edits Drupal sites in what is known as the "Working Directory",
+which is controlled by the workingDirectory settting.  The default working directory setting
+is 
+
+```
+~/.drupdates/builds
+```
+
+As with any setting this can be overridden in the custom settings file.  Further, there are
+special qualities to note about the working directories.
+
+- You can run Drupdates on only one site in a working directory using the singleSite setting.
+For exampple, say you have the following setting for repoDict (note this is shor to Repository Dictionary)
+
+```
+repoDict:
+  value:
+    - drupal:ssh://git@example.com:sites/drupal
+    - drupal_two: ssh://git@example.com:sites/drupal_two
+```
+
+If you only wanted to run Drupdates on the "drupal" site above you would pass the following 
+on the comand line.
+
+```
+$drupdates --singleSite=drupal
+```
+OR set the following in the $HOME/.drupdates/settings.yaml file.
+
+```
+singleSite:
+  value: drupal
+```
+
+Multiple Working Directories
+===========
+
+- If you are maintaining sites with diffrent configurations, examples include:
+  - Some use JIRA and others use AtTask
+  - Some ship with make files and other don't etc...
+
+You can have multiple working directories, each with it's own individual custom settings.  The
+individual working directories would need to have a .drupdates folder with a settings.yaml file.
+
+For example, if you have a working directory at /var/www and /opt/builds each with it's own settings
+the file structure would look like this:
+
+```
+$HOME/.drupdates/settings.yaml
+/var/www/.drupdates/settings.yaml
+/opt/builds/.drupdates/settings/yaml
+```
+The working directories only have to have setting relevant  to those directories in their respective
+ .drupdates directory
+
+Note: you still need the default custom settings file at $HOME/.drupdates/settings.yaml, mainly becuase
+this is where you set you working dirctories.  
