@@ -18,12 +18,12 @@ setup(
     url='https://github.com/jalama/drupdates',
     download_url='https://github.com/jalama/drupdates',
     author_email='jim@rootyhollow.com',
-    version='1.2.3',
+    version='1.3.0',
     package_dir={'drupdates' : 'drupdates'},
     include_package_data=True,
     install_requires=['nose', 'gitpython', 'requests', 'pyyaml'],
     entry_points={
-        'console_scripts': ['drupdates = drupdates.updates:main'],
+        'console_scripts': ['drupdates = drupdates.cli:main'],
     },
     packages=['drupdates'],
     classifiers=[

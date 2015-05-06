@@ -1,26 +1,17 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, imp, urlparse, subprocess, shutil, sys
-from filecmp import dircmp
+import requests, os, urlparse, subprocess, shutil
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
 
+class DrupdatesAPIError(DrupdatesError):
+    """ Error thrown bu api_call. """
 
 class Utils(object):
-    """ Class of untilities used throughout the module. """
+    """ Class of utilities used throughout the module. """
 
     def __init__(self):
         self.settings = Settings()
-
-    @staticmethod
-    def check_working_dir(directory):
-        """ Ensure the directory is writable. """
-        filepath = os.path.join(directory, "text.txt")
-        try:
-            open(filepath, "w")
-        except IOError:
-            sys.exit('Unable to write to directory {0} \n Exiting Drupdates'.format(directory))
-            return False
-        return True
 
     @staticmethod
     def remove_dir(directory):
@@ -29,8 +20,8 @@ class Utils(object):
             try:
                 shutil.rmtree(directory)
             except OSError as error:
-                print "Can't remove site dir {0}\n Error: {1}".format(directory, error.strerror)
-                return False
+                msg = "Can't remove site dir {0}\n Error: {1}".format(directory, error.strerror)
+                raise DrupdatesError(20, msg)
         return True
 
     def find_make_file(self, site_name, directory):
@@ -38,13 +29,18 @@ class Utils(object):
         make_format = self.settings.get('makeFormat')
         make_folder = self.settings.get('makeFolder')
         make_file = site_name + '.make'
+        make_file_short = site_name
         if make_format == 'yaml':
             make_file += '.yaml'
+            make_file_short += '.yaml'
         if make_folder:
-            directory += '/' + make_folder
-        file_name = directory + '/' + make_file
+            directory = os.path.join(directory, make_folder)
+        file_name = os.path.join(directory, make_file)
+        file_name_short = os.path.join(directory, make_file_short)
         if os.path.isfile(file_name):
             return file_name
+        if os.path.isfile(file_name_short):
+            return file_name_short
         return False
 
     def make_site(self, site_name, site_dir):
@@ -71,27 +67,30 @@ class Utils(object):
         Keyword arguments:
         uri -- the uri of the Restful Web Service (required)
         name -- the human readable label for the service being called (required)
-        method -- HTTP method to use (defaul = 'get')
+        method -- HTTP method to use (default = 'get')
         kwargs -- dictionary of arguments passed directly to requests module method
 
         """
         # Ensure uri is valid
         if not bool(urlparse.urlparse(uri).netloc):
-            print("Error: {0} is not a valid url").format(uri)
-            return False
+            msg = ("Error: {0} is not a valid url").format(uri)
+            raise DrupdatesAPIError(20, msg)
         func = getattr(requests, method)
         args = {}
+        args['timeout'] = (10, 10)
         for key, value in kwargs.iteritems():
             args[key] = value
         try:
             response = func(uri, **args)
         except requests.exceptions.Timeout:
-            print "The api call to {0} timed out".format(uri)
+            msg = "The api call to {0} timed out".format(uri)
+            raise DrupdatesAPIError(20, msg)
         except requests.exceptions.TooManyRedirects:
-            print "The api call to {0} appears incorrect, returned: too many re-directs".format(uri)
+            msg = "The api call to {0} appears incorrect, returned: too many re-directs".format(uri)
+            raise DrupdatesAPIError(20, msg)
         except requests.exceptions.RequestException as error:
-            print "The api call to {0} failed\n Error {1}".format(uri, error)
-            sys.exit(1)
+            msg = "The api call to {0} failed\n Error {1}".format(uri, error)
+            raise DrupdatesAPIError(20, msg)
         try:
             response_dictionary = response.json()
         except ValueError:
@@ -108,8 +107,7 @@ class Utils(object):
             msg = "{0} returned an error, exiting the script.\n".format(name)
             msg += "Status Code: {0} \n".format(response.status_code)
             msg += "Error: {0}".format(first_error['message'])
-            print msg
-            return False
+            raise DrupdatesAPIError(20, msg)
         else:
             return response_dictionary
 
@@ -164,50 +162,3 @@ class Utils(object):
                         print "Running {0}, \n Error: {1}".format(command, results[1])
                 else:
                     continue
-
-    def rm_common(self, dir_delete, dir_compare):
-        """ Delete files in dirDelete that are in dirCompare.
-
-        keyword arguments:
-        dirDelete -- The directory to have it's file/folders deleted.
-        dirCompare -- The directory to compare dirDelete with.
-
-        Iterate over the sites directory and delete any files/folders not in the
-        commonIgnore setting.
-        """
-        ignore = self.settings.get('commonIgnore')
-        if isinstance(ignore, str):
-            ignore = [ignore]
-        dcmp = dircmp(dir_delete, dir_compare, ignore)
-        for file_name in dcmp.common_files:
-            os.remove(dir_delete + '/' + file_name)
-        for directory in dcmp.common_dirs:
-            shutil.rmtree(dir_delete + '/' + directory)
-
-class Plugin(object):
-    """ Simple Plugin system.
-
-    This is shamelessly based on:
-    http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
-    """
-
-    def __init__(self):
-        self._plugin_folder = os.path.dirname(os.path.realpath(__file__)) + "/plugins"
-        self._main_module = "__init__"
-        self._plugins = self.get_plugins()
-
-    def get_plugins(self):
-        """ Collect Plugins from the plugins folder. """
-        plugins = {}
-        possibleplugins = os.listdir(self._plugin_folder)
-        for i in possibleplugins:
-            location = os.path.join(self._plugin_folder, i)
-            if not os.path.isdir(location) or not self._main_module + ".py" in os.listdir(location):
-                continue
-            info = imp.find_module(self._main_module, [location])
-            plugins[i] = ({"name": i, "info": info})
-        return plugins
-
-    def load_plugin(self, plugin):
-        """ Load an individual plugin. """
-        return imp.load_module(self._main_module, *plugin["info"])

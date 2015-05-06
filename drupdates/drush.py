@@ -1,8 +1,10 @@
 """ Run Drush related commands. """
-import subprocess
-import json
-import os
+import subprocess, json, copy
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
+
+class DrupdatesDrushError(DrupdatesError):
+    """ Parent Drupdates site build error. """
 
 class Drush(object):
     """ Base class to run Drush commands. """
@@ -11,7 +13,7 @@ class Drush(object):
         self.settings = Settings()
 
     @staticmethod
-    def call(commands, alias='', json_ret=False):
+    def call(cmds, alias='', json_ret=False):
         """ Run a drush comand and return a list/dictionary of the results.
 
         Keyword arguments:
@@ -20,6 +22,7 @@ class Drush(object):
         json -- binary deermining if the given command can/should return json
 
         """
+        commands = copy.copy(cmds)
         if alias:
             commands.insert(0, '@drupdates.' + alias)
         if json_ret:
@@ -30,33 +33,22 @@ class Drush(object):
             popen = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError as error:
             msg = "Cannot run drush.call(),"
-            msg += "most likely because python can't find drush\n Error: {0}".format(error.strerror)
-            print msg
+            msg += "most likely because Python can't find Drush\n Error: {0}".format(error.strerror)
+            raise DrupdatesDrushError(30, msg)
         results = popen.communicate()
+        if popen.returncode != 0:
+            msg = "Drush.call() error, Drush command passed was {0}\n".format(commands)
+            msg += "Drush error message: {0}".format(results[1])
+            raise DrupdatesDrushError(20, msg)
         stdout = results[0]
         if json_ret:
             try:
                 ret = json.loads(stdout)
             except ValueError:
-                ret = "For {0}, No JSON returned for status, though it was requested".format(alias)
+                msg = "{0}, No JSON returned from Drush, though it was requested\n".format(alias)
+                msg += "Drush command passed was {0}\n".format(commands)
+                msg += "Drush message: {0}".format(stdout)
+                raise DrupdatesDrushError(20, msg)
         else:
             ret = stdout.split('\n')
         return ret
-
-    def db_import(self, alias):
-        """ Import a SQL dump using drush sqlc.
-
-        alias -- A Drush alias
-
-        """
-        backport_dir = self.settings.get('backupDir')
-        if os.path.isfile(backport_dir + alias + '.sql'):
-            commands = ['drush', '@drupdates.' + alias, 'sqlc']
-            popen = subprocess.Popen(commands, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            results = popen.communicate(file(backport_dir + alias + '.sql').read())
-            if results[1]:
-                print "{0} DB import error: {1}".format(alias, results[1])
-                return False
-        else:
-            print "{0} could not find backup file, skipping import".format(alias)
-        return True

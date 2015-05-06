@@ -10,7 +10,9 @@ class Jira(Pmtool):
 
     def __init__(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.settings = Settings(current_dir)
+        settings_file = current_dir + '/settings/default.yaml'
+        self.settings = Settings()
+        self.settings.add(settings_file)
         base = self.settings.get('jiraBaseURL')
         api = self.settings.get('jiraAPIVersion')
         if not api.endswith('/'):
@@ -30,7 +32,6 @@ class Jira(Pmtool):
             headers = {'content-type': 'application/json'}
             response = Utils.api_call(issue_url, 'Jira', 'post', data=request,
                                       auth=(jira_user, jira_pword), headers=headers)
-            print response
             if not response == False:
                 url = response['key']
                 message[environment] = "The {0} deploy ticket is {1}".format(environment, url)

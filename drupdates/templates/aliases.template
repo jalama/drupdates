@@ -25,18 +25,6 @@ while($dir_handle->valid()) {
       $aliases[$basename] = array(
         'uri' => 'http://localhost/' . $basename,
         'root' => $root,
-        'databases' => array(
-          'default' => array(
-            'default' => array(
-              'driver' => '$driver',
-              'username' => substr($basename . '_user', 0, 16),
-              'password' => $basename . '_pass',
-              'port' => '$port',
-              'host' => '$host',
-              'database' => str_replace($needles, '_', $basename),
-            ),
-          ),
-        ),
       );
     }
   }

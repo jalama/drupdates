@@ -10,7 +10,9 @@ class Attask(Pmtool):
 
     def __init__(self):
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.settings = Settings(current_dir)
+        settings_file = current_dir + '/settings/default.yaml'
+        self.settings = Settings()
+        self.settings.add(settings_file)
         self._pm_label = self.settings.get('pmName')
         base = self.settings.get('attaskBaseURL')
         api = self.settings.get('attaskAPIVersion')

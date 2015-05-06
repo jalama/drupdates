@@ -1,29 +1,32 @@
 """ Drupdates Site building module. """
 import git, os
+from os.path import expanduser
 from drupdates.utils import Utils
 from drupdates.settings import Settings
+from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
-from drupdates.constructors.datastores import Datastores
 from git import Repo
+
+class DrupdatesBuildError(DrupdatesError):
+    """ Parent Drupdates site build error. """
 
 class Sitebuild(object):
     """ Build out the repository folder. """
 
-    def __init__(self, siteName, ssh):
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.settings = Settings(current_dir)
+    def __init__(self, siteName, ssh, working_dir):
+        self.settings = Settings()
         self._site_name = siteName
-        self.site_dir = os.path.join(self.settings.get('workingDir'), self._site_name)
+        self.site_dir = os.path.join(working_dir, self._site_name)
         self.ssh = ssh
-        self.drush = Drush()
         self.utilities = Utils()
 
     def build(self):
         """ Core build method. """
         working_branch = self.settings.get('workingBranch')
-        Utils.check_working_dir(self.settings.get('workingDir'))
-        if not Utils.remove_dir(self.site_dir):
-            return False
+        try:
+            Utils.remove_dir(self.site_dir)
+        except DrupdatesError as remove_error:
+            raise DrupdatesBuildError(20, remove_error.msg)
         self.utilities.sys_commands(self, 'preBuildCmds')
         repository = Repo.init(self.site_dir)
         remote = git.Remote.create(repository, self._site_name, self.ssh)
@@ -31,62 +34,64 @@ class Sitebuild(object):
             remote.fetch(working_branch)
         except git.exc.GitCommandError as error:
             msg = "{0}: Could not checkout {1}. \n".format(self._site_name, working_branch)
-            msg += "Error: {2}".format(error)
-            print msg
-            return False
+            msg += "Error: {0}".format(error)
+            raise DrupdatesBuildError(20, msg)
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
-        if self.settings.get('useMakeFile'):
-            self.utilities.make_site(self._site_name, self.site_dir)
+        web_root = self.settings.get('webrootDir')
+        site_webroot = os.path.join(self.site_dir, web_root)
+        self.standup_site(site_webroot)
         st_cmds = ['st']
-        repo_status = Drush.call(st_cmds, self._site_name, True)
-        if not isinstance(repo_status, dict):
-            print "{0} failed to respond to drush status".format(self._site_name)
-            return False
-        # If this is not a Drupal repo move to the next repo
-        if not 'drupal-version' in repo_status:
-            print "{0}, from drush pm-status: this isn't a drupal site".format(self._site_name)
-            return False
-        ret = True
+        try:
+            repo_status = Drush.call(st_cmds, self._site_name, True)
+        except DrupdatesError as st_error:
+            raise DrupdatesBuildError(20, st_error.msg)
+        finally:
+            self.file_cleanup(site_webroot)
         if not 'bootstrap' in repo_status:
-            # Re-build database if it fails go to the next repo
-            if 'site' in repo_status:
-                site = os.path.basename(repo_status['site'])
-            else:
-                site = 'default'
-            ret = self.construct_site(site)
-        if ret and self.settings.get('importBackup'):
-            # Import the backup file
-            ret = self.import_backup()
+            msg = "{0} failed to Stand-up properly after running drush qd".format(self._site_name)
+            raise DrupdatesBuildError(20, msg)
         self.utilities.sys_commands(self, 'postBuildCmds')
-        return ret
+        return "Site build for {0} successful".format(self._site_name)
 
-    def construct_site(self, site='default'):
-        """ Rebulid the Drupal site: build DB, settings.php, etc..."""
-        build_db = Datastores().build(self._site_name)
-        if not build_db:
-            print "Site database build failed for {0}".format(self._site_name)
-            return False
-        # Perform Drush site-install to get a base settings.php file
-        si_cmds = ['si', 'minimal', '-y', '--sites-subdir=' + site]
-        Drush.call(si_cmds, self._site_name)
-        st_cmds = ['st']
-        repo_status = Drush.call(st_cmds, self._site_name, True)
-        if not 'bootstrap' in repo_status:
-            print "Bootstrap failed after site install for {0}".format(self._site_name)
-            return False
-        drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
-        site_webroot = drush_dd[0]
+    def standup_site(self, site_webroot):
+        """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
+        qd_cmds = self.settings.get('qdCmds')
+        qd_cmds += ['--root=' + site_webroot]
+        site_db = os.path.join(site_webroot, 'drupdates.sqlite')
+        qd_cmds += ['--db-url=sqlite:' + site_db]
+        backup_dir = self.settings.get('backupDir')
+        parts = backup_dir.split('/')
+        if parts[0] == '~' or parts[0].upper() == '$HOME':
+            del parts[0]
+            backup_dir = os.path.join(expanduser('~'), '/'.join(parts))
+        qd_cmds += ['--backup-dir=' + backup_dir]
+        try:
+            qd_cmds.remove('--no-backup')
+        except ValueError:
+            pass
+        if self.settings.get('useMakeFile'):
+            make_file = self.utilities.find_make_file(self._site_name, self.site_dir)
+            if make_file:
+                qd_cmds += ['--makefile=' + make_file]
+            else:
+                msg = "Can't file make file in {0} for {1}".format(self.site_dir, self._site_name)
+                raise DrupdatesBuildError(20, msg)
+        if self.settings.get('buildSource') == 'make':
+            qd_cmds.remove('--use-existing')
+        try:
+            Drush.call(qd_cmds)
+        except DrupdatesError as standup_error:
+            raise standup_error
+
+    def file_cleanup(self, site_webroot):
+        """ Drush sets the folder permissions for some file to be 0444, convert to 0777. """
         si_files = self.settings.get('drushSiFiles')
-        for files in si_files:
-            os.chmod(site_webroot + files, 0777)
-        return True
-
-    def import_backup(self):
-        """ Import a site back-up
-
-        Note: the back-up sife most follow the <siteName>.sql" naming convention"
-
-        """
-        import_db = self.drush.db_import(self._site_name)
-        return import_db
+        for name in si_files:
+            complete_name = os.path.join(site_webroot, name)
+            if os.path.isfile(complete_name) or os.path.isdir(complete_name):
+                try:
+                    os.chmod(complete_name, 0777)
+                except OSError:
+                    msg = "Couldn't change file permission for {0}".format(complete_name)
+                    raise DrupdatesBuildError(20, msg)
