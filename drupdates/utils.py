@@ -1,5 +1,6 @@
 """ Utilities class providing useful functions and methods. """
 import requests, os, urlparse, subprocess, shutil
+from filecmp import dircmp
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
@@ -162,3 +163,20 @@ class Utils(object):
                         print "Running {0}, \n Error: {1}".format(command, results[1])
                 else:
                     continue
+
+    def rm_common(self, dir_delete, dir_compare):
+        """ Delete files in dirDelete that are in dirCompare.
+        keyword arguments:
+        dirDelete -- The directory to have it's file/folders deleted.
+        dirCompare -- The directory to compare dirDelete with.
+        Iterate over the sites directory and delete any files/folders not in the
+        commonIgnore setting.
+        """
+        ignore = self.settings.get('commonIgnore')
+        if isinstance(ignore, str):
+            ignore = [ignore]
+        dcmp = dircmp(dir_delete, dir_compare, ignore)
+        for file_name in dcmp.common_files:
+            os.remove(dir_delete + '/' + file_name)
+        for directory in dcmp.common_dirs:
+            shutil.rmtree(dir_delete + '/' + directory)
