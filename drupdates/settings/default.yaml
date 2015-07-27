@@ -57,6 +57,7 @@ commonIgnore:
     - .htaccess
     - robots.txt
     - web.config
+    - .gitignore
   prompt: What files and folders that ship with core are unique to local install (separate with spaces)
 ignoreCustomModules:
   value: True

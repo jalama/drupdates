@@ -169,7 +169,7 @@ class Siteupdate(object):
 
         notes:
         - Will ignore file mode changes and anything in the commonIgnore setting.
-        - Will attempt to ignore and sqlite databases left behind
+        - Will attempt to ignore any sqlite databases left behind
 
         """
         os.chdir(self.site_dir)
