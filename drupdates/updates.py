@@ -18,6 +18,8 @@ class Updates(object):
         self.alias_file = None
         if isinstance(self.working_dirs, str):
             self.working_dirs = [self.working_dirs]
+        # by design, SingleSite setting only works with single working directory
+        if len(self.working_dirs) == 1:
             self.single_site = self.settings.get('singleSite')
 
     def install(self):
