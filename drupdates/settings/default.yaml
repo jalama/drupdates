@@ -125,8 +125,8 @@ makeOpts:
     - --no-gitinfofile
 # Reporting related
 reportingTool:
-  value: stdout
+  value: file
   prompt: Tool to used to send the final report
 reportingFormat:
-  value: yaml
+  value: text
   prompt: How should the report be formatted (text, yaml, json) (default text)
