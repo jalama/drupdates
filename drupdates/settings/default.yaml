@@ -127,3 +127,6 @@ makeOpts:
 reportingTool:
   value: stdout
   prompt: Tool to used to send the final report
+reportingFormat:
+  value: yaml
+  prompt: How should the report be formatted (text, yaml, json) (default text)

@@ -18,7 +18,7 @@ setup(
     url='https://github.com/jalama/drupdates',
     download_url='https://github.com/jalama/drupdates',
     author_email='jim@rootyhollow.com',
-    version='1.3.0',
+    version='1.4.0',
     package_dir={'drupdates' : 'drupdates'},
     include_package_data=True,
     install_requires=['nose', 'gitpython', 'requests', 'pyyaml'],
@@ -44,4 +44,3 @@ setup(
         'Topic :: Software Development :: Bug Tracking',
     ],
 )
-
