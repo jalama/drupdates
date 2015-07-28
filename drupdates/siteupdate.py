@@ -202,7 +202,10 @@ class Siteupdate(object):
                 pass
         full_repo = git.Git('.')
         full_repo.config("core.fileMode", "false")
-        git_repo.add('./')
+        try:
+            git_repo.add('./')
+        except DrupdatesError as git_add_error:
+            raise git_add_error
         deleted = git_repo.ls_files('--deleted')
         for filepath in deleted.split():
             git_repo.rm(filepath)
