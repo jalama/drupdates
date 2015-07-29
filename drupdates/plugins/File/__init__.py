@@ -1,6 +1,7 @@
 """ Print report to the screen. """
 from drupdates.constructors.reports import Report
 from drupdates.settings import DrupdatesError
+from drupdates.utils import Utils
 import os
 
 class File(Report):
@@ -17,10 +18,7 @@ class File(Report):
 
         filename = self.settings.get('fileName')
         directory = self.settings.get('folderName')
-        parts = directory.split('/')
-        if parts[0] == '~' or parts[0].upper() == '$HOME':
-            del parts[0]
-            directory = os.path.join(os.path.expanduser('~'), '/'.join(parts))
+        directory = Utils.detect_home_dir(directory)
         fullpath = os.path.join(directory, filename)
         try:
             default = open(fullpath, 'w')

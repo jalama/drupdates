@@ -1,5 +1,6 @@
 """ Utilities class providing useful functions and methods. """
 import requests, os, urlparse, subprocess, shutil
+from os.path import expanduser
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
@@ -12,6 +13,14 @@ class Utils(object):
 
     def __init__(self):
         self.settings = Settings()
+
+    @staticmethod
+    def detect_home_dir(directory):
+        parts = directory.split('/')
+        if parts[0] == '~' or parts[0].upper() == '$HOME':
+            del parts[0]
+            directory = os.path.join(os.path.expanduser('~'), '/'.join(parts))
+        return directory
 
     @staticmethod
     def remove_dir(directory):

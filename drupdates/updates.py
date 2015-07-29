@@ -2,6 +2,7 @@
 import os, shutil, yaml, sys
 from os.path import expanduser
 from string import Template
+from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.constructors.repos import Repos
@@ -100,10 +101,7 @@ class Updates(object):
     @staticmethod
     def check_dir(directory):
         """ Ensure the directory is writable. """
-        parts = directory.split('/')
-        if parts[0] == '~' or parts[0].upper() == '$HOME':
-            del parts[0]
-            directory = os.path.join(os.path.expanduser('~'), '/'.join(parts))
+        directory = Utils.detect_home_dir(directory)
         if not os.path.isdir(directory):
             try:
                 os.makedirs(directory)
