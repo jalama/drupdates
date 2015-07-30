@@ -1,0 +1,17 @@
+core: 7.x
+
+api: 2
+
+defaults:
+  projects:
+    subdir: "contrib"
+
+projects:
+  drupal:
+    version: 7.32 
+
+  views:
+    version: 3.7
+
+  webform:
+    version: 3.22
