@@ -1,11 +1,30 @@
-from nose.tools import *
-import NAME
+from __future__ import print_function
 
-def setup():
-    print "SETUP!"
+def setup_module():
+    print(__name__, ': setup_module() ~~~~~~~~~~~~~~~~~~~~~~')
 
-def teardown():
-    print "TEAR DOWN!"
+def teardown_module():
+    print(__name__, ': teardown_module() ~~~~~~~~~~~~~~~~~~~')
 
-def test_basic():
-    print "I RAN!"
+
+class TestClass():
+
+    @classmethod
+    def setup_class(cls):
+        print(__name__, ': TestClass.setup_class() ----------')
+
+    @classmethod
+    def teardown_class(cls):
+        print(__name__, ': TestClass.teardown_class() -------')
+
+    def setup(self):
+        print(__name__, ': TestClass.setup()  - - - - - - - -')
+
+    def teardown(self):
+        print(__name__, ': TestClass.teardown() - - - - - - -')
+
+    def test_method_1(self):
+        print(__name__, ': TestClass.test_method_1()')
+
+    def test_method_2(self):
+        print(__name__, ': TestClass.test_method_2()')
