@@ -1,3 +1,4 @@
+""" Build the base repos testing repos are cloned from. """
 from nose.tools import *
 import drupdates, git, os, shutil, yaml, glob
 from os.path import expanduser
