@@ -18,14 +18,14 @@ Git 1.7+
 
 Installation
 ============
-(sudo) easy_install https://github.com/jalama/drupdates/tarball/master
+(sudo) pip install https://github.com/jalama/drupdates/tarball/master
 
 Once installed please follow the post install [set-up instructions](setup.md)
 
 Upgrade
 ============
 
-easy_install --upgrade drupdates
+pip --upgrade drupdates
 
 Execution
 ============
@@ -72,4 +72,3 @@ Please note out of the box the following settings are assumed:
 - You Drupal sites are being installed at /var/www
 - sendmail will be used to send reports (other options are printing to the screen,
 via stdout or sending to a Slack channel)
-
