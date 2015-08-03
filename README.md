@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/jalama/drupdates.png?label=ready&title=Ready)](https://waffle.io/jalama/drupdates)
 Drupdates
 ===========
 Script to maintain Drupal web site(s) code base using [Drush](http://www.drush.org)
