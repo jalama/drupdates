@@ -18,14 +18,22 @@ class Stash(Repotool):
         self.settings.add(settings_file)
 
     def git_repos(self):
-        """Get list of Stash repos from a specific Project."""
+        """ Get list of Stash repos from a specific Project.
+
+            Note: this request will only bring back 9,999 repos, which should
+            suffice, if it doesn't updaqte the stashLimit setting.
+        """
         stash_url = self.settings.get('stashURL')
         git_repo_name = self.settings.get('gitRepoName')
         stash_user = self.settings.get('stashUser')
         stash_pword = self.settings.get('stashPword')
         stash_cert_verify = self.settings.get('stashCertVerify')
+        stash_limit = self.settings.get('stashLimit')
+        stash_params = {'limit' : stash_limit}
         response = Utils.api_call(stash_url, git_repo_name, 'get',
-                                  auth=(stash_user, stash_pword), verify=stash_cert_verify)
+                                  auth=(stash_user, stash_pword),
+                                  verify=stash_cert_verify,
+                                  params=stash_params)
         if not response == False:
             repos = Stash.parse_repos(response['values'])
             return repos
