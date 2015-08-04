@@ -24,11 +24,11 @@ class Siteupdate(object):
         self._commit_hash = None
         self.repo_status = None
 
-
     @property
     def commit_hash(self):
         """ commit_hash getter. """
         return self._commit_hash
+
     @commit_hash.setter
     def commit_hash(self, value):
         """ commit_hash setter. """
