@@ -1,4 +1,5 @@
 [![Stories in Ready](https://badge.waffle.io/jalama/drupdates.png?label=ready&title=Ready)](https://waffle.io/jalama/drupdates)
+[![Documentation Status](https://readthedocs.org/projects/drupdates/badge/?version=latest)](https://readthedocs.org/projects/drupdates/?badge=latest)
 Drupdates
 ===========
 Script to maintain Drupal web site(s) code base using [Drush](http://www.drush.org)
@@ -39,4 +40,3 @@ system user names and passwords in the $HOME/.drupdates directory.
 - Any [Make](docs/make.md) file used to build a site will be named the same as the site folder.
 
 - Git is being used to track changes to the Drupal code base
-
