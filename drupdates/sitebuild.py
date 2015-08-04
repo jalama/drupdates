@@ -1,5 +1,5 @@
 """ Drupdates Site building module. """
-import git, os
+import git, os, copy
 from os.path import expanduser
 from drupdates.utils import Utils
 from drupdates.settings import Settings
@@ -56,7 +56,8 @@ class Sitebuild(object):
 
     def standup_site(self, site_webroot):
         """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
-        qd_cmds = self.settings.get('qdCmds')
+        qd_settings = self.settings.get('qdCmds')
+        qd_cmds = copy.copy(qd_settings)
         qd_cmds += ['--root=' + site_webroot]
         site_db = os.path.join(site_webroot, 'drupdates.sqlite')
         qd_cmds += ['--db-url=sqlite:' + site_db]

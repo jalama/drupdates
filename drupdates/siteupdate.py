@@ -245,12 +245,15 @@ class Siteupdate(object):
             shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
         self.utilities.rm_common(self.site_web_root, temp_dir)
         try:
-            distutils.dir_util.copy_tree(temp_dir + '/' + add_dir, self.site_web_root)
+            distutils.dir_util.copy_tree(temp_dir + '/' + add_dir,
+                                         self.site_web_root,
+                                         preserve_symlinks = 1)
+        except distutils.errors.DistutilsFileError as copy_error:
+            raise DrupdatesUpdateError(20, copy_error)
         except IOError as error:
             msg = "Can't copy updates from: \n"
             msg += "{0} temp dir to {1}\n".format(temp_dir, self.site_web_root)
             msg += "Error: {2}".format(error.strerror)
-            print msg
-            return False
+            raise DrupdatesUpdateError(20, msg)
         shutil.rmtree(temp_dir)
         return True
