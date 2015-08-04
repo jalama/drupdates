@@ -1,0 +1,8 @@
+repo_dirs:
+  drupal:
+    base: drupal7_base
+  drupal2:
+    base: drupal7_base
+  drupal3:
+    base: drupal7_base
+settings_file: drupal

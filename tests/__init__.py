@@ -13,7 +13,7 @@ def setup_package():
 
 def teardown_package():
     setup_tests = Setup()
-    setup_tests.destroy_directory()
+    # setup_tests.destroy_directory()
 
 class Setup(object):
     """ Set-up the basic test repos for other tests to clone and run. """
@@ -24,10 +24,14 @@ class Setup(object):
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
 
     def build_directory(self):
+        """ Build the base tetsing directory. """
+
         if not os.path.isdir(self.test_dir):
             os.makedirs(self.test_dir)
 
     def destroy_directory(self):
+        """ Destroy the base testing directory. """
+
         shutil.rmtree(self.test_dir)
 
     def build_base_repos(self):
@@ -38,6 +42,8 @@ class Setup(object):
         for directory, options in base_directory_list['dirs'].iteritems():
             self.get_make_file(options['version'], options['make_format'])
             base_directory = self.build_base_directory(directory)
+            if not base_directory:
+                continue
             if not options['build'] or 'subfolder' in options:
                 make_file_name = "{0}.{1}".format(options['make_file'], options['make_format'])
                 self.copy_make_file(make_file_name, base_directory)
@@ -47,7 +53,7 @@ class Setup(object):
                 else:
                     subfolder = ''
                 self.run_drush_make(base_directory, subfolder)
-            self.build_repo(base_directory)
+            self.make_git_repo(base_directory)
 
     def build_base_directory(self, target_directory):
         """ Build the empty base directory. """
@@ -55,7 +61,9 @@ class Setup(object):
         folder = os.path.join(self.test_dir, 'builds', target_directory)
         if not os.path.isdir(folder):
             os.makedirs(folder)
-        return folder
+            return folder
+        else:
+            return ""
 
     def get_make_file(self, drupal_version, make_format):
         """ Get the name and location of Drush Make file to build base repo. """
@@ -81,8 +89,9 @@ class Setup(object):
         except DrupdatesError as e:
             print e.msg
 
-    def build_repo(self, directory):
-        """ Build the repo as a bare repository. """
+    def make_git_repo(self, directory):
+        """ Make the repo folder a git repo. """
+
         repo = Repo.init(directory)
         index = repo.index
         files = repo.untracked_files

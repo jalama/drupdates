@@ -3,38 +3,42 @@ import os, shutil
 from nose.tools import *
 from git import Repo
 from os.path import expanduser
+from tests import Setup
 
-class FunctionalTests(object):
+class FunctionalException(Exception):
+    'exception to demostrate fixture/test failures'
+    pass
+
+class FunctionalUtils(object):
 
     def __init__(self):
-        # TODO: ideally this is pull form Setup() class in __init__.py
-        self.test_directory = os.path.join(os.path.expanduser('~'), '.drupdates', 'testing')
+        base = Setup()
+        self.test_directory = base.test_dir
         self.working_directory = ""
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
 
     def build(self, settings):
         """ Build out the directories for a test. """
-
-        for directory, attributes in settings['repo_dirs']:
-            self.build_repo_dir(direcotry, attributes)
-            if custom_settings in attributes:
+        for directory, attributes in settings['repo_dirs'].iteritems():
+            self.build_repo_dir(directory, attributes)
+            if 'custom_settings' in attributes:
                 self.build_custom_setting(attributes['custom_settings'])
-        if settings_fil not in settings:
-            drupdates_settings = 'drupal'
-        else:
+        if settings_file in settings:
             drupdates_settings = settings['settings_file']
+        else:
+            drupdates_settings = 'drupal'
         self.build_settings_file(drupdates_settings)
 
     def build_repo_dir(self, directory, settings):
         """ Build the test repo. """
 
-        if not working_directory in settings:
-            working = 'builds'
-        else:
+        if 'working_directory' in settings:
             working = settings['working_directory']
-        working_directory = self.build_working_dir(working)
+        else:
+            working = 'builds'
+        self.build_working_dir(working)
         base_directory = settings['base']
-        target = os.path.join(working_directory, directory)
+        target = os.path.join(self.working_directory, directory)
         source = os.path.join(self.test_directory, 'builds', base_directory)
         if os.path.isdir(target):
             shutil.rmtree(target)
@@ -66,3 +70,5 @@ class FunctionalTests(object):
         drupdates_directory = os.path.join(expanduser('~'), '.drupdates')
         target = "{0}/settings.yaml".format(drupdates_directory)
         shutil.copyfile(settings_source, target)
+
+    # def add_repos_to_settings():
