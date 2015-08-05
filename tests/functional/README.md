@@ -19,3 +19,21 @@ repo_dirs:
  options: # options passed to drupdates cli call
    singleSite: drupal # example of passing the SingleSite setting for repo_dir name drupal.
  settings_file: drupal # .yaml extension added, consider inserting settings below.
+
+ If you are testing locally, move to the drupdates folder and run nosetests:
+
+ ```
+ nosetests
+ ```
+
+ To run an individual test from the drupdates folder:
+ ex: the test in the <drupdates folder>/tests/functional/test_multiple_sites.py
+ ```
+nosetests tests.functional.test_multiple_sites
+```
+
+If you have print statements in the tests, for debugging
+ex: the test in the <drupdates folder>/tests/functional/test_multiple_sites.py
+```
+nosetests --nocapture tests.functional.test_multiple_sites
+```

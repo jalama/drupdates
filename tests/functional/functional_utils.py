@@ -1,8 +1,9 @@
 """ Parent class for functional tests, help build the test repos etc... """
-import os, shutil
+import os, shutil, yaml, subprocess
 from nose.tools import *
 from git import Repo
 from os.path import expanduser
+from os.path import basename
 from tests import Setup
 
 class FunctionalException(Exception):
@@ -17,17 +18,26 @@ class FunctionalUtils(object):
         self.working_directory = ""
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
 
-    def build(self, settings):
-        """ Build out the directories for a test. """
+    def build(self, test_file):
+        """ Open test's setting files and build the necessary directories. """
+        file_name = os.path.splitext(basename(test_file))[0]
+        num = len(file_name) - 5
+        file_name = "{0}.yaml".format(file_name[-num:])
+        settings_file = os.path.join(self.current_dir, 'settings', file_name)
+        try:
+            default = open(settings_file, 'r')
+        except IOError as error:
+            msg = "Can't open or read settings file, {0}".format(settings_file)
+            raise FunctionalException
+        settings = yaml.load(default)
+        repos = {}
         for directory, attributes in settings['repo_dirs'].iteritems():
-            self.build_repo_dir(directory, attributes)
+            repo_directory = self.build_repo_dir(directory, attributes)
             if 'custom_settings' in attributes:
                 self.build_custom_setting(attributes['custom_settings'])
-        if settings_file in settings:
-            drupdates_settings = settings['settings_file']
-        else:
-            drupdates_settings = 'drupal'
-        self.build_settings_file(drupdates_settings)
+            repos[directory] = repo_directory
+        self.build_settings_file(settings, repos)
+        return self.run(settings)
 
     def build_repo_dir(self, directory, settings):
         """ Build the test repo. """
@@ -42,7 +52,10 @@ class FunctionalUtils(object):
         source = os.path.join(self.test_directory, 'builds', base_directory)
         if os.path.isdir(target):
             shutil.rmtree(target)
-        Repo.clone_from(source, target)
+        Repo.clone_from(source, target, bare = True)
+        # repo = Repo.init(target)
+        # repo.heads.master.checkout(b='dev')
+        return target
 
     def build_working_dir(self, directory):
         """ Build the working directory. """
@@ -63,12 +76,27 @@ class FunctionalUtils(object):
         target = "{0}/settings.yaml".format(target_directory)
         shutil.copyfile(settings_source, target)
 
-    def build_settings_file(self, settings_file):
-        """ Copy settings file to ~/.drupdates/settings.yaml """
+    def build_settings_file(self, settings, repos):
+        """ Build settings file to ~/.drupdates/settings.yaml """
 
-        settings_source = os.path.join(self.current_dir, 'settings', settings_file)
         drupdates_directory = os.path.join(expanduser('~'), '.drupdates')
-        target = "{0}/settings.yaml".format(drupdates_directory)
-        shutil.copyfile(settings_source, target)
+        settings_file = "{0}/settings.yaml".format(drupdates_directory)
+        repos = {'value' : repos}
+        if 'additional_settings' in settings:
+            data = settings['additional_settings']
+        else:
+            data = {}
+        data['repoDict'] = repos
+        with open(settings_file, 'w') as outfile:
+            outfile.write( yaml.dump(data, default_flow_style=False) )
 
-    # def add_repos_to_settings():
+    def run(self, settings):
+        os.chdir(self.test_directory)
+        commands = []
+        if 'options' in settings:
+            for option, value in settings['options']:
+                commands += ["{0}={1}".format(option, value)]
+        commands.insert(0, 'drupdates')
+        outfile = open('results.txt','w') #same with "w" or "a" as opening mode
+        popen = subprocess.Popen(commands, stdout=outfile, stderr=subprocess.PIPE)
+        results = popen.communicate()

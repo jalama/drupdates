@@ -5,4 +5,8 @@ repo_dirs:
     base: drupal7_base
   drupal3:
     base: drupal7_base
-settings_file: drupal
+additional_settings:
+  workingBranch:
+    value: dev
+  commitAuthor:
+    value: Security Updates <drupdates@example.com>
