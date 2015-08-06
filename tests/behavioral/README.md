@@ -18,7 +18,7 @@ repo_dirs:
      base: # base repo the test repo is built from
  options: # options passed to drupdates cli call
    singleSite: drupal # example of passing the SingleSite setting for repo_dir name drupal.
- settings_file: drupal # .yaml extension added, consider inserting settings below.
+ additional_settings: Any additional setting not covered above
 
  If you are testing locally, move to the drupdates folder and run nosetests:
 
