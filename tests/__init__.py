@@ -13,7 +13,7 @@ def setup_package():
 
 def teardown_package():
     setup_tests = Setup()
-    setup_tests.destroy_directory()
+    # setup_tests.destroy_directory()
 
 class Setup(object):
     """ Set-up the basic test repos for other tests to clone and run. """

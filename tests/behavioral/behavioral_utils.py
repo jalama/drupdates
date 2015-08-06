@@ -26,7 +26,7 @@ class BehavioralUtils(object):
         for directory, attributes in settings['repo_dirs'].iteritems():
             repo_directory = self.build_repo_dir(directory, attributes)
             if 'custom_settings' in attributes:
-                self.build_custom_setting(attributes['custom_settings'])
+                self.build_custom_setting(attributes)
             self.repos[directory] = repo_directory
         self.build_settings_file(settings)
         return self.run(settings)
@@ -70,14 +70,20 @@ class BehavioralUtils(object):
             os.makedirs(working_directory)
         self.working_directory = working_directory
 
-    def build_custom_setting(self, settings_file):
+    def build_custom_setting(self, attributes):
         """ If needed build custom setting for working dir. """
 
-        os.chdir(self.working_directory)
-        settings_source = os.path.join(self.current_dir, 'settings', settings_file)
+        settings_file = attributes['custom_settings']
+        if 'working_directory' in attributes:
+            working_directory = attributes['working_directory']
+        else:
+            working_directory = 'builds'
+        working_directory = os.path.join(expanduser('~'),'.drupdates', working_directory)
+        os.chdir(working_directory)
+        settings_source = os.path.join(self.current_dir, 'settings', settings_file + '.yaml')
         if not os.path.isdir('.drupdates'):
             os.makedirs('.drupdates')
-        target_directory = os.path.join(self.working_directory, '.drupdates')
+        target_directory = os.path.join(working_directory, '.drupdates')
         target = "{0}/settings.yaml".format(target_directory)
         shutil.copyfile(settings_source, target)
 

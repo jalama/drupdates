@@ -1,0 +1,7 @@
+repo_dirs:
+   drupal:
+     custom_settings: drupal_working
+     base: drupal7_base
+additional_settings:
+  workingBranch:
+    value: dev
