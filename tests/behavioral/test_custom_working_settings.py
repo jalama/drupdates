@@ -1,6 +1,8 @@
 """ Test running Drupdates on one repo. """
 from __future__ import print_function
-import os
+import os, yaml, git
+from git import Repo
+from os.path import expanduser
 from tests.behavioral.behavioral_utils import BehavioralUtils
 from tests.behavioral.behavioral_utils import BehavioralException
 from tests import Setup
@@ -36,4 +38,13 @@ class TestSimple(BehavioralUtils):
         assert results[index + 1].strip() == status
 
     def test_git_commit_author(self):
-        pass
+        """ Test to verify the name of the git commit is "Drupdates". """
+
+        file = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file)
+        working_dir = os.path.join(expanduser('~'), '.drupdates', 'builds')
+        folder = os.path.join(working_dir, settings['repoDict']['value']['drupal'])
+        repo = Repo(folder)
+        repo.heads.dev
+        devcommit = repo.heads.dev.commit
+        assert devcommit.author.name == 'Drupdates'
