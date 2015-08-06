@@ -20,7 +20,20 @@ class BehavioralUtils(object):
         self.repos = {}
 
     def build(self, test_file):
-        """ Open test's setting files and build the necessary directories. """
+        """ Build the necessary directories. """
+
+        settings = self.load_settings_files(test_file)
+        for directory, attributes in settings['repo_dirs'].iteritems():
+            repo_directory = self.build_repo_dir(directory, attributes)
+            if 'custom_settings' in attributes:
+                self.build_custom_setting(attributes['custom_settings'])
+            self.repos[directory] = repo_directory
+        self.build_settings_file(settings)
+        return self.run(settings)
+
+    def load_settings_files(self, test_file):
+        """ Load the test's settings file. """
+
         file_name = os.path.splitext(basename(test_file))[0]
         num = len(file_name) - 5
         file_name = "{0}.yaml".format(file_name[-num:])
@@ -31,13 +44,7 @@ class BehavioralUtils(object):
             msg = "Can't open or read settings file, {0}".format(settings_file)
             raise BehavioralException
         settings = yaml.load(default)
-        for directory, attributes in settings['repo_dirs'].iteritems():
-            repo_directory = self.build_repo_dir(directory, attributes)
-            if 'custom_settings' in attributes:
-                self.build_custom_setting(attributes['custom_settings'])
-            self.repos[directory] = repo_directory
-        self.build_settings_file(settings)
-        return self.run(settings)
+        return settings
 
     def build_repo_dir(self, directory, settings):
         """ Build the test repo. """
@@ -89,6 +96,8 @@ class BehavioralUtils(object):
             outfile.write( yaml.dump(data, default_flow_style=False) )
 
     def run(self, settings):
+        """ Run the drupdates command. """
+
         os.chdir(self.test_directory)
         commands = []
         if 'options' in settings:
