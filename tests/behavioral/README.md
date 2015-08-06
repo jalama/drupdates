@@ -1,7 +1,7 @@
 
 Build out repos for test to run against along with the settings files needed.
 
-Add the settings for the test to the /tests/functional/settings folder as .yaml files
+Add the settings for the test to the /tests/behavioral/settings folder as .yaml files
 
 Naming conventions:
 
@@ -27,13 +27,13 @@ repo_dirs:
  ```
 
  To run an individual test from the drupdates folder:
- ex: the test in the <drupdates folder>/tests/functional/test_multiple_sites.py
+ ex: the test in the <drupdates folder>/tests/behavioral/test_multiple_sites.py
  ```
-nosetests tests.functional.test_multiple_sites
+nosetests tests.behavioral.test_multiple_sites
 ```
 
 If you have print statements in the tests, for debugging
-ex: the test in the <drupdates folder>/tests/functional/test_multiple_sites.py
+ex: the test in the <drupdates folder>/tests/behavioral/test_multiple_sites.py
 ```
-nosetests --nocapture tests.functional.test_multiple_sites
+nosetests --nocapture tests.behavioral.test_multiple_sites
 ```

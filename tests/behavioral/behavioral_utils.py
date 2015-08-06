@@ -1,4 +1,4 @@
-""" Parent class for functional tests, help build the test repos etc... """
+""" Parent class for behavioral tests, help build the test repos etc... """
 import os, shutil, yaml, subprocess
 from nose.tools import *
 from git import Repo
@@ -6,11 +6,11 @@ from os.path import expanduser
 from os.path import basename
 from tests import Setup
 
-class FunctionalException(Exception):
+class BehavioralException(Exception):
     'exception to demostrate fixture/test failures'
     pass
 
-class FunctionalUtils(object):
+class BehavioralUtils(object):
 
     def __init__(self):
         base = Setup()
@@ -28,7 +28,7 @@ class FunctionalUtils(object):
             default = open(settings_file, 'r')
         except IOError as error:
             msg = "Can't open or read settings file, {0}".format(settings_file)
-            raise FunctionalException
+            raise BehavioralException
         settings = yaml.load(default)
         repos = {}
         for directory, attributes in settings['repo_dirs'].iteritems():
