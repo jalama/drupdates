@@ -30,9 +30,12 @@ class Setup(object):
             os.makedirs(self.test_dir)
 
     def destroy_directory(self):
-        """ Destroy the base testing directory. """
+        """ Destroy base testing directory and remove base settings file. """
 
         shutil.rmtree(self.test_dir)
+        file = os.path.join(os.path.expanduser('~'), '.drupdates', 'settings.yaml')
+        if os.path.isfile(file):
+            os.remove(file)
 
     def build_base_repos(self):
         """ Build out the base repo used by the functional tests. """

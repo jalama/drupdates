@@ -17,6 +17,7 @@ class BehavioralUtils(object):
         self.test_directory = base.test_dir
         self.working_directory = ""
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
+        self.repos = {}
 
     def build(self, test_file):
         """ Open test's setting files and build the necessary directories. """
@@ -30,13 +31,12 @@ class BehavioralUtils(object):
             msg = "Can't open or read settings file, {0}".format(settings_file)
             raise BehavioralException
         settings = yaml.load(default)
-        repos = {}
         for directory, attributes in settings['repo_dirs'].iteritems():
             repo_directory = self.build_repo_dir(directory, attributes)
             if 'custom_settings' in attributes:
                 self.build_custom_setting(attributes['custom_settings'])
-            repos[directory] = repo_directory
-        self.build_settings_file(settings, repos)
+            self.repos[directory] = repo_directory
+        self.build_settings_file(settings)
         return self.run(settings)
 
     def build_repo_dir(self, directory, settings):
@@ -53,8 +53,6 @@ class BehavioralUtils(object):
         if os.path.isdir(target):
             shutil.rmtree(target)
         Repo.clone_from(source, target, bare = True)
-        # repo = Repo.init(target)
-        # repo.heads.master.checkout(b='dev')
         return target
 
     def build_working_dir(self, directory):
@@ -76,12 +74,12 @@ class BehavioralUtils(object):
         target = "{0}/settings.yaml".format(target_directory)
         shutil.copyfile(settings_source, target)
 
-    def build_settings_file(self, settings, repos):
+    def build_settings_file(self, settings):
         """ Build settings file to ~/.drupdates/settings.yaml """
 
         drupdates_directory = os.path.join(expanduser('~'), '.drupdates')
         settings_file = "{0}/settings.yaml".format(drupdates_directory)
-        repos = {'value' : repos}
+        repos = {'value' : self.repos}
         if 'additional_settings' in settings:
             data = settings['additional_settings']
         else:
@@ -97,6 +95,20 @@ class BehavioralUtils(object):
             for option, value in settings['options']:
                 commands += ["{0}={1}".format(option, value)]
         commands.insert(0, 'drupdates')
-        outfile = open('results.txt','w') #same with "w" or "a" as opening mode
+        outfile = open('results.txt','w')
         popen = subprocess.Popen(commands, stdout=outfile, stderr=subprocess.PIPE)
         results = popen.communicate()
+
+    @staticmethod
+    def list_duplicates_of(seq, item):
+        start_at = -1
+        locs = []
+        while True:
+            try:
+                loc = seq.index(item, start_at+1)
+            except ValueError:
+                break
+            else:
+                locs.append(loc)
+                start_at = loc
+        return locs
