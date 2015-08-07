@@ -7,7 +7,7 @@ from tests.behavioral.behavioral_utils import BehavioralUtils
 from tests.behavioral.behavioral_utils import BehavioralException
 from tests import Setup
 
-class TestSimple(BehavioralUtils):
+class TestCustomWorkingSettings(BehavioralUtils):
 
     @classmethod
     def setup_class(cls):
