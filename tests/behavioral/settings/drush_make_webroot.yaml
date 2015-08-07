@@ -1,0 +1,14 @@
+repo_dirs:
+  dmake_webroot:
+    base: dmake_base_webroot
+additional_settings:
+  workingBranch:
+    value: dev
+  useMakeFile:
+    value: True
+  makeFormat:
+    value: make
+  buildSource:
+    value: git
+  webrootDir:
+    value: webroot

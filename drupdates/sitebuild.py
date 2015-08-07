@@ -75,7 +75,7 @@ class Sitebuild(object):
             if make_file:
                 qd_cmds += ['--makefile=' + make_file]
             else:
-                msg = "Can't file make file in {0} for {1}".format(self.site_dir, self._site_name)
+                msg = "Can't find make file in {0} for {1}".format(self.site_dir, self._site_name)
                 raise DrupdatesBuildError(20, msg)
         if self.settings.get('buildSource') == 'make':
             qd_cmds.remove('--use-existing')
