@@ -106,9 +106,10 @@ class BehavioralUtils(object):
 
         os.chdir(self.test_directory)
         commands = []
+        print(settings)
         if 'options' in settings:
-            for option, value in settings['options']:
-                commands += ["{0}={1}".format(option, value)]
+            for option, value in settings['options'].iteritems():
+                commands += ["--{0}={1}".format(option, value)]
         commands.insert(0, 'drupdates')
         outfile = open('results.txt','w')
         popen = subprocess.Popen(commands, stdout=outfile, stderr=subprocess.PIPE)
