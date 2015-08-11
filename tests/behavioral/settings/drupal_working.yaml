@@ -1,3 +1,4 @@
 # YAML
+# Support file for other tests, copied to <test build directory>/.drupdates
 commitAuthor:
   value: Drupdates <Drupdates@example.com>

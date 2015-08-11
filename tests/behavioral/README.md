@@ -1,9 +1,10 @@
+How to set-up Behavioral tests:
 
-Build out repos for test to run against along with the settings files needed.
+Build out repos for test to run against along with the settings files. Add the
+settings for the test to the /tests/behavioral/settings folder as .yaml files.
+Tests are built and run in ~/.drupdates/testing by default.
 
-Add the settings for the test to the /tests/behavioral/settings folder as .yaml files
-
-Naming conventions:
+Test and settings file naming conventions:
 
 - Test class file start with the name "test_"
     - ex. "test_multiple_sites.py"
@@ -20,7 +21,8 @@ repo_dirs:
    singleSite: drupal # example of passing the SingleSite setting for repo_dir name drupal.
  additional_settings: Any additional setting not covered above
 
- If you are testing locally, move to the drupdates folder and run nosetests:
+If you are developing against source code and have Drupdates source code on your
+ local machine, move to the drupdates folder and run nosetests:
 
  ```
  nosetests

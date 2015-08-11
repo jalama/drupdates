@@ -1,3 +1,5 @@
+# build 3 sites
+# Test successful if only the drupal site is updated
 repo_dirs:
   drupal:
     base: drupal7_base

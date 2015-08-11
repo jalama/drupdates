@@ -47,7 +47,7 @@ class BehavioralUtils(object):
         return settings
 
     def build_repo_dir(self, directory, settings):
-        """ Build the test repo. """
+        """ Build the test repo, delete it if it already exists. """
 
         if 'working_directory' in settings:
             working = settings['working_directory']

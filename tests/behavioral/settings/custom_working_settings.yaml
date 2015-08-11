@@ -1,3 +1,4 @@
+# Test successful if the Git Log shows the update committed by Drupdates
 repo_dirs:
    drupal:
      custom_settings: drupal_working

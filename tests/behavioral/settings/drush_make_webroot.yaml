@@ -1,3 +1,5 @@
+# Test seccessful if the Drush make Yaml file is updated with new module updates.
+# and the webroot folder is updated.
 repo_dirs:
   dmake_webroot:
     base: dmake_base_webroot
