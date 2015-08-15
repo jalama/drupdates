@@ -21,7 +21,7 @@ class TestMultipleSiteOptionSingleSite(BehavioralUtils):
         file = open(os.path.join(self.test_directory, 'results.txt'), 'r')
         results = file.readlines()
         updates = BehavioralUtils.list_duplicates_of(results, 'Siteupdate \n')
-        """ If 3 repos have Siteupdates in report three built successfully. """
+        """ If 1 repo has Siteupdates in report one built successfully. """
         assert len(updates) == 1
 
     def test_first_repo_updated(self):
