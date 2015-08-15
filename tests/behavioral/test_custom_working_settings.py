@@ -19,7 +19,7 @@ class TestCustomWorkingSettings(BehavioralUtils):
         self.test_directory = base.test_dir
 
     def test_repo_built(self):
-        """ Test to ensure all three repos built successfully. """
+        """ Test to ensure one repos built successfully. """
 
         file = open(os.path.join(self.test_directory, 'results.txt'), 'r')
         results = file.readlines()

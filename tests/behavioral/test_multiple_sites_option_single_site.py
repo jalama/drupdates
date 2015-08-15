@@ -1,5 +1,4 @@
 """ Test running Drupdates on multiple sites. """
-from __future__ import print_function
 import os
 from tests.behavioral.behavioral_utils import BehavioralUtils
 from tests.behavioral.behavioral_utils import BehavioralException
@@ -16,8 +15,8 @@ class TestMultipleSiteOptionSingleSite(BehavioralUtils):
         base = Setup()
         self.test_directory = base.test_dir
 
-    def test_all_repos_built(self):
-        """ Test to ensure all three repos built successfully. """
+    def test_one_repo_built(self):
+        """ Test to ensure one of three repos built successfully. """
 
         file = open(os.path.join(self.test_directory, 'results.txt'), 'r')
         results = file.readlines()
