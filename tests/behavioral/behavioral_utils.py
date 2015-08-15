@@ -69,8 +69,9 @@ class BehavioralUtils(object):
         """ Build a working directory. """
 
         working_directory = os.path.join(expanduser('~'),'.drupdates', settings['dir'])
-        if not os.path.isdir(working_directory):
-            os.makedirs(working_directory)
+        if os.path.isdir(working_directory):
+            shutil.rmtree(working_directory)
+        os.makedirs(working_directory)
         self.dirs['working'][working_directory] = working_directory
         repos = {}
         if 'custom_settings' in settings:
@@ -82,7 +83,8 @@ class BehavioralUtils(object):
         """ If needed build custom setting for working directory. """
 
         data = attributes['custom_settings']
-        data['repoDict'] = {'value' : repos}
+        if len(repos):
+            data['repoDict'] = {'value' : repos}
         working_directory = os.path.join(expanduser('~'),'.drupdates', attributes['dir'])
         if not os.path.isdir(working_directory):
             os.makedirs(working_directory)

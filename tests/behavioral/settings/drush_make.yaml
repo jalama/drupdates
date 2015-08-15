@@ -1,7 +1,11 @@
 # Test seccessful if the Drush Make Yaml file is updated with new module updates.
+working_dirs:
+  builds:
+    dir: builds
 repo_dirs:
   dmake:
     base: dmake_base
+    working_directory: builds
 additional_settings:
   workingBranch:
     value: dev
