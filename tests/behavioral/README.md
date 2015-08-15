@@ -11,15 +11,27 @@ Test and settings file naming conventions:
 - Settings files are the name of the test class file above without the "test_" prefix
     - ex. settings/multiple_sites.yaml
 
+Sample Test settings file:
+```
 Sample values:
+working_dirs:
+  builds:
+    dir: builds
+  test:
+    dir:builds/test
+    custom_settings:
 repo_dirs:
-   example: # test install folder name
-     working_directory: # base test dir will be prepended, defaults to builds
-     custom_settings: # .yaml extension added, file placed in working_directory .drupdates folder
-     base: # base repo the test repo is built from
- options: # options passed to drupdates cli call
-   singleSite: drupal # example of passing the SingleSite setting for repo_dir name drupal.
- additional_settings: Any additional setting not covered above
+  example: # test install folder name
+    working_directory: builds # base test dir will be prepended, defaults to builds
+    base: # base repo the test repo is built from
+  example2:
+    working_directory: test
+    base:
+    skip: True # Skip Adding this repo to the main settings.yaml file
+options: # options passed to drupdates cli call
+  singleSite: example # example of passing the SingleSite setting for repo_dir name example.
+additional_settings: # Any additional setting not covered above to be inserted in the ~/.drupdates/settings.yaml file
+```
 
 If you are developing against source code and have Drupdates source code on your
  local machine, move to the drupdates folder and run nosetests:

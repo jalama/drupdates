@@ -15,19 +15,25 @@ class BehavioralUtils(object):
     def __init__(self):
         base = Setup()
         self.test_directory = base.test_dir
-        self.working_directory = ""
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.repos = {}
+        self.dirs = {'repos': {}, 'working' : {}}
 
     def build(self, test_file):
         """ Build the necessary directories. """
 
         settings = self.load_settings_files(test_file)
+        working = {}
+        # Build the source repos.
         for directory, attributes in settings['repo_dirs'].iteritems():
             repo_directory = self.build_repo_dir(directory, attributes)
-            if 'custom_settings' in attributes:
-                self.build_custom_setting(attributes)
-            self.repos[directory] = repo_directory
+            if 'skip' in attributes and attributes['skip']:
+                working_directory = attributes['working_directory']
+                if working_directory not in working:
+                    working[working_directory] = {}
+                working[working_directory][directory] = repo_directory
+        # Build the working directories in the test directory.
+        for directory, attributes in settings['working_dirs'].iteritems():
+            self.build_working_dir(directory, attributes, working)
         self.build_settings_file(settings)
         return self.run(settings)
 
@@ -49,55 +55,61 @@ class BehavioralUtils(object):
     def build_repo_dir(self, directory, settings):
         """ Build the test repo, delete it if it already exists. """
 
-        if 'working_directory' in settings:
-            working = settings['working_directory']
-        else:
-            working = 'builds'
-        self.build_working_dir(working)
         base_directory = settings['base']
-        target = os.path.join(self.working_directory, directory)
+        target = os.path.join(self.test_directory, 'builds', directory)
         source = os.path.join(self.test_directory, 'builds', base_directory)
         if os.path.isdir(target):
             shutil.rmtree(target)
         Repo.clone_from(source, target, bare = True)
+        if 'skip' in settings and not settings['skip'] or 'skip' not in settings:
+            self.dirs['repos'][directory] = target
         return target
 
-    def build_working_dir(self, directory):
-        """ Build the working directory. """
+    def build_working_dir(self, directory, settings, working):
+        """ Build a working directory. """
 
-        working_directory = os.path.join(self.test_directory, directory)
+        working_directory = os.path.join(expanduser('~'),'.drupdates', settings['dir'])
         if not os.path.isdir(working_directory):
             os.makedirs(working_directory)
-        self.working_directory = working_directory
+        self.dirs['working'][working_directory] = working_directory
+        repos = {}
+        if 'custom_settings' in settings:
+            if directory in working:
+                repos = working[directory]
+            self.build_custom_setting(settings, repos)
 
-    def build_custom_setting(self, attributes):
-        """ If needed build custom setting for working dir. """
+    def build_custom_setting(self, attributes, repos):
+        """ If needed build custom setting for working directory. """
 
-        settings_file = attributes['custom_settings']
-        if 'working_directory' in attributes:
-            working_directory = attributes['working_directory']
-        else:
-            working_directory = 'builds'
-        working_directory = os.path.join(expanduser('~'),'.drupdates', working_directory)
+        data = attributes['custom_settings']
+        data['repoDict'] = {'value' : repos}
+        working_directory = os.path.join(expanduser('~'),'.drupdates', attributes['dir'])
+        if not os.path.isdir(working_directory):
+            os.makedirs(working_directory)
         os.chdir(working_directory)
-        settings_source = os.path.join(self.current_dir, 'settings', settings_file + '.yaml')
         if not os.path.isdir('.drupdates'):
             os.makedirs('.drupdates')
-        target_directory = os.path.join(working_directory, '.drupdates')
-        target = "{0}/settings.yaml".format(target_directory)
-        shutil.copyfile(settings_source, target)
+        settings_file_directory = os.path.join(working_directory, '.drupdates')
+        settings_file = "{0}/settings.yaml".format(settings_file_directory)
+        with open(settings_file, 'w') as outfile:
+            outfile.write( yaml.dump(data, default_flow_style=False) )
 
     def build_settings_file(self, settings):
         """ Build settings file to ~/.drupdates/settings.yaml """
 
         drupdates_directory = os.path.join(expanduser('~'), '.drupdates')
         settings_file = "{0}/settings.yaml".format(drupdates_directory)
-        repos = {'value' : self.repos}
         if 'additional_settings' in settings:
             data = settings['additional_settings']
         else:
             data = {}
+        # Add repoDict element to settings
+        repos = {'value' : self.dirs['repos']}
         data['repoDict'] = repos
+        # Add workingDir element to settings
+        data['workingDir'] = {'value' : []}
+        for directory in self.dirs['working']:
+            data['workingDir']['value'].append(directory)
         with open(settings_file, 'w') as outfile:
             outfile.write( yaml.dump(data, default_flow_style=False) )
 
@@ -106,7 +118,8 @@ class BehavioralUtils(object):
 
         os.chdir(self.test_directory)
         commands = []
-        print(settings)
+        # Parse options from the test's settings to be passed to Drupdates
+        # via the CLI call.
         if 'options' in settings:
             for option, value in settings['options'].iteritems():
                 commands += ["--{0}={1}".format(option, value)]
@@ -114,6 +127,7 @@ class BehavioralUtils(object):
         outfile = open('results.txt','w')
         popen = subprocess.Popen(commands, stdout=outfile, stderr=subprocess.PIPE)
         results = popen.communicate()
+        return results
 
     @staticmethod
     def list_duplicates_of(seq, item):
