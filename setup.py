@@ -17,7 +17,7 @@ setup(
     author='Jim Taylor',
     url='https://github.com/jalama/drupdates',
     download_url='https://github.com/jalama/drupdates',
-    author_email='jim@rootyhollow.com',
+    author_email='jalama@gmail.com',
     version='1.4.0',
     package_dir={'drupdates' : 'drupdates'},
     include_package_data=True,

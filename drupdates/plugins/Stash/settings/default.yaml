@@ -15,3 +15,6 @@ stashPword:
 stashCertVerify:
   value: False
   prompt: Verify the authenticy of the SSL cert for Stash
+stashLimit:
+  value: 9999
+  prompt: Upper limit on number of Stash repos we will update (default 9999).

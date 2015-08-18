@@ -1,5 +1,5 @@
 """ Module handles the heavy lifting, building the various site directories. """
-import git, shutil, os, yaml
+import git, shutil, os, yaml, tempfile, distutils.core
 from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
@@ -59,6 +59,15 @@ class Siteupdate(object):
         self.site_web_root = drush_dd[0]
         if self.settings.get('buildSource') == 'make':
             shutil.rmtree(self.site_web_root)
+        else:
+            rebuilt = self.rebuild_web_root()
+            if not rebuilt:
+                report['status'] = "The webroot re-build failed."
+                if self.settings.get('useMakeFile'):
+                    make_err = " Ensure the make file format is correct "
+                    make_err += "and Drush make didn't fail on a bad patch."
+                    report['status'] += make_err
+                return report
         drush_path = os.path.join(self.site_web_root, 'drush')
         if os.path.isdir(drush_path):
             self.utilities.remove_dir(drush_path)
@@ -169,7 +178,7 @@ class Siteupdate(object):
 
         notes:
         - Will ignore file mode changes and anything in the commonIgnore setting.
-        - Will attempt to ignore and sqlite databases left behind
+        - Will attempt to ignore any sqlite databases left behind
 
         """
         os.chdir(self.site_dir)
@@ -193,8 +202,58 @@ class Siteupdate(object):
                 pass
         full_repo = git.Git('.')
         full_repo.config("core.fileMode", "false")
-        git_repo.add('./')
+        try:
+            git_repo.add('./')
+        except DrupdatesError as git_add_error:
+            raise git_add_error
         deleted = git_repo.ls_files('--deleted')
         for filepath in deleted.split():
             git_repo.rm(filepath)
         return git_repo
+
+    def rebuild_web_root(self):
+        """ Rebuild the web root folder completely after running pm-update.
+        Drush pm-update of Drupal Core deletes the .git folder therefore need to
+        move the updated folder to a temp dir and re-build the webroot folder.
+        """
+        temp_dir = tempfile.mkdtemp(self._site_name)
+        shutil.move(self.site_web_root, temp_dir)
+        add_dir = self.settings.get('webrootDir')
+        if add_dir:
+            repository = Repo(self.site_dir)
+            git_repo = repository.git
+            git_repo.checkout(add_dir)
+        else:
+            repository = Repo.init(self.site_dir)
+            try:
+                remote = git.Remote.create(repository, self._site_name, self.ssh)
+            except git.exc.GitCommandError as error:
+                if not error.status == 128:
+                    print "Could not establish a remote for the {0} repo".format(self._site_name)
+            remote.fetch(self.working_branch)
+            git_repo = repository.git
+            try:
+                git_repo.checkout('FETCH_HEAD', b=self.working_branch)
+            except git.exc.GitCommandError as error:
+                git_repo.checkout(self.working_branch)
+            add_dir = self._site_name
+        if 'modules' in self.repo_status:
+            self._module_dir = self.repo_status['modules']
+            shutil.rmtree(os.path.join(self.site_web_root, self._module_dir))
+        if 'themes' in self.repo_status:
+            theme_dir = self.repo_status['themes']
+            shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
+        self.utilities.rm_common(self.site_web_root, temp_dir)
+        try:
+            distutils.dir_util.copy_tree(temp_dir + '/' + add_dir,
+                                         self.site_web_root,
+                                         preserve_symlinks = 1)
+        except distutils.errors.DistutilsFileError as copy_error:
+            raise DrupdatesUpdateError(20, copy_error)
+        except IOError as error:
+            msg = "Can't copy updates from: \n"
+            msg += "{0} temp dir to {1}\n".format(temp_dir, self.site_web_root)
+            msg += "Error: {2}".format(error.strerror)
+            raise DrupdatesUpdateError(20, msg)
+        shutil.rmtree(temp_dir)
+        return True
