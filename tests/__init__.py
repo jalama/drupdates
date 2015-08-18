@@ -28,14 +28,18 @@ class Setup(object):
 
         if not os.path.isdir(self.test_dir):
             os.makedirs(self.test_dir)
+        files = []
+        files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'settings.yaml'))
+        files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
+        files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json'))
+        for file in files:
+            if os.path.isfile(file):
+                os.remove(file)
 
     def destroy_directory(self):
         """ Destroy base testing directory and remove base settings file. """
 
         shutil.rmtree(self.test_dir)
-        file = os.path.join(os.path.expanduser('~'), '.drupdates', 'settings.yaml')
-        if os.path.isfile(file):
-            os.remove(file)
 
     def build_base_repos(self):
         """ Build out the base repo used by the functional tests. """
