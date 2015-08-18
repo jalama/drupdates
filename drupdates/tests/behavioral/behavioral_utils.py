@@ -33,6 +33,9 @@ class BehavioralUtils(object):
                     working[working_directory] = {}
                 working[working_directory][directory] = repo_directory
         # Build the working directories in the test directory.
+        working_directory = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
+        if os.path.isdir(working_directory):
+            shutil.rmtree(working_directory)
         for directory, attributes in settings['working_dirs'].iteritems():
             self.build_working_dir(directory, attributes, working)
         self.build_settings_file(settings)
@@ -78,6 +81,7 @@ class BehavioralUtils(object):
                 data = settings['custom_settings']
             if directory in working and len(working[directory]):
                 data['repoDict'] = {'value' : working[directory]}
+            print(data)
             if len(data):
                 BehavioralUtils.build_custom_setting(settings, data)
 
