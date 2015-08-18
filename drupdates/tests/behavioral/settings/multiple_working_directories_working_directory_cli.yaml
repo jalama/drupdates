@@ -1,0 +1,16 @@
+# Test successful if:
+# If only drupal repo is updated in the test working directory
+working_dirs:
+  builds:
+    dir: builds
+  test:
+    dir: builds/test
+repo_dirs:
+  drupal:
+    base: drupal7_base
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev
+options:
+  workingDir: ~/.drupdates/builds/test

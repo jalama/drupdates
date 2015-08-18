@@ -1,0 +1,20 @@
+# build 3 sites
+# Test successful if only the drupal site is updated
+working_dirs:
+  builds:
+    dir: builds
+repo_dirs:
+  drupal:
+    base: drupal7_base
+    working_directory: builds
+  drupal2:
+    base: drupal7_base
+    working_directory: builds
+  drupal3:
+    base: drupal7_base
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev
+options:
+  singleSite: drupal

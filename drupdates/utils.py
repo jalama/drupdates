@@ -17,6 +17,7 @@ class Utils(object):
 
     @staticmethod
     def detect_home_dir(directory):
+        """ If dir is relative to home dir rewrite as OS agnostic path. """
         parts = directory.split('/')
         if parts[0] == '~' or parts[0].upper() == '$HOME':
             del parts[0]

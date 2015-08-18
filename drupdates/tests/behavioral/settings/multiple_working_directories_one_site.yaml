@@ -1,0 +1,15 @@
+# Test successful if:
+# 1. The drupal repo is updated in the <testing dir>/builds directory
+# 2. The dmake repo is updated in the <testing dir>/builds/test directory
+working_dirs:
+  builds:
+    dir: builds
+  test:
+    dir: builds/test
+repo_dirs:
+  drupal:
+    base: drupal7_base
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev

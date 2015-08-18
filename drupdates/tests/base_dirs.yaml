@@ -1,0 +1,21 @@
+#YAML
+dirs:
+  dmake_base:
+    version: 7
+    build: false
+    make_file: dmake
+    make_format: yaml
+  dmake_base_webroot:
+    version: 7
+    build: true
+    make_file: dmake_webroot
+    make_format: make
+    subfolder: webroot
+  drupal7_base:
+    version: 7
+    build: true
+    make_format: yaml
+  drupal8_base:
+    version: 8
+    build: true
+    make_format: yaml

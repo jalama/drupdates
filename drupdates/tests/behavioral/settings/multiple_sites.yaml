@@ -1,0 +1,17 @@
+# Test successful if updates are applied to multiple sites
+working_dirs:
+  builds:
+    dir: builds
+repo_dirs:
+  drupal:
+    base: drupal7_base
+    working_directory: builds
+  drupal2:
+    base: drupal7_base
+    working_directory: builds
+  drupal3:
+    base: drupal7_base
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev

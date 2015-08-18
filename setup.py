@@ -19,13 +19,13 @@ setup(
     download_url='https://github.com/jalama/drupdates',
     author_email='jalama@gmail.com',
     version='1.4.0',
-    package_dir={'drupdates' : 'drupdates'},
+    package_dir={'drupdates' : 'drupdates', 'drupdates.tests' : 'drupdates/tests'},
     include_package_data=True,
     install_requires=['nose', 'gitpython', 'requests', 'pyyaml'],
     entry_points={
         'console_scripts': ['drupdates = drupdates.cli:main'],
     },
-    packages=['drupdates'],
+    packages=['drupdates', 'drupdates.tests'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
