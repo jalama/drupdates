@@ -4,6 +4,9 @@ Build out repos for test to run against along with the settings files. Add the
 settings for the test to the /tests/behavioral/settings folder as .yaml files.
 Tests are built and run in ~/.drupdates/testing by default.
 
+Note: The behavioral tests will destroy and rebuild the working, ie workingDir,
+ directories
+
 Test and settings file naming conventions:
 
 - Test class file start with the name "test_"
@@ -19,7 +22,7 @@ working_dirs:
     dir: builds
   test:
     dir:builds/test
-    custom_settings:
+    custom_settings: # settings that apply only to this working directory
 repo_dirs:
   example: # test install folder name
     working_directory: builds # base test dir will be prepended, defaults to builds

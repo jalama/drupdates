@@ -1,5 +1,4 @@
 """ Test running Drupdates on one repo. """
-from __future__ import print_function
 import os
 from tests.behavioral.behavioral_utils import BehavioralUtils
 from tests.behavioral.behavioral_utils import BehavioralException

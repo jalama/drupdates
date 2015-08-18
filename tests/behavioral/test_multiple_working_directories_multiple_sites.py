@@ -1,4 +1,8 @@
-""" Test running Drupdates on one repo. """
+""" Test running Drupdates on multiple repos, multiple working Directories. """
+
+"""
+    note: The second working directory will have it's own settings file.
+"""
 import os
 from os.path import expanduser
 from tests.behavioral.behavioral_utils import BehavioralUtils
@@ -11,7 +15,6 @@ class TestMultipleWorkingDirectoriesMultipleSites(BehavioralUtils):
     def setup_class(cls):
         utils = BehavioralUtils()
         utils.build(__file__)
-
 
     def __init__(self):
         base = Setup()

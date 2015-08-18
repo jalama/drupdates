@@ -1,4 +1,8 @@
-""" Test running Drupdates on multiple sites. """
+""" Test multiple sites, passing singleSite option on CLI. """
+
+"""
+    note: Only the one site, labeled 'drupal' should be updated.
+"""
 import os
 from tests.behavioral.behavioral_utils import BehavioralUtils
 from tests.behavioral.behavioral_utils import BehavioralException
