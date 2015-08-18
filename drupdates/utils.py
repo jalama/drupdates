@@ -20,7 +20,7 @@ class Utils(object):
         parts = directory.split('/')
         if parts[0] == '~' or parts[0].upper() == '$HOME':
             del parts[0]
-            directory = os.path.join(os.path.expanduser('~'), '/'.join(parts))
+            directory = os.path.join(expanduser('~'), '/'.join(parts))
         return directory
 
     @staticmethod

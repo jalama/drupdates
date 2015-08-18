@@ -1,17 +1,18 @@
 """ Build the base repos testing repos are cloned from. """
-from nose.tools import *
-import drupdates, git, os, shutil, yaml, glob
+import drupdates, git, os, shutil, yaml, glob, nose
 from os.path import expanduser
 from git import Repo
 from drupdates.drush import Drush
 from drupdates.settings import DrupdatesError
 
 def setup_package():
+    """ Setup the basic base repos and base directory. """
     setup_tests = Setup()
     setup_tests.build_directory()
     setup_tests.build_base_repos()
 
 def teardown_package():
+    """ Teardown the testing directory. """
     setup_tests = Setup()
     setup_tests.destroy_directory()
 
@@ -32,9 +33,9 @@ class Setup(object):
         files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'settings.yaml'))
         files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
         files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json'))
-        for file in files:
-            if os.path.isfile(file):
-                os.remove(file)
+        for file_name in files:
+            if os.path.isfile(file_name):
+                os.remove(file_name)
         working_directory = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
         if os.path.isdir(working_directory):
             shutil.rmtree(working_directory)
@@ -63,7 +64,7 @@ class Setup(object):
                 else:
                     subfolder = ''
                 self.run_drush_make(base_directory, subfolder)
-            self.make_git_repo(base_directory)
+            Setup.make_git_repo(base_directory)
 
     def build_base_directory(self, target_directory):
         """ Build the empty base directory. """
@@ -96,10 +97,11 @@ class Setup(object):
             shutil.rmtree(path)
         try:
             Drush.call(cmds)
-        except DrupdatesError as e:
-            print e.msg
+        except DrupdatesError as error:
+            print error.msg
 
-    def make_git_repo(self, directory):
+    @staticmethod
+    def make_git_repo(directory):
         """ Make the repo folder a git repo. """
 
         repo = Repo.init(directory)

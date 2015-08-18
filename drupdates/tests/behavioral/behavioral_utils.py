@@ -1,16 +1,17 @@
 """ Parent class for behavioral tests, help build the test repos etc... """
 import os, shutil, yaml, subprocess
-from nose.tools import *
 from git import Repo
 from os.path import expanduser
 from os.path import basename
-from tests import Setup
+from drupdates.tests import Setup
 
 class BehavioralException(Exception):
     'exception to demostrate fixture/test failures'
     pass
 
 class BehavioralUtils(object):
+    """ Parent class for behavioral tests, help build the test repos etc... """
+
 
     def __init__(self):
         base = Setup()
@@ -46,8 +47,7 @@ class BehavioralUtils(object):
         settings_file = os.path.join(self.current_dir, 'settings', file_name)
         try:
             default = open(settings_file, 'r')
-        except IOError as error:
-            msg = "Can't open or read settings file, {0}".format(settings_file)
+        except IOError:
             raise BehavioralException
         settings = yaml.load(default)
         return settings
@@ -60,7 +60,7 @@ class BehavioralUtils(object):
         source = os.path.join(self.test_directory, 'builds', base_directory)
         if os.path.isdir(target):
             shutil.rmtree(target)
-        Repo.clone_from(source, target, bare = True)
+        Repo.clone_from(source, target, bare=True)
         if 'skip' in settings and not settings['skip'] or 'skip' not in settings:
             self.dirs['repos'][directory] = target
         return target
@@ -68,7 +68,7 @@ class BehavioralUtils(object):
     def build_working_dir(self, directory, settings, working):
         """ Build a working directory. """
 
-        working_directory = os.path.join(expanduser('~'),'.drupdates', settings['dir'])
+        working_directory = os.path.join(expanduser('~'), '.drupdates', settings['dir'])
         if not os.path.isdir(working_directory):
             os.makedirs(working_directory)
         self.dirs['working'][working_directory] = working_directory
@@ -79,12 +79,13 @@ class BehavioralUtils(object):
             if directory in working and len(working[directory]):
                 data['repoDict'] = {'value' : working[directory]}
             if len(data):
-                self.build_custom_setting(settings, data)
+                BehavioralUtils.build_custom_setting(settings, data)
 
-    def build_custom_setting(self, settings, data):
+    @staticmethod
+    def build_custom_setting(settings, data):
         """ If needed build custom setting for working directory. """
 
-        working_directory = os.path.join(expanduser('~'),'.drupdates', settings['dir'])
+        working_directory = os.path.join(expanduser('~'), '.drupdates', settings['dir'])
         if not os.path.isdir(working_directory):
             os.makedirs(working_directory)
         os.chdir(working_directory)
@@ -93,7 +94,7 @@ class BehavioralUtils(object):
         settings_file_directory = os.path.join(working_directory, '.drupdates')
         settings_file = "{0}/settings.yaml".format(settings_file_directory)
         with open(settings_file, 'w') as outfile:
-            outfile.write(yaml.dump(data, default_flow_style=False) )
+            outfile.write(yaml.dump(data, default_flow_style=False))
 
     def build_settings_file(self, settings):
         """ Build settings file to ~/.drupdates/settings.yaml """
@@ -112,7 +113,7 @@ class BehavioralUtils(object):
         for directory in self.dirs['working']:
             data['workingDir']['value'].append(directory)
         with open(settings_file, 'w') as outfile:
-            outfile.write( yaml.dump(data, default_flow_style=False) )
+            outfile.write(yaml.dump(data, default_flow_style=False))
 
     def run(self, settings):
         """ Run the drupdates command. """
@@ -125,13 +126,15 @@ class BehavioralUtils(object):
             for option, value in settings['options'].iteritems():
                 commands += ["--{0}={1}".format(option, value)]
         commands.insert(0, 'drupdates')
-        outfile = open('results.txt','w')
+        outfile = open('results.txt', 'w')
         popen = subprocess.Popen(commands, stdout=outfile, stderr=subprocess.PIPE)
         results = popen.communicate()
         return results
 
     @staticmethod
     def list_duplicates_of(seq, item):
+        """ Get a list of occuurance of seq in item. """
+
         start_at = -1
         locs = []
         while True:

@@ -1,13 +1,14 @@
 """ Test a valid json file is output. """
 import os, json
-from tests.behavioral.behavioral_utils import BehavioralUtils
-from tests.behavioral.behavioral_utils import BehavioralException
-from tests import Setup
+from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
+from drupdates.tests import Setup
 
-class TestJsonReport(BehavioralUtils):
+class TestJsonReport(object):
+    """ Test a valid json file is output. """
 
     @classmethod
     def setup_class(cls):
+        """ Setup test class. """
         utils = BehavioralUtils()
         utils.build(__file__)
 
@@ -15,34 +16,38 @@ class TestJsonReport(BehavioralUtils):
         base = Setup()
         self.test_directory = base.test_dir
 
-    def test_json_report(self):
+    @staticmethod
+    def test_json_report():
         """ Test for the presence of the resport.json file. """
 
-        file = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
-        assert os.path.isfile(file) == True
+        file_name = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
+        assert os.path.isfile(file_name) == True
 
-    def test_json_report_valid(self):
+    @staticmethod
+    def test_json_report_valid():
         """ Test for the vailidty of the json file. """
 
-        file = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
-        with open(file) as data_file:
+        file_name = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
+        with open(file_name) as data_file:
             data = json.load(data_file)
         assert isinstance(data, dict) == True
 
-    def test_repo_built(self):
+    @staticmethod
+    def test_repo_built():
         """ Test to ensure one repo built successfully. """
 
-        file = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
-        with open(file) as data_file:
+        file_name = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
+        with open(file_name) as data_file:
             data = json.load(data_file)
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
         assert len(data[build_dir]) == 1
 
-    def test_repo_updated(self):
+    @staticmethod
+    def test_repo_updated():
         """ Test to ensure the repo was updated. """
 
-        file = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
-        with open(file) as data_file:
+        file_name = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json')
+        with open(file_name) as data_file:
             data = json.load(data_file)
         status = "The following updates were applied"
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
