@@ -69,23 +69,22 @@ class BehavioralUtils(object):
         """ Build a working directory. """
 
         working_directory = os.path.join(expanduser('~'),'.drupdates', settings['dir'])
-        if os.path.isdir(working_directory):
-            shutil.rmtree(working_directory)
-        os.makedirs(working_directory)
+        if not os.path.isdir(working_directory):
+            os.makedirs(working_directory)
         self.dirs['working'][working_directory] = working_directory
-        repos = {}
-        if 'custom_settings' in settings:
-            if directory in working:
-                repos = working[directory]
-            self.build_custom_setting(settings, repos)
+        data = {}
+        if 'custom_settings' in settings or directory in working:
+            if 'custom_settings' in settings:
+                data = settings['custom_settings']
+            if directory in working and len(working[directory]):
+                data['repoDict'] = {'value' : working[directory]}
+            if len(data):
+                self.build_custom_setting(settings, data)
 
-    def build_custom_setting(self, attributes, repos):
+    def build_custom_setting(self, settings, data):
         """ If needed build custom setting for working directory. """
 
-        data = attributes['custom_settings']
-        if len(repos):
-            data['repoDict'] = {'value' : repos}
-        working_directory = os.path.join(expanduser('~'),'.drupdates', attributes['dir'])
+        working_directory = os.path.join(expanduser('~'),'.drupdates', settings['dir'])
         if not os.path.isdir(working_directory):
             os.makedirs(working_directory)
         os.chdir(working_directory)
@@ -94,7 +93,7 @@ class BehavioralUtils(object):
         settings_file_directory = os.path.join(working_directory, '.drupdates')
         settings_file = "{0}/settings.yaml".format(settings_file_directory)
         with open(settings_file, 'w') as outfile:
-            outfile.write( yaml.dump(data, default_flow_style=False) )
+            outfile.write(yaml.dump(data, default_flow_style=False) )
 
     def build_settings_file(self, settings):
         """ Build settings file to ~/.drupdates/settings.yaml """

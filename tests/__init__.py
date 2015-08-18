@@ -35,6 +35,9 @@ class Setup(object):
         for file in files:
             if os.path.isfile(file):
                 os.remove(file)
+        working_directory = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
+        if os.path.isdir(working_directory):
+            shutil.rmtree(working_directory)
 
     def destroy_directory(self):
         """ Destroy base testing directory and remove base settings file. """
