@@ -42,6 +42,6 @@ class TestMultipleWorkingDirectoriesWorkingDirectoryCLI(object):
 
         file_name = open(os.path.join(self.test_directory, 'results.txt'), 'r')
         results = file_name.readlines()
-        path = os.path.join(expanduser('~'), '.drupdates', 'builds', 'test')
-        path_index = results.index(path, -1)
+        path = os.path.join(expanduser('~'), '.drupdates', 'builds', 'test \n')
+        path_index = results.index(path)
         assert results[path_index +1].strip() == 'drupal'
