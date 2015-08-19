@@ -1,6 +1,7 @@
 """ Test passing workingDir on the CLI """
 
 import os
+from os.path import expanduser
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
@@ -41,6 +42,6 @@ class TestMultipleWorkingDirectoriesWorkingDirectoryCLI(object):
 
         file_name = open(os.path.join(self.test_directory, 'results.txt'), 'r')
         results = file_name.readlines()
-        path = os.path.join(self.test_directory, 'builds', 'test')
+        path = os.path.join(expanduser('~'), '.drupdates', 'builds', 'test')
         path_index = results.index(path, -1)
         assert results[path_index +1].strip() == 'drupal'

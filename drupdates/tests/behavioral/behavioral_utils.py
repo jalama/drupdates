@@ -81,7 +81,6 @@ class BehavioralUtils(object):
                 data = settings['custom_settings']
             if directory in working and len(working[directory]):
                 data['repoDict'] = {'value' : working[directory]}
-            print(data)
             if len(data):
                 BehavioralUtils.build_custom_setting(settings, data)
 
