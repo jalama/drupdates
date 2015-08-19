@@ -1,11 +1,18 @@
 How to set-up Behavioral tests:
 
-Build out repos for test to run against along with the settings files. Add the
-settings for the test to the /tests/behavioral/settings folder as .yaml files.
+The purpose of this group of test, I went with the behavioral label, is to simulate different file set-ups and passing of options to the Drupdates command from the command line.  These are not intended to be unit tests so may be more broad than anticipated.
+
+Generally speaking these test perform the following operations:
+
+- Build simple "base" repositories that mock "origin" repos can be built from.
+- Build out mock "origin" repos to be updated.
+- build the working directories to be used to run Drupdates.
+- Build the necessary settings.yaml files to run Drupdates.
+- Analyze the Drupdates report output to ensure the runs were successful.
+
 Tests are built and run in ~/.drupdates/testing by default.
 
-Note: The behavioral tests will destroy and rebuild the working, ie workingDir,
- directories
+Note: The behavioral tests will destroy and rebuild the working, ie workingDir, directories
 
 Test and settings file naming conventions:
 
@@ -46,11 +53,11 @@ If you are developing against source code and have Drupdates source code on your
  To run an individual test from the drupdates folder:
  ex: the test in the <drupdates folder>/tests/behavioral/test_multiple_sites.py
  ```
-nosetests tests.behavioral.test_multiple_sites
+nosetests drupdates.tests.behavioral.test_multiple_sites
 ```
 
 If you have print statements in the tests, for debugging
 ex: the test in the <drupdates folder>/tests/behavioral/test_multiple_sites.py
 ```
-nosetests --nocapture tests.behavioral.test_multiple_sites
+nosetests --nocapture drupdates.tests.behavioral.test_multiple_sites
 ```
