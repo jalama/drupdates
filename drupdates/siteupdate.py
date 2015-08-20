@@ -23,6 +23,7 @@ class Siteupdate(object):
         self.site_web_root = None
         self._commit_hash = None
         self.repo_status = None
+        self._module_dir = None
 
     @property
     def commit_hash(self):
@@ -72,11 +73,7 @@ class Siteupdate(object):
         if os.path.isdir(drush_path):
             self.utilities.remove_dir(drush_path)
 
-        git_repo = self.git_changes()
-        commit_author = self.settings.get('commitAuthor')
-        git_repo.commit(m=msg, author=commit_author)
-        self.commit_hash = git_repo.rev_parse('head')
-        git_repo.push(self._site_name, self.working_branch)
+        self.git_changes(msg)
         report['status'] = "The following updates were applied \n {0}".format(msg)
         report['commit'] = "The commit hash is {0}".format(self.commit_hash)
         self.utilities.sys_commands(self, 'postUpdateCmds')
@@ -173,7 +170,7 @@ class Siteupdate(object):
             openfile = open(make_file, 'w')
             yaml.dump(makef, openfile, default_flow_style=False)
 
-    def git_changes(self):
+    def git_changes(self, msg):
         """ add/remove changed files.
 
         notes:
@@ -200,16 +197,28 @@ class Siteupdate(object):
                 git_repo.checkout(custom_module_dir)
             except git.exc.GitCommandError:
                 pass
-        full_repo = git.Git('.')
-        full_repo.config("core.fileMode", "false")
+        # Instruct Git to ignore file mode changes.
+        cwriter = repository.config_writer('global')
+        cwriter.set_value('core', 'fileMode', 'false')
+        cwriter.release()
+        # Add new/changed files to Git's index
         try:
             git_repo.add('./')
         except DrupdatesError as git_add_error:
             raise git_add_error
+        # Remove deleted files from Git's index.
         deleted = git_repo.ls_files('--deleted')
         for filepath in deleted.split():
             git_repo.rm(filepath)
-        return git_repo
+        # Commit all the changes.
+        commit_author = self.settings.get('commitAuthor')
+        git_repo.commit(m=msg, author=commit_author)
+        # Save the commit hash for the Drupdates report to use.
+        heads = repository.heads
+        branch = heads[self.settings.get('workingBranch')]
+        self.commit_hash = branch.commit
+        # Push the changes to the origin repo.
+        git_repo.push(self._site_name, self.working_branch)
 
     def rebuild_web_root(self):
         """ Rebuild the web root folder completely after running pm-update.
@@ -247,7 +256,7 @@ class Siteupdate(object):
         try:
             distutils.dir_util.copy_tree(temp_dir + '/' + add_dir,
                                          self.site_web_root,
-                                         preserve_symlinks = 1)
+                                         preserve_symlinks=1)
         except distutils.errors.DistutilsFileError as copy_error:
             raise DrupdatesUpdateError(20, copy_error)
         except IOError as error:
