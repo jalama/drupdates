@@ -1,0 +1,50 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+
+matrix:
+  env:
+    global:
+      - ES_VER=1.0.1
+      - ES_MAPPER_ATTACHMENTS_VER=2.0.0.RC1
+      - ES_TRANSPORT_THRIFT_VER=2.0.0.RC1
+      - ES_GEOCLUSTER_FACET_VER=0.0.10
+      - ES_WAIT_ON_MAPPING_CHANGE=true
+
+before_install:
+  - export UPDATE TRAVIS_BUILD_DIR
+  - BUILD_TOP=`dirname $TRAVIS_BUILD_DIR`
+  - EXIT_VALUE=0
+  - sudo apt-get update > /dev/null
+    # mail requirements
+  - sudo apt-get update -qq
+  - sudo apt-get install -y -qq postfix
+install:
+  # install php packages required for running a web server from drush on php 5.3
+  - sudo apt-get install -y --force-yes php5 php5-gd php5-cli php5-sqlite
+  # install composer
+  - curl -sS https://getcomposer.org/installer | php
+  - sudo mv composer.phar /usr/local/bin/composer
+  # install drush globally
+  - composer global require drush/drush:7.*
+  # add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - pip install .
+before_script:
+  # Set Git user and email
+  - git config --global user.email "update@drupdates.org"
+  - git config --global user.name "Drupdates"
+  # setup fake mailserver
+  - sudo service postfix stop
+  - smtp-sink -d "%d.%H.%M.%S" 127.0.0.1:2500 1000 &
+  - echo -e '#!/usr/bin/env bash\nexit 0' | sudo tee /usr/sbin/sendmail
+  - sudo mkdir -p ~/.drush
+  - sudo chown -R travis:travis ~/.drush
+  - drush cc drush
+  - sudo mkdir -p ~/.drupdates
+  - sudo chown -R travis:travis ~/.drupdates
+
+# command to run tests
+script: nosetests --nocapture

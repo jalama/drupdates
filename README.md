@@ -1,5 +1,6 @@
 [![Stories in Ready](https://badge.waffle.io/jalama/drupdates.png?label=ready&title=Ready)](https://waffle.io/jalama/drupdates)
 [![Documentation Status](https://readthedocs.org/projects/drupdates/badge/?version=latest)](https://readthedocs.org/projects/drupdates/?badge=latest)
+[![Build Status](https://travis-ci.org/jalama/drupdates.svg)](https://travis-ci.org/jalama/drupdates)
 Drupdates
 ===========
 Script to maintain Drupal web site(s) code base using [Drush](http://www.drush.org)
