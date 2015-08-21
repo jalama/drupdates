@@ -117,7 +117,7 @@ makeFolder:
   value: ""
   prompt: Is the make file stored in a sub folder of the repo
 buildSource:
-  value: git
+  value: make
   prompt: How will the site be built (using drush make or git)
 makeOpts:
   value:
