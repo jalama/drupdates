@@ -47,4 +47,4 @@ before_script:
   - sudo chown -R travis:travis ~/.drupdates
 
 # command to run tests
-script: nosetests --nocapture
+script: nosetests
