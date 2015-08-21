@@ -58,13 +58,14 @@ class Siteupdate(object):
         # Call dr.call() without site alias argument, aliaes comes after dd argument
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         self.site_web_root = drush_dd[0]
-        if self.settings.get('buildSource') == 'make':
+        use_make_file = self.settings.get('useMakeFile')
+        if self.settings.get('buildSource') == 'make' and use_make_file:
             shutil.rmtree(self.site_web_root)
         else:
             rebuilt = self.rebuild_web_root()
             if not rebuilt:
                 report['status'] = "The webroot re-build failed."
-                if self.settings.get('useMakeFile'):
+                if use_make_file:
                     make_err = " Ensure the make file format is correct "
                     make_err += "and Drush make didn't fail on a bad patch."
                     report['status'] += make_err
