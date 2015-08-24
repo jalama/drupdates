@@ -27,4 +27,4 @@ class File(Report):
             raise DrupdatesError(20, msg)
         with open(fullpath, 'w') as outfile:
             outfile.write(report_text)
-        print "Report written to {0}.".format(fullpath)
+        print("Report written to {0}.".format(fullpath))

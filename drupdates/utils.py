@@ -167,10 +167,10 @@ class Utils(object):
                     except OSError as error:
                         msg = "Cannot run {0} the command doesn't exist,\n".format(command.pop(0))
                         msg += "Error: {1}".format(error.strerror)
-                        print msg
+                        print(msg)
                     results = popen.communicate()
                     if results[1]:
-                        print "Running {0}, \n Error: {1}".format(command, results[1])
+                        print("Running {0}, \n Error: {1}".format(command, results[1]))
                 else:
                     continue
 

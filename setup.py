@@ -3,13 +3,6 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-import sys
-
-# Ensure Python verison is >= 2.6
-# http://stackoverflow.com/questions/13924931/setup-py-restrict-the-allowable-version-of-the-python-interpreter
-if not sys.version_info[0] < 2 and sys.version_info[1] < 6:
-    print "Python version needs to exceed 2.6"
-    sys.exit(1) # return non-zero value for failure
 
 setup(
     name='Drupdates',

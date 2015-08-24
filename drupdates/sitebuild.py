@@ -92,7 +92,7 @@ class Sitebuild(object):
             complete_name = os.path.join(site_webroot, name)
             if os.path.isfile(complete_name) or os.path.isdir(complete_name):
                 try:
-                    os.chmod(complete_name, 0777)
+                    os.chmod(complete_name, 0o777)
                 except OSError:
                     msg = "Couldn't change file permission for {0}".format(complete_name)
                     raise DrupdatesBuildError(20, msg)
