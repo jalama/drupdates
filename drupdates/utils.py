@@ -1,5 +1,9 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, urlparse, subprocess, shutil
+import requests, os, subprocess, shutil
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 from os.path import expanduser
 from filecmp import dircmp
 from drupdates.settings import Settings
@@ -89,7 +93,7 @@ class Utils(object):
         func = getattr(requests, method)
         args = {}
         args['timeout'] = (10, 10)
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             args[key] = value
         try:
             response = func(uri, **args)

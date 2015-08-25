@@ -109,7 +109,7 @@ class Siteupdate(object):
                     raise updates_error
             else:
                 updates = []
-                for module, update in updates_ret.iteritems():
+                for module, update in updates_ret.items():
                     api = update['api_version']
                     current = update['existing_version'].replace(api + '-', '')
                     candidate = update['candidate_version'].replace(api + '-', '')

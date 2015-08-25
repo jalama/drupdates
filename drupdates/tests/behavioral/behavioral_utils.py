@@ -25,7 +25,7 @@ class BehavioralUtils(object):
         settings = self.load_settings_files(test_file)
         working = {}
         # Build the source repos.
-        for directory, attributes in settings['repo_dirs'].iteritems():
+        for directory, attributes in settings['repo_dirs'].items():
             repo_directory = self.build_repo_dir(directory, attributes)
             if 'skip' in attributes and attributes['skip']:
                 working_directory = attributes['working_directory']
@@ -36,7 +36,7 @@ class BehavioralUtils(object):
         working_directory = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
         if os.path.isdir(working_directory):
             shutil.rmtree(working_directory)
-        for directory, attributes in settings['working_dirs'].iteritems():
+        for directory, attributes in settings['working_dirs'].items():
             self.build_working_dir(directory, attributes, working)
         self.build_settings_file(settings)
         return self.run(settings)
@@ -126,7 +126,7 @@ class BehavioralUtils(object):
         # Parse options from the test's settings to be passed to Drupdates
         # via the CLI call.
         if 'options' in settings:
-            for option, value in settings['options'].iteritems():
+            for option, value in settings['options'].items():
                 commands += ["--{0}={1}".format(option, value)]
         commands.insert(0, 'drupdates')
         outfile = open('results.txt', 'w')

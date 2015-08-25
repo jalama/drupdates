@@ -74,7 +74,7 @@ class Updates(object):
         sites = Repos().get()
         if self.single_site:
             sites = {self.single_site : sites[self.single_site]}
-        for site_name, ssh in sites.iteritems():
+        for site_name, ssh in sites.items():
             report[site_name] = {}
             if site_name in blacklist:
                 continue

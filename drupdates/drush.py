@@ -50,5 +50,5 @@ class Drush(object):
                 msg += "Drush message: {0}".format(stdout)
                 raise DrupdatesDrushError(20, msg)
         else:
-            ret = stdout.split('\n')
+            ret = stdout.decode().split('\n')
         return ret
