@@ -167,7 +167,7 @@ class Updates(object):
         filepath.close()
 
     def delete_files(self):
-        """ Clane up files used by Drupdates. """
+        """ Clean up files used by Drupdates. """
         if os.path.isfile(self.alias_file):
             try:
                 os.remove(self.alias_file)
