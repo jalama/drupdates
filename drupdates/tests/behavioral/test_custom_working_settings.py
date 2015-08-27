@@ -18,18 +18,20 @@ class TestCustomWorkingSettings(object):
         base = Setup()
         self.test_directory = base.test_dir
 
-    def test_repo_built(self):
+    @staticmethod
+    def test_repo_built():
         """ Test to ensure one repos built successfully. """
 
         count = BehavioralUtils.count_repos_updated('builds')
         # If 1 repo Siteupdates in report repo built successfully.
         assert count == 1
 
-    def test_repo_updated(self):
+    @staticmethod
+    def test_repo_updated():
         """ Test to ensure the repo was updated. """
 
         status = "The following updates were applied"
-        report_status = BehavioralUtils.check_repo_updated(self.test_directory, 'drupal', 'builds')
+        report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status == status
 
     @staticmethod

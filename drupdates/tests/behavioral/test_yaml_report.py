@@ -40,9 +40,10 @@ class TestYamlReport(object):
         # If 1 repo Siteupdates in report repo built successfully.
         assert count == 1
 
-    def test_repo_updated(self):
+    @staticmethod
+    def test_repo_updated():
         """ Test to ensure the repo was updated. """
 
         status = "The following updates were applied"
-        report_status = BehavioralUtils.check_repo_updated(self.test_directory, 'drupal', 'builds')
+        report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status == status
