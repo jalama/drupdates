@@ -25,12 +25,12 @@ Git 1.7+
 
 SQLite
 
+Python versions: 2.6, 2.7, 3.3, 3.4
+
 Assumptions
 ===========
 
-- Only tested on POSIX boxes with Python 2.6 and 2.7, sorry no Windows yet.
-
-- Python 3+ support is [forthcoming](https://github.com/jalama/drupdates/issues/15).
+- Only tested on POSIX boxes, sorry no Windows yet.
 
 - Drupdates is built assuming you can store passwords for 3rd party systems in
 it's configuration files.  Drupdates will need to store system user names

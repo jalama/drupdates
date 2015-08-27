@@ -17,5 +17,11 @@ repo_dirs:
 additional_settings:
   workingBranch:
     value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml
 options:
   singleSite: drupal

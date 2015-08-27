@@ -1,5 +1,9 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, urlparse, subprocess, shutil
+import requests, os, subprocess, shutil
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 from os.path import expanduser
 from filecmp import dircmp
 from drupdates.settings import Settings
@@ -89,7 +93,7 @@ class Utils(object):
         func = getattr(requests, method)
         args = {}
         args['timeout'] = (10, 10)
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             args[key] = value
         try:
             response = func(uri, **args)
@@ -167,10 +171,10 @@ class Utils(object):
                     except OSError as error:
                         msg = "Cannot run {0} the command doesn't exist,\n".format(command.pop(0))
                         msg += "Error: {1}".format(error.strerror)
-                        print msg
+                        print(msg)
                     results = popen.communicate()
                     if results[1]:
-                        print "Running {0}, \n Error: {1}".format(command, results[1])
+                        print("Running {0}, \n Error: {1}".format(command, results[1]))
                 else:
                     continue
 

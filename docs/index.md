@@ -16,6 +16,8 @@ Drush 7
 
 Git 1.7+
 
+Python versions: 2.6, 2.7, 3.3, 3.4
+
 Installation
 ============
 (sudo) pip install https://github.com/jalama/drupdates/tarball/master
@@ -33,7 +35,7 @@ Execution
 $ drupdates
 
 note: Any setting can be passed as an option from the CLI, so if you want
-Drupdates to use /opt/ as the working directory in lieu of /var/www/
+Drupdates to use /opt/ as the working directory in lieu of $HOME/.drupdates/builds
 
 $ drupdates --workingDir=/opt/
 
@@ -45,13 +47,12 @@ Uninstall
 Assumptions
 ===========
 
-- Only tested on POSIX boxes with Python 2.6 and 2.7, sorry no Windows yet.
+- Only tested on POSIX boxes, sorry no Windows yet.
 
-- Python 3+ support is [forthcoming](https://github.com/jalama/drupdates/issues/15).
-
-- Drupdates is not intended for production systems, it is built assuming it
-will only be run on local development machines.  Drupdates will need to store
-system user names and passwords in the $HOME/.drupdates directory.
+- Drupdates is built assuming you can store passwords for 3rd party systems in
+it's configuration files.  Drupdates will need to store system user names
+and passwords in the $HOME/.drupdates directory.  This will mean that directory
+ will need to be locked down.
 
 - Drupdates does not support Drupal's multi-site installs out of the box.
 
@@ -69,6 +70,6 @@ to meet the needs of you Drupal site(s) and development system(s).
 Please note out of the box the following settings are assumed:
 - SQLite is the database storing your Drupal site
 - Only Security updates are being run
-- You Drupal sites are being installed at /var/www
-- sendmail will be used to send reports (other options are printing to the screen,
+- You Drupal sites are being installed at $HOME/.drupdates/builds
+- sendmail will be used to email reports (other options are printing to the screen,
 via stdout or sending to a Slack channel)

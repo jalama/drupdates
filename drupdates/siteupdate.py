@@ -109,7 +109,7 @@ class Siteupdate(object):
                     raise updates_error
             else:
                 updates = []
-                for module, update in updates_ret.iteritems():
+                for module, update in updates_ret.items():
                     api = update['api_version']
                     current = update['existing_version'].replace(api + '-', '')
                     candidate = update['candidate_version'].replace(api + '-', '')
@@ -239,7 +239,8 @@ class Siteupdate(object):
                 remote = git.Remote.create(repository, self._site_name, self.ssh)
             except git.exc.GitCommandError as error:
                 if not error.status == 128:
-                    print "Could not establish a remote for the {0} repo".format(self._site_name)
+                    msg = "Could not establish a remote for the {0} repo".format(self._site_name)
+                    print(msg)
             remote.fetch(self.working_branch)
             git_repo = repository.git
             try:

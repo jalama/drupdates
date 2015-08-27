@@ -20,18 +20,13 @@ class TestMultipleWorkingDirectoriesOneSite(object):
     def test_repo_built(self):
         """ Test to ensure one repo built successfully. """
 
-        file_name = open(os.path.join(self.test_directory, 'results.txt'), 'r')
-        results = file_name.readlines()
-        updates = BehavioralUtils.list_duplicates_of(results, 'Siteupdate \n')
+        count = BehavioralUtils.count_repos_updated('builds')
         # If 1 repo Siteupdates in report repo built successfully.
-        assert len(updates) == 2
+        assert count == 1
 
-    def test_frst_repo_updated(self):
-        """ Test to ensure the repo was updated. """
+    def test_second_repo_built(self):
+        """ Test to ensure both repos built successfully. """
 
-        file_name = open(os.path.join(self.test_directory, 'results.txt'), 'r')
-        results = file_name.readlines()
-        updates = BehavioralUtils.list_duplicates_of(results, 'Siteupdate \n')
-        index = updates[0]
-        status = "status : The following updates were applied"
-        assert results[index + 1].strip() == status
+        count = BehavioralUtils.count_repos_updated('builds/test')
+        # If 1 repo Siteupdates in report repo built successfully in builds/test.
+        assert count == 1

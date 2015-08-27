@@ -6,4 +6,4 @@ class Stdout(Report):
 
     def send_message(self, report_text):
         """ Print the report to the screen, or stdout."""
-        print report_text
+        print(report_text)

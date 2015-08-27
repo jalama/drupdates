@@ -38,14 +38,14 @@ class Updates(object):
             shutil.copy(src, settings_file)
             msg = "The Settings file {0} was created and needs updated.\n".format(settings_file)
             msg += "See {0} for instructions".format(instructions_url)
-            print msg
+            print(msg)
             sys.exit(1)
         current_settings = open(settings_file, 'r')
         settings = yaml.load(current_settings)
         if 'repoDict' in settings and 'example' in settings['repoDict']['value']:
             msg = "The default Settings file, {0}, needs updated. \n ".format(settings_file)
             msg += "See {0} for instructions".format(instructions_url)
-            print msg
+            print(msg)
             sys.exit(1)
 
     def run_updates(self):
@@ -74,7 +74,7 @@ class Updates(object):
         sites = Repos().get()
         if self.single_site:
             sites = {self.single_site : sites[self.single_site]}
-        for site_name, ssh in sites.iteritems():
+        for site_name, ssh in sites.items():
             report[site_name] = {}
             if site_name in blacklist:
                 continue
@@ -167,12 +167,12 @@ class Updates(object):
         filepath.close()
 
     def delete_files(self):
-        """ Clane up files used by Drupdates. """
+        """ Clean up files used by Drupdates. """
         if os.path.isfile(self.alias_file):
             try:
                 os.remove(self.alias_file)
             except OSError as error:
                 msg = "Clean-up error, couldn't remove {0}\n".format(self.alias_file)
                 msg += "Error: {1}".format(error.strerror)
-                print msg
+                print(msg)
         return True

@@ -47,7 +47,7 @@ class Setup(object):
 
         directory_list = open(os.path.join(self.current_dir, 'base_dirs.yaml'))
         base_directory_list = yaml.load(directory_list)
-        for directory, options in base_directory_list['dirs'].iteritems():
+        for directory, options in base_directory_list['dirs'].items():
             self.get_make_file(options['version'], options['make_format'])
             base_directory = self.build_base_directory(directory)
             if not base_directory:
@@ -95,7 +95,7 @@ class Setup(object):
         try:
             Drush.call(cmds)
         except DrupdatesError as error:
-            print error.msg
+            print(error.msg)
 
     @staticmethod
     def make_git_repo(directory):
