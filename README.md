@@ -25,6 +25,8 @@ Git 1.7+
 
 SQLite
 
+Python versions: 2.6, 2.7, 3.3, 3.4
+
 Assumptions
 ===========
 
