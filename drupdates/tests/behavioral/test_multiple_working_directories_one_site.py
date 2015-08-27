@@ -24,9 +24,9 @@ class TestMultipleWorkingDirectoriesOneSite(object):
         # If 1 repo Siteupdates in report repo built successfully.
         assert count == 1
 
-    def test_frst_repo_updated(self):
-        """ Test to ensure the repo was updated. """
+    def test_second_repo_built(self):
+        """ Test to ensure both repos built successfully. """
 
-        status = "The following updates were applied"
-        report_status = BehavioralUtils.check_repo_updated(self.test_directory, 'drupal', 'builds')
-        assert report_status == status
+        count = BehavioralUtils.count_repos_updated('builds/test')
+        # If 1 repo Siteupdates in report repo built successfully in builds/test.
+        assert count == 1
