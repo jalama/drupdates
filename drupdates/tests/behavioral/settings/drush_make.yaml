@@ -17,3 +17,9 @@ additional_settings:
     value: make
   webrootDir:
     value: webroot
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml

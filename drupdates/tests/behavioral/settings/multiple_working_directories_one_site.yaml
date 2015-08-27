@@ -1,6 +1,5 @@
 # Test successful if:
 # 1. The drupal repo is updated in the <testing dir>/builds directory
-# 2. The dmake repo is updated in the <testing dir>/builds/test directory
 working_dirs:
   builds:
     dir: builds
@@ -13,3 +12,9 @@ repo_dirs:
 additional_settings:
   workingBranch:
     value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml

@@ -149,3 +149,20 @@ class BehavioralUtils(object):
                 locs.append(loc)
                 start_at = loc
         return locs
+
+    @staticmethod
+    def check_repo_updated(directory, site, working_directory):
+        """ Given a repo number check if it was updated. """
+
+        file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
+        data = yaml.load(file_name)
+        build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
+        result = data[build_dir][site]['Siteupdate']['status'][0:35].strip()
+        return result
+
+    @staticmethod
+    def count_repos_updated(working_directory):
+        file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
+        data = yaml.load(file_name)
+        build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
+        return len(data[build_dir])

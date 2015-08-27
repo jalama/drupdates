@@ -36,18 +36,13 @@ class TestYamlReport(object):
     def test_repo_built():
         """ Test to ensure one repo built successfully. """
 
-        file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
-        data = yaml.load(file_name)
-        build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
-        assert len(data[build_dir]) == 1
+        count = BehavioralUtils.count_repos_updated('builds')
+        # If 1 repo Siteupdates in report repo built successfully.
+        assert count == 1
 
-    @staticmethod
-    def test_repo_updated():
+    def test_repo_updated(self):
         """ Test to ensure the repo was updated. """
 
-        file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
-        data = yaml.load(file_name)
         status = "The following updates were applied"
-        build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', 'builds')
-        result = data[build_dir]['drupal']['Siteupdate']['status'][0:35].strip()
-        assert  result == status
+        report_status = BehavioralUtils.check_repo_updated(self.test_directory, 'drupal', 'builds')
+        assert report_status == status

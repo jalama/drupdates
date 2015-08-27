@@ -21,21 +21,16 @@ class TestCustomWorkingSettings(object):
     def test_repo_built(self):
         """ Test to ensure one repos built successfully. """
 
-        file_name = open(os.path.join(self.test_directory, 'results.txt'), 'r')
-        results = file_name.readlines()
-        updates = BehavioralUtils.list_duplicates_of(results, 'Siteupdate \n')
+        count = BehavioralUtils.count_repos_updated('builds')
         # If 1 repo Siteupdates in report repo built successfully.
-        assert len(updates) == 1
+        assert count == 1
 
     def test_repo_updated(self):
         """ Test to ensure the repo was updated. """
 
-        file_name = open(os.path.join(self.test_directory, 'results.txt'), 'r')
-        results = file_name.readlines()
-        updates = BehavioralUtils.list_duplicates_of(results, 'Siteupdate \n')
-        index = updates[0]
-        status = "status : The following updates were applied"
-        assert results[index + 1].strip() == status
+        status = "The following updates were applied"
+        report_status = BehavioralUtils.check_repo_updated(self.test_directory, 'drupal', 'builds')
+        assert report_status == status
 
     @staticmethod
     def test_git_commit_author():
