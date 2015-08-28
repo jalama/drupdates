@@ -1,5 +1,7 @@
 """ Test a repo that contains symlinks, ensure they are still in place after run. """
 
+import yaml, os
+from os.path import expanduser
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
@@ -32,3 +34,12 @@ class TestSimpleWithSymlinks(object):
         status = "The following updates were applied"
         report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status == status
+
+    @staticmethod
+    def test_symlink_presence():
+        """ Test to make sure the sites/example.com/modules symlink exists. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        folder = os.path.join(settings['workingDir']['value'][0], 'drupal', 'sites', 'example.com')
+        assert os.path.islink(os.path.join(folder, 'modules'))
