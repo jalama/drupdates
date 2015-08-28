@@ -87,7 +87,7 @@ class Utils(object):
 
         """
         # Ensure uri is valid
-        if not bool(urlparse.urlparse(uri).netloc):
+        if not bool(urlparse(uri).netloc):
             msg = ("Error: {0} is not a valid url").format(uri)
             raise DrupdatesAPIError(20, msg)
         func = getattr(requests, method)
