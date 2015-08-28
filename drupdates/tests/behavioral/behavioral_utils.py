@@ -135,22 +135,6 @@ class BehavioralUtils(object):
         return results
 
     @staticmethod
-    def list_duplicates_of(seq, item):
-        """ Get a list of occuurance of seq in item. """
-
-        start_at = -1
-        locs = []
-        while True:
-            try:
-                loc = seq.index(item, start_at+1)
-            except ValueError:
-                break
-            else:
-                locs.append(loc)
-                start_at = loc
-        return locs
-
-    @staticmethod
     def check_repo_updated(site, working_directory):
         """ Given a repo number check if it was updated. """
 
