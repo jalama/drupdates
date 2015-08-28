@@ -176,6 +176,10 @@ class _Settings(object):
         """ Reset the settings attribute. """
         self.settings = self.core_settings
 
+    def list(self):
+        """ Return settings list. """
+        return self.settings
+
 class Settings(object):
     """ Base Settings class. """
 
@@ -205,3 +209,7 @@ class Settings(object):
         """ Reset the settings. """
         Settings.instance.reset()
 
+    @staticmethod
+    def list():
+        """ Provide dictionary of all the settings. """
+        return Settings.instance.list()

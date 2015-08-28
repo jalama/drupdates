@@ -1,5 +1,5 @@
 """ Primary Drupdates Module. """
-import os, shutil, yaml, sys
+import os, shutil, yaml, sys, pip
 from os.path import expanduser
 from string import Template
 from drupdates.utils import Utils
@@ -50,6 +50,8 @@ class Updates(object):
 
     def run_updates(self):
         """ Drupdates main function. """
+        if self.settings.get('debug'):
+            self.write_debug_file()
         report = {}
         for current_working_dir in self.working_dirs:
             try:
@@ -176,3 +178,29 @@ class Updates(object):
                 msg += "Error: {1}".format(error.strerror)
                 print(msg)
         return True
+
+    def write_debug_file(self):
+        """ Write debug file for this run.
+
+        Write file containing your system settings to be used to record python
+        and Drupdates state at the time Drupdates was run.
+        """
+
+        base_dir = self.settings.get('baseDir')
+        directory = self.check_dir(base_dir)
+        debug_file_name = os.path.join(directory, 'drupdates.debug')
+        debug_file = open(debug_file_name, 'w')
+        debug_file.write("Python Version:\n")
+        python_version = "{0}\n\n".format(sys.version)
+        debug_file.write(python_version)
+        installed_packages = pip.get_installed_distributions()
+        if len(installed_packages):
+            debug_file.write("Installed Packages:\n\n")
+            for i in installed_packages:
+                package = "{0}\n".format(str(i))
+                debug_file.write(package)
+        settings = self.settings.list()
+        debug_file.write("\nDrupdates Settings:\n\n")
+        for name, setting in settings.items():
+            line = "{0} : {1}\n".format(name, str(setting['value']))
+            debug_file.write(line)
