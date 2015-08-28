@@ -19,7 +19,7 @@ class TestYamlReport(object):
 
     @staticmethod
     def test_yaml_report():
-        """ Test for the presence of the resport.yaml file. """
+        """ Test for the presence of the report.yaml file. """
 
         file_name = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml')
         assert os.path.isfile(file_name) == True
