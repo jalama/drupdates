@@ -254,12 +254,12 @@ class Siteupdate(object):
         if 'themes' in self.repo_status:
             theme_dir = self.repo_status['themes']
             shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
-        self.utilities.rm_common(self.site_web_root, temp_dir)
+        self.utilities.rm_common(self.site_web_root, temp_dir + '/' + add_dir)
         try:
             distutils.dir_util.copy_tree(temp_dir + '/' + add_dir,
                                          self.site_web_root,
                                          preserve_symlinks=1)
-        except distutils.errors.DistutilsFileError as copy_error:
+        except (OSError, distutils.errors.DistutilsFileError) as copy_error:
             raise DrupdatesUpdateError(20, copy_error)
         except IOError as error:
             msg = "Can't copy updates from: \n"

@@ -19,3 +19,16 @@ dirs:
     version: 8
     build: true
     make_format: yaml
+  drupal7_base_symlinks:
+    version: 7
+    build: true
+    make_format: yaml
+    commands:
+      -
+        - mkdir
+        - sites/example.com
+      -
+        - ln
+        - -s
+        - sites/all/modules
+        - sites/example.com/modules

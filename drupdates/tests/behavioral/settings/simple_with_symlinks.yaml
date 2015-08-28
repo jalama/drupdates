@@ -1,0 +1,17 @@
+# Test a repo that contains symlinks, ensure they are still in place after run.
+working_dirs:
+  builds:
+    dir: builds
+repo_dirs:
+  drupal:
+    base: drupal7_base_symlinks
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml

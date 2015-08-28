@@ -1,5 +1,5 @@
 """ Build the base repos testing repos are cloned from. """
-import drupdates, git, os, shutil, yaml, glob, nose
+import drupdates, git, os, shutil, yaml, glob, nose, subprocess
 from os.path import expanduser
 from git import Repo
 from drupdates.drush import Drush
@@ -60,7 +60,14 @@ class Setup(object):
                     subfolder = options['subfolder']
                 else:
                     subfolder = ''
-                self.run_drush_make(base_directory, subfolder)
+                path = self.run_drush_make(base_directory, subfolder)
+                if 'commands' in options:
+                    os.chdir(path)
+                    for commands in options['commands']:
+                        popen = subprocess.Popen(commands,
+                                                 stdout=subprocess.PIPE,
+                                                 stderr=subprocess.PIPE)
+                        popen.communicate()
             Setup.make_git_repo(base_directory)
 
     def build_base_directory(self, target_directory):
@@ -96,6 +103,7 @@ class Setup(object):
             Drush.call(cmds)
         except DrupdatesError as error:
             print(error.msg)
+        return path
 
     @staticmethod
     def make_git_repo(directory):
