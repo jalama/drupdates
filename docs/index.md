@@ -16,6 +16,8 @@ Drush 7
 
 Git 1.7+
 
+SQLite
+
 Python versions: 2.6, 2.7, 3.3, 3.4
 
 Installation
@@ -65,7 +67,7 @@ Configuration
 
 Out of the box some basic configuration is in place but you will need to work
 with the Drupdates [settings](settings.md) system to complete the set-up
-to meet the needs of you Drupal site(s) and development system(s).
+to meet the needs of your Drupal site(s) and development system(s).
 
 Please note out of the box the following settings are assumed:
 - SQLite is the database storing your Drupal site
