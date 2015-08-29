@@ -29,10 +29,14 @@ class Setup(object):
 
         if not os.path.isdir(self.test_dir):
             os.makedirs(self.test_dir)
+
         files = []
-        files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'settings.yaml'))
-        files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
-        files.append(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.json'))
+        directory = os.path.join(expanduser('~'), '.drupdates')
+        files.append(os.path.join(directory, 'settings.yaml'))
+        files.append(os.path.join(directory, 'report.yaml'))
+        files.append(os.path.join(directory, 'report.json'))
+        files.append(os.path.join(directory, 'drupdates.debug'))
+
         for file_name in files:
             if os.path.isfile(file_name):
                 os.remove(file_name)

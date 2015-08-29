@@ -21,6 +21,9 @@ blacklist:
 singleSite:
   value: ""
   prompt: Do you want to run the script on a single site (which alias)
+debug:
+  value: ""
+  prompt: Create a dump of the system settings for debugging purposes
 # This setting determines what Drupdates will do
 # Change with care
 drupdatesPhases:

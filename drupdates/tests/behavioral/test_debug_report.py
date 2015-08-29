@@ -1,11 +1,10 @@
-""" Test a valid yaml file is output. """
-
-import os, yaml
+""" Test that a debug report is created. """
+import os
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestYamlReport(object):
-    """ Test a valid yaml file is output. """
+class TestDebugReport(object):
+    """ Test a debug report file is output. """
 
     @classmethod
     def setup_class(cls):
@@ -18,19 +17,11 @@ class TestYamlReport(object):
         self.test_directory = base.test_dir
 
     @staticmethod
-    def test_yaml_report():
-        """ Test for the presence of the report.yaml file. """
+    def test_debug_report():
+        """ Test for the presence of the debug file. """
 
-        file_name = os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml')
+        file_name = os.path.join(os.path.expanduser('~'), '.drupdates', 'drupdates.debug')
         assert os.path.isfile(file_name) == True
-
-    @staticmethod
-    def test_yaml_report_valid():
-        """ Test for the vailidty of the yaml file. """
-
-        file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
-        data = yaml.load(file_name)
-        assert isinstance(data, dict) == True
 
     @staticmethod
     def test_repo_built():
