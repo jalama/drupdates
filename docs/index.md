@@ -22,7 +22,7 @@ Python versions: 2.6, 2.7, 3.3, 3.4
 
 Installation
 ============
-(sudo) pip install https://github.com/jalama/drupdates/tarball/master
+(sudo) pip install drupdates
 
 Once installed please follow the post install [set-up instructions](setup.md)
 
