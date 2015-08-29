@@ -1,0 +1,26 @@
+# Test seccessful if the Drush make Yaml file is updated with new module updates.
+# and the webroot folder is updated.
+working_dirs:
+  builds:
+    dir: builds
+repo_dirs:
+  dmake_webroot:
+    base: dmake_base_webroot
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev
+  useMakeFile:
+    value: True
+  makeFormat:
+    value: make
+  buildSource:
+    value: git
+  webrootDir:
+    value: webroot
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml

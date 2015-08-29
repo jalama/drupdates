@@ -23,12 +23,13 @@ class Siteupdate(object):
         self.site_web_root = None
         self._commit_hash = None
         self.repo_status = None
-
+        self._module_dir = None
 
     @property
     def commit_hash(self):
         """ commit_hash getter. """
         return self._commit_hash
+
     @commit_hash.setter
     def commit_hash(self, value):
         """ commit_hash setter. """
@@ -57,13 +58,14 @@ class Siteupdate(object):
         # Call dr.call() without site alias argument, aliaes comes after dd argument
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         self.site_web_root = drush_dd[0]
-        if self.settings.get('buildSource') == 'make':
+        use_make_file = self.settings.get('useMakeFile')
+        if self.settings.get('buildSource') == 'make' and use_make_file:
             shutil.rmtree(self.site_web_root)
         else:
             rebuilt = self.rebuild_web_root()
             if not rebuilt:
                 report['status'] = "The webroot re-build failed."
-                if self.settings.get('useMakeFile'):
+                if use_make_file:
                     make_err = " Ensure the make file format is correct "
                     make_err += "and Drush make didn't fail on a bad patch."
                     report['status'] += make_err
@@ -72,11 +74,7 @@ class Siteupdate(object):
         if os.path.isdir(drush_path):
             self.utilities.remove_dir(drush_path)
 
-        git_repo = self.git_changes()
-        commit_author = self.settings.get('commitAuthor')
-        git_repo.commit(m=msg, author=commit_author)
-        self.commit_hash = git_repo.rev_parse('head')
-        git_repo.push(self._site_name, self.working_branch)
+        self.git_changes(msg)
         report['status'] = "The following updates were applied \n {0}".format(msg)
         report['commit'] = "The commit hash is {0}".format(self.commit_hash)
         self.utilities.sys_commands(self, 'postUpdateCmds')
@@ -111,7 +109,7 @@ class Siteupdate(object):
                     raise updates_error
             else:
                 updates = []
-                for module, update in updates_ret.iteritems():
+                for module, update in updates_ret.items():
                     api = update['api_version']
                     current = update['existing_version'].replace(api + '-', '')
                     candidate = update['candidate_version'].replace(api + '-', '')
@@ -173,7 +171,7 @@ class Siteupdate(object):
             openfile = open(make_file, 'w')
             yaml.dump(makef, openfile, default_flow_style=False)
 
-    def git_changes(self):
+    def git_changes(self, msg):
         """ add/remove changed files.
 
         notes:
@@ -200,16 +198,28 @@ class Siteupdate(object):
                 git_repo.checkout(custom_module_dir)
             except git.exc.GitCommandError:
                 pass
-        full_repo = git.Git('.')
-        full_repo.config("core.fileMode", "false")
+        # Instruct Git to ignore file mode changes.
+        cwriter = repository.config_writer('global')
+        cwriter.set_value('core', 'fileMode', 'false')
+        cwriter.release()
+        # Add new/changed files to Git's index
         try:
             git_repo.add('./')
         except DrupdatesError as git_add_error:
             raise git_add_error
+        # Remove deleted files from Git's index.
         deleted = git_repo.ls_files('--deleted')
         for filepath in deleted.split():
             git_repo.rm(filepath)
-        return git_repo
+        # Commit all the changes.
+        commit_author = self.settings.get('commitAuthor')
+        git_repo.commit(m=msg, author=commit_author)
+        # Save the commit hash for the Drupdates report to use.
+        heads = repository.heads
+        branch = heads[self.settings.get('workingBranch')]
+        self.commit_hash = branch.commit
+        # Push the changes to the origin repo.
+        git_repo.push(self._site_name, self.working_branch)
 
     def rebuild_web_root(self):
         """ Rebuild the web root folder completely after running pm-update.
@@ -229,7 +239,8 @@ class Siteupdate(object):
                 remote = git.Remote.create(repository, self._site_name, self.ssh)
             except git.exc.GitCommandError as error:
                 if not error.status == 128:
-                    print "Could not establish a remote for the {0} repo".format(self._site_name)
+                    msg = "Could not establish a remote for the {0} repo".format(self._site_name)
+                    print(msg)
             remote.fetch(self.working_branch)
             git_repo = repository.git
             try:
@@ -243,12 +254,12 @@ class Siteupdate(object):
         if 'themes' in self.repo_status:
             theme_dir = self.repo_status['themes']
             shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
-        self.utilities.rm_common(self.site_web_root, temp_dir)
+        self.utilities.rm_common(self.site_web_root, temp_dir + '/' + add_dir)
         try:
             distutils.dir_util.copy_tree(temp_dir + '/' + add_dir,
                                          self.site_web_root,
-                                         preserve_symlinks = 1)
-        except distutils.errors.DistutilsFileError as copy_error:
+                                         preserve_symlinks=1)
+        except (OSError, distutils.errors.DistutilsFileError) as copy_error:
             raise DrupdatesUpdateError(20, copy_error)
         except IOError as error:
             msg = "Can't copy updates from: \n"

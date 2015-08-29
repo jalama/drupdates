@@ -65,7 +65,7 @@ class _Settings(object):
         if ARG_LOADED:
             parser = argparse.ArgumentParser()
             model = self._model()
-            for key, setting in self.settings.iteritems():
+            for key, setting in self.settings.items():
                 setting_complete = self.merge(model, setting)
                 parser.add_argument("--" + key, dest=key,
                                     help=setting_complete['prompt'])
@@ -73,7 +73,7 @@ class _Settings(object):
         else:
             parser = OptionParser()
             model = self._model()
-            for key, setting in self.settings.iteritems():
+            for key, setting in self.settings.items():
                 setting_complete = self.merge(model, setting)
                 parser.add_option("--" + key, action="store", dest=key, type="string",
                                   help=setting_complete['prompt'])
@@ -133,7 +133,7 @@ class _Settings(object):
             raise DrupdatesError(20, msg)
         new = yaml.load(default)
         default.close()
-        for setting, item in new.iteritems():
+        for setting, item in new.items():
             if not isinstance(item, dict):
                 error = "Exiting Drupdates \n"
                 error += "Fatal Error: Settngs file, {0}, ".format(settings_file)
@@ -176,6 +176,10 @@ class _Settings(object):
         """ Reset the settings attribute. """
         self.settings = self.core_settings
 
+    def list(self):
+        """ Return settings list. """
+        return self.settings
+
 class Settings(object):
     """ Base Settings class. """
 
@@ -205,3 +209,7 @@ class Settings(object):
         """ Reset the settings. """
         Settings.instance.reset()
 
+    @staticmethod
+    def list():
+        """ Provide dictionary of all the settings. """
+        return Settings.instance.list()

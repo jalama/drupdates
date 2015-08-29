@@ -1,0 +1,7 @@
+# YAML
+folderName:
+  value: ~/.drupdates
+  prompt: What folder should the report be written to
+fileName:
+  value: report.txt
+  prompt: What should the report file be called

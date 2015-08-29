@@ -21,6 +21,9 @@ blacklist:
 singleSite:
   value: ""
   prompt: Do you want to run the script on a single site (which alias)
+debug:
+  value: ""
+  prompt: Create a dump of the system settings for debugging purposes
 # This setting determines what Drupdates will do
 # Change with care
 drupdatesPhases:
@@ -117,7 +120,7 @@ makeFolder:
   value: ""
   prompt: Is the make file stored in a sub folder of the repo
 buildSource:
-  value: git
+  value: make
   prompt: How will the site be built (using drush make or git)
 makeOpts:
   value:
@@ -128,3 +131,6 @@ makeOpts:
 reportingTool:
   value: stdout
   prompt: Tool to used to send the final report
+reportingFormat:
+  value: text
+  prompt: How should the report be formatted (text, yaml, json) (default text)

@@ -43,12 +43,12 @@ class Drush(object):
         stdout = results[0]
         if json_ret:
             try:
-                ret = json.loads(stdout)
+                ret = json.loads(stdout.decode())
             except ValueError:
                 msg = "{0}, No JSON returned from Drush, though it was requested\n".format(alias)
                 msg += "Drush command passed was {0}\n".format(commands)
                 msg += "Drush message: {0}".format(stdout)
                 raise DrupdatesDrushError(20, msg)
         else:
-            ret = stdout.split('\n')
+            ret = stdout.decode().split('\n')
         return ret

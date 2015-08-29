@@ -1,0 +1,20 @@
+# Test successful if the Git Log shows the update committed by Drupdates
+working_dirs:
+  builds:
+    dir: builds
+    custom_settings:
+      commitAuthor:
+        value: Drupdates <Drupdates@example.com>
+repo_dirs:
+  drupal:
+    base: drupal7_base
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml

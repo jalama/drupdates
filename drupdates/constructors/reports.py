@@ -16,19 +16,29 @@ class Reports(Plugin):
         class_ = getattr(self._plugin, tool)
         self._instance = class_()
 
-    def format_report(self, report, text=""):
+    def json(self, report):
+        import json
+        return json.dumps(report)
+
+    def yaml(self, report):
+        import yaml
+        return yaml.dump(report, default_flow_style=False)
+
+    def text(self, report, text=""):
         """ Format the report dictionary into a string. """
         for line in report:
             if isinstance(report[line], dict):
                 text += "{0} \n".format(line)
-                text = self.format_report(report[line], text)
+                text = self.text(report[line], text)
             else:
                 text += "\t{0} : {1} \n".format(line, report[line])
         return text
 
     def send(self, report):
-        """ Deliverythe report. """
-        report_text = self.format_report(report)
+        """ Deliver the report. """
+        report_format = self.settings.get('reportingFormat')
+        class_ = getattr(self, report_format)
+        report_text = class_(report)
         return self._instance.send_message(report_text)
 
 class Report(object):

@@ -1,0 +1,27 @@
+# Test successful if:
+# If Both drupal and drupal_test are updated
+# Note: singleSite won't work with multiple working directories by design
+working_dirs:
+  builds:
+    dir: builds
+  test:
+    dir: builds/test
+repo_dirs:
+  drupal:
+    base: drupal7_base
+    working_directory: builds
+  drupal_test:
+    base: drupal7_base
+    working_directory: test
+    skip: True
+additional_settings:
+  workingBranch:
+    value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml
+options:
+  singleSite: drupal

@@ -3,13 +3,6 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-import sys
-
-# Ensure Python verison is >= 2.6
-# http://stackoverflow.com/questions/13924931/setup-py-restrict-the-allowable-version-of-the-python-interpreter
-if not sys.version_info[0] < 2 and sys.version_info[1] < 6:
-    print "Python version needs to exceed 2.6"
-    sys.exit(1) # return non-zero value for failure
 
 setup(
     name='Drupdates',
@@ -18,16 +11,16 @@ setup(
     url='https://github.com/jalama/drupdates',
     download_url='https://github.com/jalama/drupdates',
     author_email='jalama@gmail.com',
-    version='1.3.2',
-    package_dir={'drupdates' : 'drupdates'},
+    version='1.4.0',
+    package_dir={'drupdates' : 'drupdates', 'drupdates.tests' : 'drupdates/tests'},
     include_package_data=True,
     install_requires=['nose', 'gitpython', 'requests', 'pyyaml'],
     entry_points={
         'console_scripts': ['drupdates = drupdates.cli:main'],
     },
-    packages=['drupdates'],
+    packages=['drupdates', 'drupdates.tests'],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
@@ -39,6 +32,9 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: System :: Systems Administration',
         'Topic :: Software Development :: Build Tools',
         'Topic :: Software Development :: Bug Tracking',

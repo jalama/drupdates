@@ -1,5 +1,10 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, urlparse, subprocess, shutil
+import requests, os, subprocess, shutil
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
+from os.path import expanduser
 from filecmp import dircmp
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
@@ -13,6 +18,15 @@ class Utils(object):
 
     def __init__(self):
         self.settings = Settings()
+
+    @staticmethod
+    def detect_home_dir(directory):
+        """ If dir is relative to home dir rewrite as OS agnostic path. """
+        parts = directory.split('/')
+        if parts[0] == '~' or parts[0].upper() == '$HOME':
+            del parts[0]
+            directory = os.path.join(expanduser('~'), '/'.join(parts))
+        return directory
 
     @staticmethod
     def remove_dir(directory):
@@ -73,13 +87,13 @@ class Utils(object):
 
         """
         # Ensure uri is valid
-        if not bool(urlparse.urlparse(uri).netloc):
+        if not bool(urlparse(uri).netloc):
             msg = ("Error: {0} is not a valid url").format(uri)
             raise DrupdatesAPIError(20, msg)
         func = getattr(requests, method)
         args = {}
         args['timeout'] = (10, 10)
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             args[key] = value
         try:
             response = func(uri, **args)
@@ -157,20 +171,22 @@ class Utils(object):
                     except OSError as error:
                         msg = "Cannot run {0} the command doesn't exist,\n".format(command.pop(0))
                         msg += "Error: {1}".format(error.strerror)
-                        print msg
+                        print(msg)
                     results = popen.communicate()
                     if results[1]:
-                        print "Running {0}, \n Error: {1}".format(command, results[1])
+                        print("Running {0}, \n Error: {1}".format(command, results[1]))
                 else:
                     continue
 
     def rm_common(self, dir_delete, dir_compare):
-        """ Delete files in dirDelete that are in dirCompare.
-        keyword arguments:
-        dirDelete -- The directory to have it's file/folders deleted.
-        dirCompare -- The directory to compare dirDelete with.
+        """ Delete files in dir_delete that are in dir_compare.
+
         Iterate over the sites directory and delete any files/folders not in the
         commonIgnore setting.
+
+        keyword arguments:
+        dir_delete -- The directory to have it's file/folders deleted.
+        dir_compare -- The directory to compare dirDelete with.
         """
         ignore = self.settings.get('commonIgnore')
         if isinstance(ignore, str):

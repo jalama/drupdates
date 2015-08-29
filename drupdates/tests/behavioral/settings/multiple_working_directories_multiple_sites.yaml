@@ -1,0 +1,34 @@
+# Test successful if:
+# 1. The drupal repo is updated in the <testing dir>/builds directory
+# 2. The dmake repo is updated in the <testing dir>/builds/test directory
+working_dirs:
+  builds:
+    dir: builds
+  test:
+    dir: builds/test
+    custom_settings:
+      webrootDir:
+        value: webroot
+      useMakeFile:
+        value: True
+      makeFormat:
+        value: yaml
+      buildSource:
+        value: make
+repo_dirs:
+  drupal:
+    base: drupal7_base
+    working_directory: builds
+  dmake:
+    base: dmake_base
+    working_directory: test
+    skip: True
+additional_settings:
+  workingBranch:
+    value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml

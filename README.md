@@ -1,5 +1,6 @@
 [![Stories in Ready](https://badge.waffle.io/jalama/drupdates.png?label=ready&title=Ready)](https://waffle.io/jalama/drupdates)
 [![Documentation Status](https://readthedocs.org/projects/drupdates/badge/?version=latest)](https://readthedocs.org/projects/drupdates/?badge=latest)
+[![Build Status](https://travis-ci.org/jalama/drupdates.svg)](https://travis-ci.org/jalama/drupdates)
 Drupdates
 ===========
 Script to maintain Drupal web site(s) code base using [Drush](http://www.drush.org)
@@ -24,16 +25,17 @@ Git 1.7+
 
 SQLite
 
+Python versions: 2.6, 2.7, 3.3, 3.4
+
 Assumptions
 ===========
 
-- Only tested on POSIX boxes with Python 2.6 and 2.7, sorry no Windows yet.
+- Only tested on POSIX boxes, sorry no Windows yet.
 
-- Python 3+ support is [forthcoming](https://github.com/jalama/drupdates/issues/15).
-
-- Drupdates is not intended for production systems, it is built assuming it
-will only be run on local development machines.  Drupdates will need to store
-system user names and passwords in the $HOME/.drupdates directory.
+- Drupdates is built assuming you can store passwords for 3rd party systems in
+it's configuration files.  Drupdates will need to store system user names
+and passwords in the $HOME/.drupdates directory.  This will mean that directory
+ will need to be locked down.
 
 - Drupdates does not support Drupal's multi-site installs out of the box.
 
