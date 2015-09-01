@@ -32,3 +32,10 @@ dirs:
         - -s
         - sites/all/modules
         - sites/example.com/modules
+  drupal7_base_multisite:
+    version: 7
+    build: true
+    make_format: yaml
+    sites:
+      - sample
+      - sample2
