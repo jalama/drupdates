@@ -21,14 +21,14 @@ while($dir_handle->valid()) {
     if(strlen('$webroot') > 0) {
       $root .= '/$webroot';
     }
-    if(file_exists($root . '/sites/default/default.settings.php')) {
-      $aliases[$basename] = array(
-        'uri' => 'default',
-        'root' => $root,
-        'db-url' => 'sqlite:/' . $root . '/' . $basename . '.sqlite'
-      );
-      // Multisite aliases.
-      $sites_path = $root . '/sites';
+    $aliases[$basename] = array(
+      'uri' => 'default',
+      'root' => $root,
+      'db-url' => 'sqlite:/' . $root . '/' . $basename . '.sqlite'
+    );
+    // Multisite aliases.
+    $sites_path = $root . '/sites';
+    if(file_exists($sites_path)) {
       $sites_handle = new DirectoryIterator($sites_path);
       while($sites_handle->valid()) {
         if($sites_handle->isDir() && !$sites_handle->isDot()) {
