@@ -29,6 +29,27 @@ class Utils(object):
         return directory
 
     @staticmethod
+    def check_dir(directory):
+        """ Ensure the directory is writable. """
+        directory = Utils.detect_home_dir(directory)
+        if not os.path.isdir(directory):
+            try:
+                os.makedirs(directory)
+            except OSError as error:
+                msg = 'Unable to create non-existant directory {0} \n'.format(directory)
+                msg += 'Error: {0}\n'.format(error.strerror)
+                msg += 'Moving to next working directory, if applicable'
+                raise DrupdatesError(20, msg)
+        filepath = os.path.join(directory, "text.txt")
+        try:
+            open(filepath, "w")
+        except IOError:
+            msg = 'Unable to write to directory {0} \n'.format(directory)
+            raise DrupdatesError(20, msg)
+        os.remove(filepath)
+        return directory
+
+    @staticmethod
     def remove_dir(directory):
         """ Try and remove the directory. """
         if os.path.isdir(directory):
@@ -196,3 +217,29 @@ class Utils(object):
             os.remove(dir_delete + '/' + file_name)
         for directory in dcmp.common_dirs:
             shutil.rmtree(dir_delete + '/' + directory)
+            
+    def write_debug_file(self):
+        """ Write debug file for this run.
+
+        Write file containing your system settings to be used to record python
+        and Drupdates state at the time Drupdates was run.
+        """
+
+        base_dir = self.settings.get('baseDir')
+        directory = Utils.check_dir(base_dir)
+        debug_file_name = os.path.join(directory, 'drupdates.debug')
+        debug_file = open(debug_file_name, 'w')
+        debug_file.write("Python Version:\n")
+        python_version = "{0}\n\n".format(sys.version)
+        debug_file.write(python_version)
+        installed_packages = pip.get_installed_distributions()
+        if len(installed_packages):
+            debug_file.write("Installed Packages:\n\n")
+            for i in installed_packages:
+                package = "{0}\n".format(str(i))
+                debug_file.write(package)
+        settings = self.settings.list()
+        debug_file.write("\nDrupdates Settings:\n\n")
+        for name, setting in settings.items():
+            line = "{0} : {1}\n".format(name, str(setting['value']))
+            debug_file.write(line)
