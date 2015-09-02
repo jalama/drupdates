@@ -36,6 +36,7 @@ class Setup(object):
         files.append(os.path.join(directory, 'report.yaml'))
         files.append(os.path.join(directory, 'report.json'))
         files.append(os.path.join(directory, 'drupdates.debug'))
+        files.append(os.path.join(expanduser('~'), '.drush', 'drupdates.aliases.drushrc.php'))
 
         for file_name in files:
             if os.path.isfile(file_name):

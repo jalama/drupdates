@@ -13,9 +13,9 @@ class DrupdatesBuildError(DrupdatesError):
 class Sitebuild(object):
     """ Build out the repository folder. """
 
-    def __init__(self, siteName, ssh, working_dir):
+    def __init__(self, site_name, ssh, working_dir):
         self.settings = Settings()
-        self._site_name = siteName
+        self._site_name = site_name
         self.site_dir = os.path.join(working_dir, self._site_name)
         self.ssh = ssh
         self.utilities = Utils()
@@ -38,34 +38,25 @@ class Sitebuild(object):
             raise DrupdatesBuildError(20, msg)
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
-        web_root = self.settings.get('webrootDir')
-        site_webroot = os.path.join(self.site_dir, web_root)
-        self.standup_site(site_webroot)
-        st_cmds = ['st']
+        # TODO: Write a Drush method to collect site aliases that start with this site's name
+        self.standup_site()
         try:
-            repo_status = Drush.call(st_cmds, self._site_name, True)
+            repo_status = Drush.call(['st'], self._site_name, True)
         except DrupdatesError as st_error:
             raise DrupdatesBuildError(20, st_error.msg)
         finally:
-            self.file_cleanup(site_webroot)
+            self.file_cleanup()
         if not 'bootstrap' in repo_status:
             msg = "{0} failed to Stand-up properly after running drush qd".format(self._site_name)
             raise DrupdatesBuildError(20, msg)
         self.utilities.sys_commands(self, 'postBuildCmds')
         return "Site build for {0} successful".format(self._site_name)
 
-    def standup_site(self, site_webroot):
+    def standup_site(self):
         """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
         qd_settings = self.settings.get('qdCmds')
         qd_cmds = copy.copy(qd_settings)
-        qd_cmds += ['--root=' + site_webroot]
-        site_db = os.path.join(site_webroot, 'drupdates.sqlite')
-        qd_cmds += ['--db-url=sqlite:' + site_db]
-        backup_dir = self.settings.get('backupDir')
-        parts = backup_dir.split('/')
-        if parts[0] == '~' or parts[0].upper() == '$HOME':
-            del parts[0]
-            backup_dir = os.path.join(expanduser('~'), '/'.join(parts))
+        backup_dir = Utils.check_dir(self.settings.get('backupDir'))
         qd_cmds += ['--backup-dir=' + backup_dir]
         try:
             qd_cmds.remove('--no-backup')
@@ -81,13 +72,21 @@ class Sitebuild(object):
             if self.settings.get('buildSource') == 'make':
                 qd_cmds.remove('--use-existing')
         try:
-            Drush.call(qd_cmds)
+            Drush.call(qd_cmds, self._site_name)
+            # TODO: when done add file names to self.settings.get('drushSiFiles')
+            # so they get 0o777. This must be done to a copy of the drushSiFiles
+            # setting, otherwise it will carry to all sites in the current workingDir
+            # ex. <webroot>/sites/sample.com/files
+            # ex. <webroot>/sites/sample.com/modules
+            # ex. <webroot>/sites/sample.com/settings.php
         except DrupdatesError as standup_error:
             raise standup_error
 
-    def file_cleanup(self, site_webroot):
+    def file_cleanup(self):
         """ Drush sets the folder permissions for some file to be 0444, convert to 0777. """
         si_files = self.settings.get('drushSiFiles')
+        drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
+        site_webroot = drush_dd[0]
         for name in si_files:
             complete_name = os.path.join(site_webroot, name)
             if os.path.isfile(complete_name) or os.path.isdir(complete_name):
