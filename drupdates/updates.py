@@ -57,6 +57,7 @@ class Updates(object):
         for current_working_dir in self.working_dirs:
             try:
                 current_working_dir = Utils.check_dir(current_working_dir)
+                self.load_dir_settings(current_working_dir)
                 update = self.update_sites(current_working_dir)
                 report[current_working_dir] = update
             except DrupdatesError as update_error:
