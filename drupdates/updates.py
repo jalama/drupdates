@@ -1,5 +1,5 @@
 """ Primary Drupdates Module. """
-import os, shutil, yaml, sys, pip
+import os, shutil, yaml, sys
 from os.path import expanduser
 from string import Template
 from drupdates.utils import Utils
@@ -57,7 +57,6 @@ class Updates(object):
         for current_working_dir in self.working_dirs:
             try:
                 current_working_dir = Utils.check_dir(current_working_dir)
-                self.working_dir_settings(current_working_dir)
                 update = self.update_sites(current_working_dir)
                 report[current_working_dir] = update
             except DrupdatesError as update_error:
@@ -81,6 +80,7 @@ class Updates(object):
             report[site_name] = {}
             if site_name in blacklist:
                 continue
+            self.load_dir_settings(working_dir)
             for phase in self.settings.get("drupdatesPhases"):
                 mod = __import__('drupdates.' + phase['name'].lower(), fromlist=[phase])
                 class_ = getattr(mod, phase['name'])
@@ -98,16 +98,16 @@ class Updates(object):
                         raise DrupdatesError(error.level, msg)
                 finally:
                     report[site_name][phase['name']] = result
+            self.settings.reset()
 
-        self.settings.reset()
         self.delete_files()
         return report
 
-    def working_dir_settings(self, working_dir):
-        """ Add custom settings for the working direcotry. """
-        working_settings = os.path.join(working_dir, '.drupdates/settings.yaml')
-        if os.path.isfile(working_settings):
-            self.settings.add(working_settings, True)
+    def load_dir_settings(self, dir):
+        """ Add custom settings for the a given directory. """
+        settings_file = os.path.join(dir, '.drupdates/settings.yaml')
+        if os.path.isfile(settings_file):
+            self.settings.add(settings_file, True)
 
     def aliases(self, working_dir):
         """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
