@@ -23,7 +23,7 @@ class Siteupdate(object):
         self.site_web_root = None
         self._commit_hash = None
         self.repo_status = None
-        self._module_dir = None
+        self.sub_sites = Drush.get_sub_site_aliases(self._site_name)
 
     @property
     def commit_hash(self):
@@ -55,7 +55,7 @@ class Siteupdate(object):
             report['status'] = "Did not have any updates to apply"
             return report
         msg = '\n'.join(updates)
-        # Call dr.call() without site alias argument, aliaes comes after dd argument
+        # Call Drush.call() without site alias as alias comes after dd argument.
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         self.site_web_root = drush_dd[0]
         use_make_file = self.settings.get('useMakeFile')
@@ -121,10 +121,16 @@ class Siteupdate(object):
             up_cmds = self.settings.get('upCmds')
             try:
                 updates_ret = Drush.call(up_cmds, self._site_name)
+                sub_updates = []
+                for alias, data in self.sub_sites.items():
+                    sub_updates += alias
+                    sub_ret = Drush.call(up_cmds, alias)
+                    sub_updates += Siteupdate.read_update_report(sub_ret)
             except DrupdatesError as updates_error:
                 raise updates_error
             else:
                 updates = Siteupdate.read_update_report(updates_ret)
+                updates += sub_updates
         return updates
 
     @staticmethod
@@ -188,7 +194,12 @@ class Siteupdate(object):
             except git.exc.GitCommandError:
                 pass
         try:
-            os.remove(os.path.join(self.site_web_root, 'drupdates.sqlite'))
+            # Remove all .sqlite files
+            os.remove(self.repo_status['db-name'])
+            for alias, data in self.sub_sites.items():
+                db_file = data['databases']['default']['default']['database']
+                if os.path.isfile(db_file):
+                    os.remove(db_file)
         except OSError:
             pass
         if self.repo_status['modules'] and self.settings.get('ignoreCustomModules'):
@@ -249,8 +260,8 @@ class Siteupdate(object):
                 git_repo.checkout(self.working_branch)
             add_dir = self._site_name
         if 'modules' in self.repo_status:
-            self._module_dir = self.repo_status['modules']
-            shutil.rmtree(os.path.join(self.site_web_root, self._module_dir))
+            module_dir = self.repo_status['modules']
+            shutil.rmtree(os.path.join(self.site_web_root, module_dir))
         if 'themes' in self.repo_status:
             theme_dir = self.repo_status['themes']
             shutil.rmtree(os.path.join(self.site_web_root, theme_dir))

@@ -1,0 +1,17 @@
+core: 7.x
+
+api: 2
+
+defaults:
+  projects:
+    subdir: "contrib"
+
+projects:
+  drupal:
+    version: 7.32
+
+  migrate:
+    version: 2.7
+
+  inline_entity_form:
+    version: 1.5

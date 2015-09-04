@@ -25,7 +25,7 @@ class Setup(object):
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
 
     def build_directory(self):
-        """ Build the base tetsing directory. """
+        """ Build the base testing directory. """
 
         if not os.path.isdir(self.test_dir):
             os.makedirs(self.test_dir)
@@ -36,6 +36,7 @@ class Setup(object):
         files.append(os.path.join(directory, 'report.yaml'))
         files.append(os.path.join(directory, 'report.json'))
         files.append(os.path.join(directory, 'drupdates.debug'))
+        files.append(os.path.join(expanduser('~'), '.drush', 'drupdates.aliases.drushrc.php'))
 
         for file_name in files:
             if os.path.isfile(file_name):
@@ -60,10 +61,9 @@ class Setup(object):
                 make_file_name = "{0}.{1}".format(options['make_file'], options['make_format'])
                 self.copy_make_file(make_file_name, base_directory)
             if options['build']:
+                subfolder = ''
                 if 'subfolder' in options:
                     subfolder = options['subfolder']
-                else:
-                    subfolder = ''
                 path = self.run_drush_make(base_directory, subfolder)
                 if 'commands' in options:
                     os.chdir(path)
@@ -72,6 +72,14 @@ class Setup(object):
                                                  stdout=subprocess.PIPE,
                                                  stderr=subprocess.PIPE)
                         popen.communicate()
+                if 'sites' in options:
+                    for site in options['sites']:
+                        destination = "--contrib-destination=sites/{0}.com".format(site)
+                        add_cmds = [destination, '--no-core']
+                        self.make_file = os.path.join(self.current_dir,
+                                                      'makefiles',
+                                                      "{0}.yaml".format(site))
+                        self.run_drush_make(base_directory, subfolder, add_cmds)
             Setup.make_git_repo(base_directory)
 
     def build_base_directory(self, target_directory):
@@ -87,7 +95,7 @@ class Setup(object):
     def get_make_file(self, drupal_version, make_format):
         """ Get the name and location of Drush Make file to build base repo. """
 
-        makefile = "drupal{0}_drupdates.{1}".format(drupal_version, make_format)
+        makefile = "drupal{0}.{1}".format(drupal_version, make_format)
         self.make_file = os.path.join(self.current_dir, 'makefiles', makefile)
 
     def copy_make_file(self, target_file, target_directory):
@@ -96,13 +104,16 @@ class Setup(object):
         make_file_path = os.path.join(target_directory, target_file)
         shutil.copyfile(self.make_file, make_file_path)
 
-    def run_drush_make(self, target_directory, subfolder):
+    def run_drush_make(self, target_directory, subfolder, add_cmds=None):
         """ Run drush make to build the base repo. """
 
         path = os.path.join(target_directory, subfolder)
         cmds = ['make', self.make_file, path]
-        if os.path.isdir(path):
-            shutil.rmtree(path)
+        if add_cmds and isinstance(add_cmds, list):
+            cmds += add_cmds
+        else:
+            if os.path.isdir(path):
+                shutil.rmtree(path)
         try:
             Drush.call(cmds)
         except DrupdatesError as error:

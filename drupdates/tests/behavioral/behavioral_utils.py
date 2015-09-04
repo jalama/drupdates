@@ -152,3 +152,14 @@ class BehavioralUtils(object):
         data = yaml.load(file_name)
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
         return len(data[build_dir])
+
+    @staticmethod
+    def count_sites_updated(site, working_directory):
+        """ Count the number of sites that were updated in the repo. """
+
+        file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
+        data = yaml.load(file_name)
+        build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
+        count = data[build_dir][site]['Siteupdate']['status'].count('Installed')
+
+        return count

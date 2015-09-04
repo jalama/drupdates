@@ -56,8 +56,6 @@ it's configuration files.  Drupdates will need to store system user names
 and passwords in the $HOME/.drupdates directory.  This will mean that directory
  will need to be locked down.
 
-- Drupdates does not support Drupal's multi-site installs out of the box.
-
 - Any [Make](make.md) file used to build a site will be named the same as the site folder.
 
 - Git is being used to track changes to the Drupal code base

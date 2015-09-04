@@ -2,7 +2,7 @@
 
 /**
 *
-* Build a list of Drsh Aliases based on folders in Drupdate Working Directory.
+* Build a list of Drush Aliases based on folders in Drupdate Working Directory.
 *
 * This script will:
 * - Recurse through the directories
@@ -11,9 +11,9 @@
 * successfully built the site.
 *
 */
-$needles = array('.', '-');
 $aliases = array();
 $dir_handle = new DirectoryIterator('$path');
+$skip_sites = array('all', 'default');
 while($dir_handle->valid()) {
   if($dir_handle->isDir() && !$dir_handle->isDot()) {
     $basename = $dir_handle->getBasename();
@@ -21,11 +21,28 @@ while($dir_handle->valid()) {
     if(strlen('$webroot') > 0) {
       $root .= '/$webroot';
     }
-    if(file_exists($root . '/sites/default/default.settings.php')) {
-      $aliases[$basename] = array(
-        'uri' => 'http://localhost/' . $basename,
-        'root' => $root,
-      );
+    $aliases[$basename] = array(
+      'uri' => 'default',
+      'root' => $root,
+      'db-url' => 'sqlite:/' . $root . '/' . $basename . '.sqlite'
+    );
+    // Multisite aliases.
+    $sites_path = $root . '/sites';
+    if(file_exists($sites_path)) {
+      $sites_handle = new DirectoryIterator($sites_path);
+      while($sites_handle->valid()) {
+        if($sites_handle->isDir() && !$sites_handle->isDot()) {
+          $sites_basename = $sites_handle->getBasename();
+          if(!in_array($sites_basename, $skip)) {
+            $aliases[$basename . '.' . $sites_basename] = array(
+              'uri' => $sites_basename,
+              'root' => $root,
+              'db-url' => 'sqlite:/' . $root . '/' . $sites_basename . '.sqlite',
+            );
+          }
+        }
+        $sites_handle->next();
+      }
     }
   }
   $dir_handle->next();
