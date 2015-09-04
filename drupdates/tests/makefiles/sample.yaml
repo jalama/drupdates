@@ -9,9 +9,9 @@ defaults:
 projects:
   drupal:
     version: 7.32
-    
-  token:
-    version: 1.5
 
-  pathauto:
-    version: 1.1
+  fieldable_panels_panes:
+    version: 1.6
+
+  ctools:
+    version: 1.7

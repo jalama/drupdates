@@ -10,8 +10,8 @@ projects:
   drupal:
     version: 7.32
 
-  entity:
-    version: 1.5
+  migrate:
+    version: 2.7
 
-  wysiwyg:
-    version: 2.1
+  inline_entity_form:
+    version: 1.5

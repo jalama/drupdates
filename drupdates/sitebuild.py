@@ -19,6 +19,7 @@ class Sitebuild(object):
         self.site_dir = os.path.join(working_dir, self._site_name)
         self.ssh = ssh
         self.utilities = Utils()
+        self.si_files = copy.copy(self.settings.get('drushSiFiles'))
 
     def build(self):
         """ Core build method. """
@@ -38,7 +39,6 @@ class Sitebuild(object):
             raise DrupdatesBuildError(20, msg)
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
-        # TODO: Write a Drush method to collect site aliases that start with this site's name
         self.standup_site()
         try:
             repo_status = Drush.call(['st'], self._site_name, True)
@@ -53,7 +53,15 @@ class Sitebuild(object):
         return "Site build for {0} successful".format(self._site_name)
 
     def standup_site(self):
-        """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site."""
+        """ Using the drush core-quick-drupal (qd) command stand-up a Drupal site.
+
+        This will:
+        - Perform site install with sqlite.
+        - If needed, build webroot from a make file.
+        - Install any sub sites (ie multi-sites)
+        - Ensure that all the files in the web root are writable.
+
+        """
         qd_settings = self.settings.get('qdCmds')
         qd_cmds = copy.copy(qd_settings)
         backup_dir = Utils.check_dir(self.settings.get('backupDir'))
@@ -73,21 +81,22 @@ class Sitebuild(object):
                 qd_cmds.remove('--use-existing')
         try:
             Drush.call(qd_cmds, self._site_name)
-            # TODO: when done add file names to self.settings.get('drushSiFiles')
-            # so they get 0o777. This must be done to a copy of the drushSiFiles
-            # setting, otherwise it will carry to all sites in the current workingDir
-            # ex. <webroot>/sites/sample.com/files
-            # ex. <webroot>/sites/sample.com/modules
-            # ex. <webroot>/sites/sample.com/settings.php
+            sub_sites = Drush.get_sub_site_aliases(self._site_name)
+            for alias, data in  sub_sites.items():
+                Drush.call(qd_cmds, alias)
+                # Add sub site settings.php to list of file_cleanup() files.
+                sub_site_st = Drush.call(['st'], alias, True)
+                self.si_files.append(sub_site_st['site'] + '/settings.php')
+                self.si_files.append(sub_site_st['files'] + '/.htaccess')
+                self.si_files.append(sub_site_st['site'])
         except DrupdatesError as standup_error:
             raise standup_error
 
     def file_cleanup(self):
         """ Drush sets the folder permissions for some file to be 0444, convert to 0777. """
-        si_files = self.settings.get('drushSiFiles')
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         site_webroot = drush_dd[0]
-        for name in si_files:
+        for name in self.si_files:
             complete_name = os.path.join(site_webroot, name)
             if os.path.isfile(complete_name) or os.path.isdir(complete_name):
                 try:

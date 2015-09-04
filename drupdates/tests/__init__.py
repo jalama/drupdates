@@ -25,7 +25,7 @@ class Setup(object):
         self.current_dir = os.path.dirname(os.path.realpath(__file__))
 
     def build_directory(self):
-        """ Build the base tetsing directory. """
+        """ Build the base testing directory. """
 
         if not os.path.isdir(self.test_dir):
             os.makedirs(self.test_dir)
