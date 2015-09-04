@@ -153,6 +153,7 @@ class BehavioralUtils(object):
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
         return len(data[build_dir])
 
+    @staticmethod
     def count_sites_updated(site, working_directory):
         """ Count the number of sites that were updated in the repo. """
 
