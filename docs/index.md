@@ -49,7 +49,7 @@ Uninstall
 Assumptions
 ===========
 
-- Only tested on POSIX boxes, sorry no Windows yet.
+- Only [tested](https://travis-ci.org/jalama/drupdates) on POSIX boxes, sorry no Windows yet.
 
 - Drupdates is built assuming you can store passwords for 3rd party systems in
 it's configuration files.  Drupdates will need to store system user names
