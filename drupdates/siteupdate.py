@@ -47,8 +47,8 @@ class Siteupdate(object):
             return report
         try:
             updates = self.run_updates()
-        except DrupdatesError as updates_error:
-            raise updates_error
+        except DrupdatesError as remove_error:
+            raise DrupdatesUpdateError(20, updates_error.msg)
         # If no updates move to the next repo
         if not updates:
             self.commit_hash = ""
