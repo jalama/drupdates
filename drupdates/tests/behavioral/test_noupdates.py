@@ -3,7 +3,7 @@
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestSimple(object):
+class TestNoupdates(object):
     """ Test running Drupdates on one repo. """
 
     @classmethod
@@ -27,7 +27,7 @@ class TestSimple(object):
 
     @staticmethod
     def test_repo_updated():
-        """ Test to ensure the repo was updated. """
+        """ Test to ensure the repo didn't need updated. """
 
         status = "Did not have any updates to apply"
         report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
