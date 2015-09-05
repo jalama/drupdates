@@ -31,10 +31,6 @@ dirs:
     version: 7
     build: true
     make_format: yaml
-  drupal8_base:
-    version: 8
-    build: true
-    make_format: yaml
   drupal7_base_symlinks:
     version: 7
     build: true
@@ -66,3 +62,11 @@ dirs:
     custom_settings:
       commitAuthor:
         value: Drupdates <Drupdates@example.com>
+  drupal7_current:
+    version: 7_current
+    build: true
+    make_format: yaml
+  drupal8_base:
+    version: 8
+    build: true
+    make_format: yaml
