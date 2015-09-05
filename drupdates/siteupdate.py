@@ -130,7 +130,8 @@ class Siteupdate(object):
                 raise updates_error
             else:
                 updates = Siteupdate.read_update_report(updates_ret)
-                updates += sub_updates
+                if updates:
+                    updates += sub_updates
         return updates
 
     @staticmethod
