@@ -31,7 +31,9 @@ class _Settings(object):
         CLI. Settings are loaded in this order:
         - Core settings file, ie drupdates/settings/default.yaml
         - Plugin settings files, ie <plugin dir>/settings/default.yaml
-        - Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.py
+        - Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.yaml
+        - Working Directory settings file, ie <working_directory>/.drupdates/settings.yaml
+        - Site Repo settings file, ie <webroot>/.drupdates/settings.yaml
         - Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
         - Prompts to end user, only if required and no value found above
 

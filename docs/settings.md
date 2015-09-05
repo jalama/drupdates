@@ -14,6 +14,7 @@ Settings are built from either YAML files or options passed when run on CLI.
     -  [Plugin](plugins.md) settings files, ie *plugin dir*/settings/default.yaml
     -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.yaml
     -  Local settings file in a working directory, ie <working directory>/.drupdates/settings.yaml
+    -  Local settings file in a Site Repo, ie <webroot>/.drupdates/settings.yaml
     -  Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
     -  Prompts to end user, only if required and not value found above
 
