@@ -6,7 +6,7 @@
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestMultipleWorkingDirectoriesMultipleSites(object):
+class TestMultipleWorkingDirectoriesOneCustomSettings(object):
     """ Test multiple repos, multiple working directories. """
 
     @classmethod

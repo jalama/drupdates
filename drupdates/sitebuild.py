@@ -39,6 +39,7 @@ class Sitebuild(object):
             raise DrupdatesBuildError(20, msg)
         git_repo = repository.git
         git_repo.checkout('FETCH_HEAD', b=working_branch)
+        self.utilities.load_dir_settings(self.site_dir)
         self.standup_site()
         try:
             repo_status = Drush.call(['st'], self._site_name, True)

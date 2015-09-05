@@ -1,5 +1,5 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, subprocess, shutil
+import requests, os, subprocess, shutil, pip
 try:
     from urlparse import urlparse
 except ImportError:
@@ -64,8 +64,12 @@ class Utils(object):
         """ Find the make file and test to ensure it exists. """
         make_format = self.settings.get('makeFormat')
         make_folder = self.settings.get('makeFolder')
+        file_name = self.settings.get('makeFileName')
         make_file = site_name + '.make'
-        make_file_short = site_name
+        if file_name:
+            make_file_short = file_name
+        else:
+            make_file_short = site_name
         if make_format == 'yaml':
             make_file += '.yaml'
             make_file_short += '.yaml'
@@ -217,7 +221,7 @@ class Utils(object):
             os.remove(dir_delete + '/' + file_name)
         for directory in dcmp.common_dirs:
             shutil.rmtree(dir_delete + '/' + directory)
-            
+
     def write_debug_file(self):
         """ Write debug file for this run.
 
@@ -243,3 +247,9 @@ class Utils(object):
         for name, setting in settings.items():
             line = "{0} : {1}\n".format(name, str(setting['value']))
             debug_file.write(line)
+
+    def load_dir_settings(self, dir):
+        """ Add custom settings for the a given directory. """
+        settings_file = os.path.join(dir, '.drupdates/settings.yaml')
+        if os.path.isfile(settings_file):
+            self.settings.add(settings_file, True)

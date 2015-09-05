@@ -60,26 +60,32 @@ class Setup(object):
             if not options['build'] or 'subfolder' in options:
                 make_file_name = "{0}.{1}".format(options['make_file'], options['make_format'])
                 self.copy_make_file(make_file_name, base_directory)
+                path = base_directory
             if options['build']:
                 subfolder = ''
                 if 'subfolder' in options:
                     subfolder = options['subfolder']
                 path = self.run_drush_make(base_directory, subfolder)
-                if 'commands' in options:
-                    os.chdir(path)
-                    for commands in options['commands']:
-                        popen = subprocess.Popen(commands,
-                                                 stdout=subprocess.PIPE,
-                                                 stderr=subprocess.PIPE)
-                        popen.communicate()
-                if 'sites' in options:
-                    for site in options['sites']:
-                        destination = "--contrib-destination=sites/{0}.com".format(site)
-                        add_cmds = [destination, '--no-core']
-                        self.make_file = os.path.join(self.current_dir,
-                                                      'makefiles',
-                                                      "{0}.yaml".format(site))
-                        self.run_drush_make(base_directory, subfolder, add_cmds)
+            if 'commands' in options:
+                os.chdir(path)
+                for commands in options['commands']:
+                    popen = subprocess.Popen(commands,
+                                             stdout=subprocess.PIPE,
+                                             stderr=subprocess.PIPE)
+                    popen.communicate()
+            if 'sites' in options:
+                for site in options['sites']:
+                    destination = "--contrib-destination=sites/{0}.com".format(site)
+                    add_cmds = [destination, '--no-core']
+                    self.make_file = os.path.join(self.current_dir,
+                                                  'makefiles',
+                                                  "{0}.yaml".format(site))
+                    self.run_drush_make(base_directory, subfolder, add_cmds)
+            if 'custom_settings' in options:
+                settings_file_directory = os.path.join(path, '.drupdates')
+                settings_file = "{0}/settings.yaml".format(settings_file_directory)
+                with open(settings_file, 'w') as outfile:
+                    outfile.write(yaml.dump(options['custom_settings'], default_flow_style=False))
             Setup.make_git_repo(base_directory)
 
     def build_base_directory(self, target_directory):

@@ -134,6 +134,8 @@ class BehavioralUtils(object):
         results = popen.communicate()
         return results
 
+    """ The following methods are used by test modules to analyze results."""
+
     @staticmethod
     def check_repo_updated(site, working_directory):
         """ Given a repo number check if it was updated. """
@@ -163,3 +165,14 @@ class BehavioralUtils(object):
         count = data[build_dir][site]['Siteupdate']['status'].count('Installed')
 
         return count
+
+    @staticmethod
+    def get_dev_commit(site, working_directory):
+        """ Return a git commit object. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        working_dir = os.path.join(expanduser('~'), '.drupdates', working_directory)
+        folder = os.path.join(working_dir, settings['repoDict']['value'][site])
+        repo = Repo(folder)
+        return repo.heads.dev.commit

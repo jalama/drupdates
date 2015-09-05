@@ -113,6 +113,9 @@ useMakeFile:
   value: ""
   prompt: Build the site using a make file (note the make file will be updated)
   requires: webrootDir
+makeFileName:
+  value: ""
+  prompt: What is the name of the make file, do not include extensions
 makeFormat:
   value: make
   prompt: What format and file extension will the make file be (ie .make or .yaml) (default make)

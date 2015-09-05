@@ -1,0 +1,17 @@
+# Test successful if Drupdates runs and one site is updated.
+working_dirs:
+  builds:
+    dir: builds
+repo_dirs:
+  drupal:
+    base: drupal7_custom_settings
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml

@@ -11,6 +11,22 @@ dirs:
     make_file: dmake_webroot
     make_format: make
     subfolder: webroot
+  dmake_custom_settings:
+    version: 7
+    build: false
+    make_file: dmake
+    make_format: yaml
+    commands:
+      -
+        - mkdir
+        - .drupdates
+      -
+        - mv
+        - dmake.yaml
+        - drupdates.yaml
+    custom_settings:
+      makeFileName:
+        value: drupdates
   drupal7_base:
     version: 7
     build: true
@@ -39,3 +55,14 @@ dirs:
     sites:
       - sample
       - sample2
+  drupal7_custom_settings:
+    version: 7
+    build: true
+    make_format: yaml
+    commands:
+      -
+        - mkdir
+        - .drupdates
+    custom_settings:
+      commitAuthor:
+        value: Drupdates <Drupdates@example.com>
