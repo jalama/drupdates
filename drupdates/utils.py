@@ -247,3 +247,9 @@ class Utils(object):
         for name, setting in settings.items():
             line = "{0} : {1}\n".format(name, str(setting['value']))
             debug_file.write(line)
+
+    def load_dir_settings(self, dir):
+        """ Add custom settings for the a given directory. """
+        settings_file = os.path.join(dir, '.drupdates/settings.yaml')
+        if os.path.isfile(settings_file):
+            self.settings.add(settings_file, True)

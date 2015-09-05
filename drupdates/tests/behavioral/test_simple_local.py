@@ -1,26 +1,25 @@
-""" Test running Drupdates on one repo. """
-import os, yaml
-from git import Repo
-from os.path import expanduser
+""" Test running Drupdates on one repo with local settings file. """
+
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestCustomWorkingSettings(object):
-    """ Test on one repo with custom settings file. """
+class TestSimpleLocal(object):
+    """ Test running Drupdates on one repo with local settings file. """
 
     @classmethod
     def setup_class(cls):
-        """ Setup the test class. """
+        """ Setup test class. """
         utils = BehavioralUtils()
         utils.build(__file__)
 
     def __init__(self):
         base = Setup()
         self.test_directory = base.test_dir
+        self.utils = BehavioralUtils()
 
     @staticmethod
     def test_repo_built():
-        """ Test to ensure one repos built successfully. """
+        """ Test to ensure one repo built successfully. """
 
         count = BehavioralUtils.count_repos_updated('builds')
         # If 1 repo Siteupdates in report repo built successfully.
