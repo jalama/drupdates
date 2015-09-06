@@ -66,6 +66,13 @@ dirs:
     version: 7_current
     build: true
     make_format: yaml
+  drupal7_current_multisites:
+    version: 7_current
+    build: true
+    make_format: yaml
+    sites:
+      - sample
+      - sample2
   drupal8_base:
     version: 8
     build: true
