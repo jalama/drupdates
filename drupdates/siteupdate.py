@@ -119,19 +119,20 @@ class Siteupdate(object):
                 self.utilities.make_site(self._site_name, self.site_dir)
         else:
             up_cmds = self.settings.get('upCmds')
+            sites_to_update = []
+            sites_to_update.append(self._site_name)
+            for alias, data in self.sub_sites.items():
+                sites_to_update.append(alias)
             try:
-                updates_ret = Drush.call(up_cmds, self._site_name)
-                sub_updates = []
-                for alias, data in self.sub_sites.items():
-                    sub_updates += alias
-                    sub_ret = Drush.call(up_cmds, alias)
-                    sub_updates += Siteupdate.read_update_report(sub_ret)
+                for site in sites_to_update:
+                    updates_ret = Drush.call(up_cmds, site)
+                    updates_report = Siteupdate.read_update_report(updates_ret)
+                    if updates_report and isinstance(updates, list):
+                        updates += updates_report
+                    elif updates_report:
+                        updates = updates_report
             except DrupdatesError as updates_error:
                 raise updates_error
-            else:
-                updates = Siteupdate.read_update_report(updates_ret)
-                if updates:
-                    updates += sub_updates
         return updates
 
     @staticmethod
