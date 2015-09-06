@@ -1,5 +1,5 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, subprocess, shutil, pip
+import requests, os, subprocess, shutil, pip, sys
 try:
     from urlparse import urlparse
 except ImportError:
@@ -236,6 +236,20 @@ class Utils(object):
         debug_file.write("Python Version:\n")
         python_version = "{0}\n\n".format(sys.version)
         debug_file.write(python_version)
+        # Get version data for system dependancies
+        dependancies = ['sqlite3', 'drush', 'git', 'php']
+        for dependancy in dependancies:
+            commands = [dependancy, '--version']
+            popen = subprocess.Popen(commands,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            results = popen.communicate()
+            if popen.returncode != 0:
+                stdout = "Check returned error."
+            else:
+                stdout = results[0]
+            debug_file.write("{0} Version:\n".format(dependancy.title()))
+            debug_file.write("{0}\n".format(stdout.decode()))
         installed_packages = pip.get_installed_distributions()
         if len(installed_packages):
             debug_file.write("Installed Packages:\n\n")
