@@ -66,7 +66,11 @@ class Updates(object):
                     break
                 else:
                     continue
-        reporting = Reports()
+        try:
+            reporting = Reports()
+        except DrupdatesError as reports_error:
+            print "Reporting error: \n {0}".format(reports_error.msg)
+            sys.exit(1)
         reporting.send(report)
 
     def update_sites(self, working_dir):

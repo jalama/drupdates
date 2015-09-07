@@ -9,10 +9,9 @@ class Reports(Plugin):
     def __init__(self):
         # load the Plugin _plugins property
         Plugin.__init__(self)
-        plugins = self._plugins
         self.settings = Settings()
         tool = self.settings.get('reportingTool').title()
-        self._plugin = self.load_plugin(plugins[tool])
+        self._plugin = Plugin.load_plugin(tool)
         class_ = getattr(self._plugin, tool)
         self._instance = class_()
 

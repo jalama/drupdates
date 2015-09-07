@@ -9,10 +9,9 @@ class Repos(Plugin):
     def __init__(self):
         # load the Plugin _plugins property
         Plugin.__init__(self)
-        plugins = self._plugins
         self.settings = Settings()
         tool = self.settings.get('gitRepoName').title()
-        self._plugin = self.load_plugin(plugins[tool])
+        self._plugin = self.load_plugin(tool)
         class_ = getattr(self._plugin, tool)
         self._instance = class_()
 
@@ -28,6 +27,3 @@ class Repotool(object):
     def git_repos(self):
         """ Abstract Method to get repo list. """
         pass
-
-
-
