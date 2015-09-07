@@ -10,11 +10,8 @@ class Plugin(object):
     http://lkubuntu.wordpress.com/2012/10/02/writing-a-python-plugin-api/
     """
 
-    def __init__(self):
-        self._main_module = "__init__"
-        self._plugins = self.get_plugins()
-
-    def get_plugins(self):
+    @staticmethod
+    def get_plugins():
         """ Collect Plugins from the plugins folder. """
         plugin_folders = []
         plugin_folders.append(os.path.dirname(os.path.realpath(__file__)) + "/plugins")
@@ -26,17 +23,19 @@ class Plugin(object):
             possibleplugins = os.listdir(plugin_folder)
             for i in possibleplugins:
                 location = os.path.join(plugin_folder, i)
-                if not os.path.isdir(location) or not self._main_module + ".py" in os.listdir(location):
+                if not os.path.isdir(location) or not "__init__.py" in os.listdir(location):
                     continue
-                info = imp.find_module(self._main_module, [location])
+                info = imp.find_module("__init__", [location])
                 plugins[i] = ({"name": i, "info": info})
         return plugins
 
-    def load_plugin(self, plugin_name):
+    @staticmethod
+    def load_plugin(plugin_name):
         """ Load an individual plugin. """
+        plugins = Plugin.get_plugins()
         try:
-            plugin = self._plugins[plugin_name]
+            plugin = plugins[plugin_name]
         except KeyError as error:
             msg = "Unable to find plugin {0}, ensure it exists".format(error)
             raise DrupdatesError(30, msg)
-        return imp.load_module(self._main_module, *plugin["info"])
+        return imp.load_module("__init__", *plugin["info"])

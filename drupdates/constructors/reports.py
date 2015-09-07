@@ -8,7 +8,6 @@ class Reports(Plugin):
 
     def __init__(self):
         # load the Plugin _plugins property
-        Plugin.__init__(self)
         self.settings = Settings()
         tool = self.settings.get('reportingTool').title()
         self._plugin = Plugin.load_plugin(tool)
