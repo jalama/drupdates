@@ -69,7 +69,7 @@ class Updates(object):
         try:
             reporting = Reports()
         except DrupdatesError as reports_error:
-            print "Reporting error: \n {0}".format(reports_error.msg)
+            print("Reporting error: \n {0}".format(reports_error.msg))
             sys.exit(1)
         reporting.send(report)
 
