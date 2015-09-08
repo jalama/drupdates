@@ -4,3 +4,4 @@ recursive-include drupdates/templates *.template
 recursive-include drupdates/settings *.yaml
 recursive-include drupdates/constructors *.py
 recursive-include drupdates/tests/behavioral *.py
+recursive-include drupdates/tests/unit *.py
