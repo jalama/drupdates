@@ -41,10 +41,18 @@ class TestPlugins(object):
 
 
     def test_nonexistant_plugin(self):
-        """ Test non-existant plugin. """
+        """ Test non-existent plugin. """
         plugin_name = 'Goblue'
         try:
             plugins = Plugin.load_plugin(plugin_name)
         except DrupdatesError as plugin_error:
-            message = "Unable to find plugin '{0}', ensure it exists".format(plugin_name)
+            message = "Unable to find plugin {0}, ensure it exists".format(plugin_name)
             assert plugin_error.msg == message
+
+    def test_remote_plugin(self):
+        """ Test that Plugins can be downloaded from Drupdates on GitHub. """
+        plugin_name = 'Slack'
+        Plugin.download_plugin(plugin_name)
+        target = os.path.join(expanduser('~'), '.drupdates', 'plugins', plugin_name)
+        plugins = Plugin.get_plugins()
+        assert plugins[plugin_name]['info'][1] == os.path.join(target, '__init__.py')
