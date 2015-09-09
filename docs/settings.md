@@ -59,6 +59,9 @@ setting:
 - *Basic Settings:* use a manual repo list, submit deployment ticket to AtTask, print report to the terminal screen:
     - [Basic Settings Gist](https://gist.github.com/jalama/c14c3e8880f7274dbb90)
 
+- *Simple Settings commiting to feature branch:*  Commit changes to a feature branch in remote repo.
+    - [Feature Branch settings](https://gist.github.com/jalama/dcc50959a4672e00144a)
+
 - *Basic Make file Settings:* use a make file to build the site,
 manual repo list, submit a deployment ticket to AtTask,
 print report to the terminal screen:

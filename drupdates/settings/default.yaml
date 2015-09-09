@@ -64,6 +64,13 @@ commonIgnore:
   prompt: What files and folders that ship with core are unique to local install (separate with spaces)
 ignoreCustomModules:
   value: True
+  prompt: Ignore the custom folder under modules
+useFeatureBranch:
+  value: False
+  prompt: Use a feature branch in remote repo in lieu of pushing to working branch
+featureBranchName:
+  value: ""
+  prompt: Specify a feature branch name, defaults to "drupdates-<timestamp>"
 # Project Management Settings
 submitDeployTicket:
   value: False

@@ -6,7 +6,7 @@ To get started with Drupdates you will need to install the script using the inst
 - Build the $HOME/.drupdates folder, note: there is a period before the word "drupdates"
 - Copy a sample settings.yaml file to $HOME/.drupdates
 
-For Example (this is what you will have):
+For example (this is what you will have):
 $HOME/.drupdates/settings.yaml
 
 After the first run you will need to configure the [settings](settings.md) using a local settings file.
