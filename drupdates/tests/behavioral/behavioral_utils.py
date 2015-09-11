@@ -176,3 +176,14 @@ class BehavioralUtils(object):
         folder = os.path.join(working_dir, settings['repoDict']['value'][site])
         repo = Repo(folder)
         return repo.heads.dev.commit
+
+    @staticmethod
+    def get_drupdates_commit(site, working_directory):
+        """ Return a git commit object. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        working_dir = os.path.join(expanduser('~'), '.drupdates', working_directory)
+        folder = os.path.join(working_dir, settings['repoDict']['value'][site])
+        repo = Repo(folder)
+        return repo.heads.drupdates.commit

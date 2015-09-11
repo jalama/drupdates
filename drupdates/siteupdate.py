@@ -1,5 +1,5 @@
 """ Module handles the heavy lifting, building the various site directories. """
-import git, shutil, os, yaml, tempfile, distutils.core
+import git, shutil, os, yaml, tempfile, distutils.core, datetime
 from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
@@ -226,13 +226,23 @@ class Siteupdate(object):
             git_repo.rm(filepath)
         # Commit all the changes.
         commit_author = self.settings.get('commitAuthor')
+        if self.settings.get('useFeatureBranch'):
+            if self.settings.get('featureBranchName'):
+                branch_name = self.settings.get('featureBranchName')
+            else:
+                ts = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+                branch_name = "drupdates-{0}".format(ts)
+            git_repo.checkout(self.working_branch, b=branch_name)
+        else:
+            branch_name  = self.settings.get('workingBranch')
+            git_repo.checkout(self.working_branch)
         git_repo.commit(m=msg, author=commit_author)
         # Save the commit hash for the Drupdates report to use.
         heads = repository.heads
-        branch = heads[self.settings.get('workingBranch')]
+        branch = heads[branch_name]
         self.commit_hash = branch.commit
         # Push the changes to the origin repo.
-        git_repo.push(self._site_name, self.working_branch)
+        git_repo.push(self._site_name, branch_name)
 
     def rebuild_web_root(self):
         """ Rebuild the web root folder completely after running pm-update.
