@@ -232,9 +232,10 @@ class Siteupdate(object):
             else:
                 ts = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
                 branch_name = "drupdates-{0}".format(ts)
+            git_repo.checkout(self.working_branch, b=branch_name)
         else:
             branch_name  = self.settings.get('workingBranch')
-        git_repo.checkout(self.working_branch, b=branch_name)
+            git_repo.checkout(self.working_branch)
         git_repo.commit(m=msg, author=commit_author)
         # Save the commit hash for the Drupdates report to use.
         heads = repository.heads
