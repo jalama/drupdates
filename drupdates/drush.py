@@ -61,5 +61,5 @@ class Drush(object):
             if base_dir and alias.split('.')[1] != base_dir:
                 continue
             if data['uri'] != 'default' and data['uri'] != 'all':
-                aliases[alias[10:]] = data
+                aliases[str(alias[10:])] = data
         return aliases

@@ -1,11 +1,12 @@
 """ Module handles the heavy lifting, building the various site directories. """
-import git, shutil, os, yaml, tempfile, distutils.core, datetime
+import git, shutil, os, yaml, tempfile, distutils.core, datetime, time, copy
 from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
 from drupdates.constructors.pmtools import Pmtools
 from git import Repo
+from git import Actor
 
 class DrupdatesUpdateError(DrupdatesError):
     """ Parent Drupdates site update error. """
@@ -54,7 +55,6 @@ class Siteupdate(object):
             self.commit_hash = ""
             report['status'] = "Did not have any updates to apply"
             return report
-        msg = '\n'.join(updates)
         # Call Drush.call() without site alias as alias comes after dd argument.
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         self.site_web_root = drush_dd[0]
@@ -73,9 +73,10 @@ class Siteupdate(object):
         drush_path = os.path.join(self.site_web_root, 'drush')
         if os.path.isdir(drush_path):
             self.utilities.remove_dir(drush_path)
-
-        self.git_changes(msg)
-        report['status'] = "The following updates were applied \n {0}".format(msg)
+        # Apply changes to the repo's version control system.
+        self.git_changes(updates)
+        report['status'] = "The following updates were applied"
+        report['updates'] = updates
         report['commit'] = "The commit hash is {0}".format(self.commit_hash)
         self.utilities.sys_commands(self, 'postUpdateCmds')
         if self.settings.get('submitDeployTicket') and self.commit_hash:
@@ -91,16 +92,25 @@ class Siteupdate(object):
     def run_updates(self):
         """ Run the site updates.
 
-        The updates are done either by downloading the updates, updating the make
-        file or both.
+        The updates are done either by downloading the updates, updating the
+        make file or both.
+
+        - First, run drush pm-updatestatus to get a list of eligible updates for
+        the site/sub-sites.
+        - Second, build the report to return to Updates().
+        - Third, apply the updates.
 
         """
-        updates = False
-        if self.settings.get('useMakeFile'):
-            ups_cmds = self.settings.get('upsCmds')
-            updates_ret = {}
+        ups_cmds = self.settings.get('upsCmds')
+        updates_ret = {}
+        updates = {}
+        sites_to_update = []
+        sites_to_update.append(self._site_name)
+        for alias, data in self.sub_sites.items():
+            sites_to_update.append(alias)
+        for site in sites_to_update:
             try:
-                updates_ret = Drush.call(ups_cmds, self._site_name, True)
+                updates_ret = Drush.call(ups_cmds, site, True)
             except DrupdatesError as updates_error:
                 parse_error = updates_error.msg.split('\n')
                 if parse_error[2].strip() == "Drush message:":
@@ -108,46 +118,30 @@ class Siteupdate(object):
                 else:
                     raise updates_error
             else:
-                updates = []
+                # Parse the results of drush pm-updatestatus
+                updates[site] = []
+                modules = []
                 for module, update in updates_ret.items():
+                    modules.append(module)
                     api = update['api_version']
                     current = update['existing_version'].replace(api + '-', '')
                     candidate = update['candidate_version'].replace(api + '-', '')
-                    self.update_make_file(module, current, candidate)
-                    updates.append("Update {0} from {1} to {2}".format(module, current, candidate))
-            if not self.settings.get('buildSource') == 'make':
-                self.utilities.make_site(self._site_name, self.site_dir)
-        else:
-            up_cmds = self.settings.get('upCmds')
-            sites_to_update = []
-            sites_to_update.append(self._site_name)
-            for alias, data in self.sub_sites.items():
-                sites_to_update.append(alias)
-            try:
-                for site in sites_to_update:
-                    updates_ret = Drush.call(up_cmds, site)
-                    updates_report = Siteupdate.read_update_report(updates_ret)
-                    if updates_report and isinstance(updates, list):
-                        updates += updates_report
-                    elif updates_report:
-                        updates = updates_report
-            except DrupdatesError as updates_error:
-                raise updates_error
-        return updates
-
-    @staticmethod
-    def read_update_report(lst):
-        """ Read the report produced the the Drush pm-update command. """
-        updates = []
-        for line in lst:
-            # build list of updates, when you hit a blank line you are done
-            # note: if there are no updates the first line will be blank
-            if line:
-                updates.append(line)
-            else:
-                break
-        if len(updates) <= 1:
-            updates = False
+                    report_txt = "Update {0} from {1} to {2}".format(module.title(),
+                                                                     current,
+                                                                     candidate)
+                    updates[site].append(report_txt)
+                    if self.settings.get('useMakeFile'):
+                        self.update_make_file(module, current, candidate)
+                # Run drush make or Drush pm-update.
+                if len(modules) and not self.settings.get('buildSource') == 'make':
+                    self.utilities.make_site(self._site_name, self.site_dir)
+                elif len(modules):
+                    up_cmds = copy.copy(self.settings.get('upCmds'))
+                    up_cmds.append(" ".join(modules))
+                    try:
+                        updates_ret = Drush.call(up_cmds, site)
+                    except DrupdatesError as updates_error:
+                        raise updates_error
         return updates
 
     def update_make_file(self, module, current, candidate):
@@ -179,7 +173,7 @@ class Siteupdate(object):
             openfile = open(make_file, 'w')
             yaml.dump(makef, openfile, default_flow_style=False)
 
-    def git_changes(self, msg):
+    def git_changes(self, updates):
         """ add/remove changed files.
 
         notes:
@@ -225,18 +219,22 @@ class Siteupdate(object):
         for filepath in deleted.split():
             git_repo.rm(filepath)
         # Commit all the changes.
-        commit_author = self.settings.get('commitAuthor')
         if self.settings.get('useFeatureBranch'):
             if self.settings.get('featureBranchName'):
                 branch_name = self.settings.get('featureBranchName')
             else:
-                ts = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-                branch_name = "drupdates-{0}".format(ts)
+                ts = time.time()
+                stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+                branch_name = "drupdates-{0}".format(stamp)
             git_repo.checkout(self.working_branch, b=branch_name)
         else:
             branch_name  = self.settings.get('workingBranch')
             git_repo.checkout(self.working_branch)
-        git_repo.commit(m=msg, author=commit_author)
+        msg = ''
+        for site, update in updates.items():
+            msg += "\n{0} \n {1}".format(site, '\n'.join(update))
+        commit_author = Actor(self.settings.get('commitAuthorName'), self.settings.get('commitAuthorEmail'))
+        repository.index.commit(message=msg, author=commit_author)
         # Save the commit hash for the Drupdates report to use.
         heads = repository.heads
         branch = heads[branch_name]

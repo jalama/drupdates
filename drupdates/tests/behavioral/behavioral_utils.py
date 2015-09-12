@@ -143,7 +143,7 @@ class BehavioralUtils(object):
         file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
         data = yaml.load(file_name)
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
-        result = data[build_dir][site]['Siteupdate']['status'][0:35].strip()
+        result = data[build_dir][site]['Siteupdate']['status']
         return result
 
     @staticmethod
@@ -162,8 +162,7 @@ class BehavioralUtils(object):
         file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
         data = yaml.load(file_name)
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
-        count = data[build_dir][site]['Siteupdate']['status'].count('Installed')
-
+        count = len(data[build_dir][site]['Siteupdate']['updates'])
         return count
 
     @staticmethod

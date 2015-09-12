@@ -52,9 +52,12 @@ drushSiFiles:
     - sites/default/default.services.yml
     - sites/default/services.yml
   prompt: What files will drush si set to file mode 0444
-commitAuthor:
-  value: Security Updates <updates@drupdates.org>
-  prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
+commitAuthorName:
+  value: Security Updates
+  prompt: What user name should be used for commit messages (ex. Security Update)
+commitAuthorEmail:
+  value: updates@drupdates.org
+  prompt: What email should be used for commit messages (ex. updates@example.com)
 commonIgnore:
   value:
     - .htaccess
