@@ -60,8 +60,10 @@ dirs:
         - mkdir
         - .drupdates
     custom_settings:
-      commitAuthor:
-        value: Drupdates <Drupdates@example.com>
+      commitAuthorName:
+        value: Drupdates
+      commitAuthorEmail:
+        value: Drupdates@example.com
   drupal7_current:
     version: 7_current
     build: true

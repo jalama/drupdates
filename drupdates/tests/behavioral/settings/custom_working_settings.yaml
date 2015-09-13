@@ -3,8 +3,10 @@ working_dirs:
   builds:
     dir: builds
     custom_settings:
-      commitAuthor:
-        value: Drupdates <Drupdates@example.com>
+      commitAuthorName:
+        value: Drupdates
+      commitAuthorEmail:
+        value: Drupdates@example.com
 repo_dirs:
   drupal:
     base: drupal7_base

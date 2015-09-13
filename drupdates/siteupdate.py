@@ -113,8 +113,9 @@ class Siteupdate(object):
                 updates_ret = Drush.call(ups_cmds, site, True)
             except DrupdatesError as updates_error:
                 parse_error = updates_error.msg.split('\n')
-                if parse_error[2].strip() == "Drush message:":
-                    updates = []
+                if parse_error[2][0:14] == "Drush message:":
+                    # If there are not updates to apply.
+                    continue
                 else:
                     raise updates_error
             else:

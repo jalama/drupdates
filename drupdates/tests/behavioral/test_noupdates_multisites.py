@@ -35,7 +35,7 @@ class TestNoupdatesMultisites(object):
 
     @staticmethod
     def test_count_total_sites_updated():
-        """ Count to ensure 3 sites has updates installed. """
+        """ Count to ensure 2 sites has updates installed. """
 
         count = BehavioralUtils.count_sites_updated('drupal', 'builds')
         assert count == 2
