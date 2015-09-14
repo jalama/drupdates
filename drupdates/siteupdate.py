@@ -40,12 +40,7 @@ class Siteupdate(object):
         """ Set-up to and run Drush update(s) (i.e. up or ups). """
         report = {}
         self.utilities.sys_commands(self, 'preUpdateCmds')
-        st_cmds = ['st']
-        self.repo_status = Drush.call(st_cmds, self._site_name, True)
-        if not isinstance(self.repo_status, dict):
-            msg = "Repo {0} failed call to drush status during update".format(self._site_name)
-            report['status'] = msg
-            return report
+        self.repo_status = Drush.call(['st'], self._site_name, True)
         try:
             updates = self.run_updates()
         except DrupdatesError as updates_error:
