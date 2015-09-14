@@ -58,21 +58,7 @@ class Siteupdate(object):
         # Call Drush.call() without site alias as alias comes after dd argument.
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         self.site_web_root = drush_dd[0]
-        use_make_file = self.settings.get('useMakeFile')
-        if self.settings.get('buildSource') == 'make' and use_make_file:
-            shutil.rmtree(self.site_web_root)
-        else:
-            rebuilt = self.rebuild_web_root()
-            if not rebuilt:
-                report['status'] = "The webroot re-build failed."
-                if use_make_file:
-                    make_err = " Ensure the make file format is correct "
-                    make_err += "and Drush make didn't fail on a bad patch."
-                    report['status'] += make_err
-                return report
-        drush_path = os.path.join(self.site_web_root, 'drush')
-        if os.path.isdir(drush_path):
-            self.utilities.remove_dir(drush_path)
+        self.clean_up_web_root()
         # Apply changes to the repo's version control system.
         self.git_changes(updates)
         report['status'] = "The following updates were applied"
@@ -190,15 +176,6 @@ class Siteupdate(object):
                 git_repo.checkout(os.path.join(self.site_web_root, ignore_file))
             except git.exc.GitCommandError:
                 pass
-        try:
-            # Remove all .sqlite files
-            os.remove(self.repo_status['db-name'])
-            for alias, data in self.sub_sites.items():
-                db_file = data['databases']['default']['default']['database']
-                if os.path.isfile(db_file):
-                    os.remove(db_file)
-        except OSError:
-            pass
         if self.repo_status['modules'] and self.settings.get('ignoreCustomModules'):
             custom_module_dir = os.path.join(self.site_web_root,
                                              self.repo_status['modules'], 'custom')
@@ -243,8 +220,38 @@ class Siteupdate(object):
         # Push the changes to the origin repo.
         git_repo.push(self._site_name, branch_name)
 
+    def clean_up_web_root(self):
+        """ Clean-up artifacts from drush pm-update/core-quick-drupal. """
+        use_make_file = self.settings.get('useMakeFile')
+        if self.settings.get('buildSource') == 'make' and use_make_file:
+            # Remove web root folder if repo only ships a make file.
+            shutil.rmtree(self.site_web_root)
+        else:
+            rebuilt = self.rebuild_web_root()
+            if not rebuilt:
+                report['status'] = "The webroot re-build failed."
+                if use_make_file:
+                    make_err = " Ensure the make file format is correct "
+                    make_err += "and Drush make didn't fail on a bad patch."
+                    report['status'] += make_err
+                return report
+        # Remove <webroot>/drush folder
+        drush_path = os.path.join(self.site_web_root, 'drush')
+        if os.path.isdir(drush_path):
+            self.utilities.remove_dir(drush_path)
+        try:
+            # Remove all .sqlite files
+            os.remove(self.repo_status['db-name'])
+            for alias, data in self.sub_sites.items():
+                db_file = data['databases']['default']['default']['database']
+                if os.path.isfile(db_file):
+                    os.remove(db_file)
+        except OSError:
+            pass
+
     def rebuild_web_root(self):
         """ Rebuild the web root folder completely after running pm-update.
+
         Drush pm-update of Drupal Core deletes the .git folder therefore need to
         move the updated folder to a temp dir and re-build the webroot folder.
         """
