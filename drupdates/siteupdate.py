@@ -131,6 +131,39 @@ class Siteupdate(object):
                         raise updates_error
         return updates
 
+    def get_sites_to_update(self):
+        """ Build dictionary of sites/sub-sites and modules needing updated. """
+        ups_cmds = self.settings.get('upsCmds')
+        updates_ret = {}
+        sites = {}
+        sites[self._site_name] = {}
+        for alias, data in self.sub_sites.items():
+            sites[alias] = {}
+        for site in sites:
+            try:
+                updates_ret = Drush.call(ups_cmds, site, True)
+            except DrupdatesError as updates_error:
+                parse_error = updates_error.msg.split('\n')
+                if parse_error[2][0:14] == "Drush message:":
+                    # If there are not updates to apply.
+                    continue
+                else:
+                    raise updates_error
+            else:
+                # Parse the results of drush pm-updatestatus
+                modules = {}
+                for module, update in updates_ret.items():
+                    modules[module] = {}
+                    api = update['api_version']
+                    modules[module]['current'] = update['existing_version'].replace(api + '-', '')
+                    modules[module]['candidate'] = update['candidate_version'].replace(api + '-', '')
+                    msg = "Update {0} from {1} to {2}"
+                    modules[module]['report_txt'] = msg.format(module.title(),
+                                                               modules[module]['current'],
+                                                               modules[module]['candidate'])
+                    sites[site]['modules'] = modules
+        return sites
+
     def update_make_file(self, module, current, candidate):
         """ Update the make file.
 
