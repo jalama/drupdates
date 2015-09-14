@@ -131,6 +131,7 @@ class Siteupdate(object):
         ups_cmds = self.settings.get('upsCmds')
         updates_ret = {}
         sites = {}
+        sites['count'] = 0
         sites[self._site_name] = {}
         for alias, data in self.sub_sites.items():
             sites[alias] = {}
@@ -146,6 +147,7 @@ class Siteupdate(object):
                     raise updates_error
             else:
                 # Parse the results of drush pm-updatestatus
+                sites['count'] += len(updates_ret)
                 modules = {}
                 for module, update in updates_ret.items():
                     modules[module] = {}
