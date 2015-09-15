@@ -191,6 +191,7 @@ class Siteupdate(object):
             yaml.dump(makef, openfile, default_flow_style=False)
 
     def git_changes(self, updates):
+    def _git_changes(self, updates):
         """ add/remove changed files.
 
         notes:
@@ -199,33 +200,32 @@ class Siteupdate(object):
 
         """
         os.chdir(self.site_dir)
-        repository = Repo(self.site_dir)
-        git_repo = repository.git
+        repo = Repo(self.site_dir)
         for ignore_file in self.settings.get('commonIgnore'):
             try:
-                git_repo.checkout(os.path.join(self.site_web_root, ignore_file))
+                repo.git.checkout(os.path.join(self.site_web_root, ignore_file))
             except git.exc.GitCommandError:
                 pass
         if self.repo_status['modules'] and self.settings.get('ignoreCustomModules'):
             custom_module_dir = os.path.join(self.site_web_root,
                                              self.repo_status['modules'], 'custom')
             try:
-                git_repo.checkout(custom_module_dir)
+                repo.git.checkout(custom_module_dir)
             except git.exc.GitCommandError:
                 pass
         # Instruct Git to ignore file mode changes.
-        cwriter = repository.config_writer('global')
+        cwriter = repo.config_writer('global')
         cwriter.set_value('core', 'fileMode', 'false')
         cwriter.release()
         # Add new/changed files to Git's index
         try:
-            git_repo.add('./')
+            repo.git.add('--all')
         except DrupdatesError as git_add_error:
             raise git_add_error
         # Remove deleted files from Git's index.
-        deleted = git_repo.ls_files('--deleted')
+        deleted = repo.git.ls_files('--deleted')
         for filepath in deleted.split():
-            git_repo.rm(filepath)
+            repo.git.rm(filepath)
         # Commit all the changes.
         if self.settings.get('useFeatureBranch'):
             if self.settings.get('featureBranchName'):
@@ -234,21 +234,21 @@ class Siteupdate(object):
                 ts = time.time()
                 stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
                 branch_name = "drupdates-{0}".format(stamp)
-            git_repo.checkout(self.working_branch, b=branch_name)
+            repo.git.checkout(self.working_branch, b=branch_name)
         else:
             branch_name  = self.settings.get('workingBranch')
-            git_repo.checkout(self.working_branch)
+            repo.git.checkout(self.working_branch)
         msg = ''
         for site, update in updates.items():
             msg += "\n{0} \n {1}".format(site, '\n'.join(update))
         commit_author = Actor(self.settings.get('commitAuthorName'), self.settings.get('commitAuthorEmail'))
-        repository.index.commit(message=msg, author=commit_author)
+        repo.index.commit(message=msg, author=commit_author)
         # Save the commit hash for the Drupdates report to use.
-        heads = repository.heads
+        heads = repo.heads
         branch = heads[branch_name]
         self.commit_hash = branch.commit
         # Push the changes to the origin repo.
-        git_repo.push(self._site_name, branch_name)
+        repo.git.push(self._site_name, branch_name)
 
     def clean_up_web_root(self):
         """ Clean-up artifacts from drush pm-update/core-quick-drupal. """
