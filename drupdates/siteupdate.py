@@ -196,7 +196,6 @@ class Siteupdate(object):
 
         notes:
         - Will ignore file mode changes and anything in the commonIgnore setting.
-        - Will attempt to ignore any sqlite databases left behind
 
         """
         os.chdir(self.site_dir)
@@ -270,7 +269,7 @@ class Siteupdate(object):
         if os.path.isdir(drush_path):
             self.utilities.remove_dir(drush_path)
         try:
-            # Remove all .sqlite files
+            # Remove all SQLite files
             os.remove(self.repo_status['db-name'])
             for alias, data in self.sub_sites.items():
                 db_file = data['databases']['default']['default']['database']
