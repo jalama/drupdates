@@ -74,6 +74,9 @@ useFeatureBranch:
 featureBranchName:
   value: ""
   prompt: Specify a feature branch name, defaults to "drupdates-<timestamp>"
+oneCommitPerProject:
+  value: ""
+  prompt: Perform a single commit per project (ie module, theme, core) updated
 # Project Management Settings
 submitDeployTicket:
   value: False
@@ -90,25 +93,25 @@ targetDate:
 # Drush related settings
 # Note: this is one of the more important settings regarding Drupates behavior
 # change it only if you understand its implications regarding how the
-# Drush pm-update (up) command will behave.
+# Drush pm-updatecode (upc) command will behave.
+# Note: do not use pm-update (up)!!!
 upCmds:
   value:
-    - upc
+    - pm-updatecode
     - -y
-    - --security-only
     - --check-disabled
   format: list
   prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
 upsCmds:
   value:
-    - ups
+    - pm-updatestatus
     - --security-only
     - --check-disabled
   format: list
   prompt: Arguments and options for drush pm-updatestatus (ups) cmd (separate with spaces)
 qdCmds:
   value:
-    - qd
+    - core-quick-drupal
     - --use-existing
     - --writable
     - -y

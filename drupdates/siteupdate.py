@@ -50,12 +50,6 @@ class Siteupdate(object):
             self.commit_hash = ""
             report['status'] = "Did not have any updates to apply"
             return report
-        # Call Drush.call() without site alias as alias comes after dd argument.
-        drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
-        self.site_web_root = drush_dd[0]
-        self.clean_up_web_root()
-        # Apply changes to the repo's version control system.
-        self.git_changes(updates)
         report['status'] = "The following updates were applied"
         report['updates'] = updates
         report['commit'] = "The commit hash is {0}".format(self.commit_hash)
@@ -82,56 +76,44 @@ class Siteupdate(object):
         - Third, apply the updates.
 
         """
-        ups_cmds = self.settings.get('upsCmds')
-        updates_ret = {}
         updates = {}
-        sites_to_update = []
-        sites_to_update.append(self._site_name)
-        for alias, data in self.sub_sites.items():
-            sites_to_update.append(alias)
-        for site in sites_to_update:
-            try:
-                updates_ret = Drush.call(ups_cmds, site, True)
-            except DrupdatesError as updates_error:
-                parse_error = updates_error.msg.split('\n')
-                if parse_error[2][0:14] == "Drush message:":
-                    # If there are not updates to apply.
-                    continue
-                else:
-                    raise updates_error
-            else:
-                # Parse the results of drush pm-updatestatus
-                updates[site] = []
-                modules = []
-                for module, update in updates_ret.items():
-                    modules.append(module)
-                    api = update['api_version']
-                    current = update['existing_version'].replace(api + '-', '')
-                    candidate = update['candidate_version'].replace(api + '-', '')
-                    report_txt = "Update {0} from {1} to {2}".format(module.title(),
-                                                                     current,
-                                                                     candidate)
-                    updates[site].append(report_txt)
-                    if self.settings.get('useMakeFile'):
-                        self.update_make_file(module, current, candidate)
-                # Run drush make or Drush pm-update.
-                if len(modules) and not self.settings.get('buildSource') == 'make':
-                    self.utilities.make_site(self._site_name, self.site_dir)
-                elif len(modules):
-                    up_cmds = copy.copy(self.settings.get('upCmds'))
-                    up_cmds.append(" ".join(modules))
-                    try:
-                        updates_ret = Drush.call(up_cmds, site)
-                    except DrupdatesError as updates_error:
-                        raise updates_error
+        try:
+            sites = self.get_sites_to_update()
+        except DrupdatesError as update_status_error:
+            raise DrupdatesUpdateError(20, update_status_error)
+        if not sites['count']:
+            return updates
+        else:
+            sites.pop('count')
+        # Note: call Drush.call() without site alias as alias comes after dd argument.
+        drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
+        self.site_web_root = drush_dd[0]
+        # Iterate through the sites and perform updates, update files etc...
+        one_commit_per_project = self.settings.get('oneCommitPerProject')
+        for site, modules in sites.items():
+            for module, data in modules.items():
+                if self.settings.get('useMakeFile'):
+                    self.update_make_file(module, data['current'], data['candidate'])
+                if one_commit_per_project:
+                    self._update_code(site, [module])
+                    modules.pop(module)
+                    updates = self._build_commit_message(self, sites, site, module)
+                    self._cleanup_and_commit(updates)
+            if self.settings.get('buildSource') == 'make' and self.settings.get('useMakeFile'):
+                self.utilities.make_site(self._site_name, self.site_dir)
+            if len(modules):
+                self._update_code(site, modules['modules'].keys())
+        if not one_commit_per_project:
+            updates = self._build_commit_message(sites)
+            self._cleanup_and_commit(updates)
         return updates
 
     def get_sites_to_update(self):
         """ Build dictionary of sites/sub-sites and modules needing updated. """
         ups_cmds = self.settings.get('upsCmds')
         updates_ret = {}
+        count = 0
         sites = {}
-        sites['count'] = 0
         sites[self._site_name] = {}
         for alias, data in self.sub_sites.items():
             sites[alias] = {}
@@ -147,7 +129,7 @@ class Siteupdate(object):
                     raise updates_error
             else:
                 # Parse the results of drush pm-updatestatus
-                sites['count'] += len(updates_ret)
+                count += len(updates_ret)
                 modules = {}
                 for module, update in updates_ret.items():
                     modules[module] = {}
@@ -159,6 +141,7 @@ class Siteupdate(object):
                                                                modules[module]['current'],
                                                                modules[module]['candidate'])
                     sites[site]['modules'] = modules
+        sites['count'] = count
         return sites
 
     def update_make_file(self, module, current, candidate):
@@ -190,9 +173,56 @@ class Siteupdate(object):
             openfile = open(make_file, 'w')
             yaml.dump(makef, openfile, default_flow_style=False)
 
-    def git_changes(self, updates):
+    def _update_code(self, site, modules):
+        """ Run drush make or pm-update to make te actual code updates.
+
+        Keyword arguments:
+        site -- site alias of the site to update.
+        modules -- list containing modules to update.
+
+        """
+        up_cmds = copy.copy(self.settings.get('upCmds'))
+        up_cmds = ['upc ' + " ".join(modules).encode() if x=='upc' else x for x in up_cmds]
+        try:
+            Drush.call(up_cmds, site)
+        except DrupdatesError as updates_error:
+            raise updates_error
+
+    def _build_commit_message(self, sites, site = '', module = ''):
+        """ Build a commit message for one project update or multiple.
+
+        Keyword arguments:
+        sites -- dictionary containing meta data about update for each site.
+        site -- if only one site needs updated.
+        module -- if only one module needs updated.
+
+        """
+        msg = {}
+        if module and site:
+            msg[site] = [sites[site]['modules'][module]['report_txt']]
+        else:
+            for site, data in sites.items():
+                msg[site] = []
+                for module, status in data['modules'].items():
+                    msg[site].append(status['report_txt'])
+        return msg
+
+    def _cleanup_and_commit(self, updates):
+        """ Clean-up webroot and commit changes.
+
+        Keyword arguments:
+        updates -- list of update message to put in commit message.
+
+        """
+        self._clean_up_web_root()
+        # Apply changes to the repo's version control system.
+        self._git_changes(updates)
+
     def _git_changes(self, updates):
         """ add/remove changed files.
+
+        Keyword arguments:
+        updates -- list of update message to put in commit message.
 
         notes:
         - Will ignore file mode changes and anything in the commonIgnore setting.
@@ -249,14 +279,14 @@ class Siteupdate(object):
         # Push the changes to the origin repo.
         repo.git.push(self._site_name, branch_name)
 
-    def clean_up_web_root(self):
+    def _clean_up_web_root(self):
         """ Clean-up artifacts from drush pm-update/core-quick-drupal. """
         use_make_file = self.settings.get('useMakeFile')
         if self.settings.get('buildSource') == 'make' and use_make_file:
             # Remove web root folder if repo only ships a make file.
             shutil.rmtree(self.site_web_root)
         else:
-            rebuilt = self.rebuild_web_root()
+            rebuilt = self._rebuild_web_root()
             if not rebuilt:
                 report['status'] = "The webroot re-build failed."
                 if use_make_file:
@@ -278,7 +308,7 @@ class Siteupdate(object):
         except OSError:
             pass
 
-    def rebuild_web_root(self):
+    def _rebuild_web_root(self):
         """ Rebuild the web root folder completely after running pm-update.
 
         Drush pm-update of Drupal Core deletes the .git folder therefore need to
