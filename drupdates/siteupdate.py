@@ -88,21 +88,25 @@ class Siteupdate(object):
         # Note: call Drush.call() without site alias as alias comes after dd argument.
         drush_dd = Drush.call(['dd', '@drupdates.' + self._site_name])
         self.site_web_root = drush_dd[0]
-        # Iterate through the sites and perform updates, update files etc...
+        # Create seperate commits for each project (ie module/theme)
         one_commit_per_project = self.settings.get('oneCommitPerProject')
-        for site, modules in sites.items():
-            for module, data in modules.items():
+        # Iterate through the sites and perform updates, update files etc...
+        for site, data in sites.items():
+            if 'modules' not in data:
+                sites.pop(site)
+                continue
+            for project, descriptions in data['modules'].items():
                 if self.settings.get('useMakeFile'):
-                    self.update_make_file(module, data['current'], data['candidate'])
+                    self.update_make_file(project, descriptions['current'], descriptions['candidate'])
                 if one_commit_per_project:
-                    self._update_code(site, [module])
-                    modules.pop(module)
-                    updates = self._build_commit_message(self, sites, site, module)
+                    self._update_code(site, [project])
+                    modules.pop(project)
+                    updates = self._build_commit_message(self, sites, site, project)
                     self._cleanup_and_commit(updates)
             if self.settings.get('buildSource') == 'make' and self.settings.get('useMakeFile'):
                 self.utilities.make_site(self._site_name, self.site_dir)
-            if len(modules):
-                self._update_code(site, modules['modules'].keys())
+            elif len(data):
+                self._update_code(site, data['modules'].keys())
         if not one_commit_per_project:
             updates = self._build_commit_message(sites)
             self._cleanup_and_commit(updates)
