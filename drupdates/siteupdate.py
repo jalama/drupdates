@@ -91,24 +91,26 @@ class Siteupdate(object):
         # Create seperate commits for each project (ie module/theme)
         one_commit_per_project = self.settings.get('oneCommitPerProject')
         # Iterate through the sites and perform updates, update files etc...
+        sites_copy = copy.copy(sites)
         for site, data in sites.items():
             if 'modules' not in data:
-                sites.pop(site)
+                sites_copy.pop(site)
                 continue
+            modules = copy.copy(data['modules'])
             for project, descriptions in data['modules'].items():
                 if self.settings.get('useMakeFile'):
                     self.update_make_file(project, descriptions['current'], descriptions['candidate'])
                 if one_commit_per_project:
                     self._update_code(site, [project])
                     modules.pop(project)
-                    updates = self._build_commit_message(self, sites, site, project)
+                    updates = self._build_commit_message(self, sites_copy, site, project)
                     self._cleanup_and_commit(updates)
             if self.settings.get('buildSource') == 'make' and self.settings.get('useMakeFile'):
                 self.utilities.make_site(self._site_name, self.site_dir)
             elif len(data):
-                self._update_code(site, data['modules'].keys())
+                self._update_code(site, modules.keys())
         if not one_commit_per_project:
-            updates = self._build_commit_message(sites)
+            updates = self._build_commit_message(sites_copy )
             self._cleanup_and_commit(updates)
         return updates
 
