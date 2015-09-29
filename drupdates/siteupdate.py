@@ -255,8 +255,8 @@ class Siteupdate(object):
         # Add new/changed files to Git's index
         try:
             repo.git.add('--all')
-        except DrupdatesError as git_add_error:
-            raise git_add_error
+        except git.exc.GitCommandError as git_add_error:
+            raise DrupdatesUpdateError(20, git_add_error)
         # Remove deleted files from Git's index.
         deleted = repo.git.ls_files('--deleted')
         for filepath in deleted.split():
