@@ -12,13 +12,15 @@ This script performs 4 major functions (ie phases):
 
 System Requirements
 ============
-Drush 7
+[Drush](http://drush.org) Drush 7+ (requires composer)
 
 Git 1.7+
 
 SQLite
 
 Python versions: 2.6, 2.7, 3.3, 3.4
+
+libyaml (or equivelant)
 
 Installation
 ============

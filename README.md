@@ -19,13 +19,15 @@ See the [documentation](docs/index.md) for installation and set-up instructions.
 
 Basic Requirements
 ============
-[Drush](http://drush.org) 7 (requires composer)
+[Drush](http://drush.org) 7+ (requires composer)
 
 Git 1.7+
 
 SQLite
 
 Python versions: 2.6, 2.7, 3.3, 3.4
+
+libyaml (or equivelant)
 
 Assumptions
 ===========
