@@ -324,23 +324,21 @@ class Siteupdate(object):
         shutil.move(self.site_web_root, temp_dir)
         add_dir = self.settings.get('webrootDir')
         if add_dir:
-            repository = Repo(self.site_dir)
-            git_repo = repository.git
-            git_repo.checkout(add_dir)
+            repo = Repo(self.site_dir)
+            repo.git.checkout(add_dir)
         else:
-            repository = Repo.init(self.site_dir)
+            repo = Repo.init(self.site_dir)
             try:
-                remote = git.Remote.create(repository, self._site_name, self.ssh)
+                remote = git.Remote.create(repo, self._site_name, self.ssh)
             except git.exc.GitCommandError as error:
                 if not error.status == 128:
                     msg = "Could not establish a remote for the {0} repo".format(self._site_name)
                     print(msg)
             remote.fetch(self.working_branch)
-            git_repo = repository.git
             try:
-                git_repo.checkout('FETCH_HEAD', b=self.working_branch)
+                repo.git.checkout('FETCH_HEAD', b=self.working_branch)
             except git.exc.GitCommandError as error:
-                git_repo.checkout(self.working_branch)
+                repo.git.checkout(self.working_branch)
             add_dir = self._site_name
         if 'modules' in self.repo_status:
             module_dir = self.repo_status['modules']
