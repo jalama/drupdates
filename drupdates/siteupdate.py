@@ -90,7 +90,7 @@ class Siteupdate(object):
         self.site_web_root = drush_dd[0]
         # Create seperate commits for each project (ie module/theme)
         one_commit_per_project = self.settings.get('oneCommitPerProject')
-        # Iterate through the sites and perform updates, update files etc...
+        # Iterate through the site/sub-sites and perform updates, update files etc...
         sites_copy = copy.copy(sites)
         for site, data in sites.items():
             if 'modules' not in data:
