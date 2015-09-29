@@ -221,10 +221,9 @@ class Siteupdate(object):
 
         """
         self._clean_up_web_root()
-        # Apply changes to the repo's version control system.
-        self._git_changes(updates)
+        self._git_apply_changes(updates)
 
-    def _git_changes(self, updates):
+    def _git_apply_changes(self, updates):
         """ add/remove changed files.
 
         Keyword arguments:
