@@ -358,7 +358,7 @@ class Siteupdate(object):
         except IOError as error:
             msg = "Can't copy updates from: \n"
             msg += "{0} temp dir to {1}\n".format(temp_dir, self.site_web_root)
-            msg += "Error: {2}".format(error.strerror)
+            msg += "Error: {0}".format(error.strerror)
             raise DrupdatesUpdateError(20, msg)
         shutil.rmtree(temp_dir)
         return True
