@@ -103,14 +103,14 @@ class Siteupdate(object):
                 if one_commit_per_project:
                     self._update_code(site, [project])
                     modules.pop(project)
-                    updates = self._build_commit_message(self, sites_copy, site, project)
+                    updates = self._build_commit_message(sites_copy, site, project)
                     self._cleanup_and_commit(updates)
             if self.settings.get('buildSource') == 'make' and self.settings.get('useMakeFile'):
                 self.utilities.make_site(self._site_name, self.site_dir)
-            elif len(data):
+            elif len(modules):
                 self._update_code(site, modules.keys())
         if not one_commit_per_project:
-            updates = self._build_commit_message(sites_copy )
+            updates = self._build_commit_message(sites_copy)
             self._cleanup_and_commit(updates)
         return updates
 
