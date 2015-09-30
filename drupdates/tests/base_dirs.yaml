@@ -75,7 +75,7 @@ dirs:
     sites:
       - sample
       - sample2
-  drupal8_base:
-    version: 8
-    build: true
-    make_format: yaml
+  # drupal8_base:
+  #   version: 8
+  #   build: true
+  #   make_format: yaml

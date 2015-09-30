@@ -1,10 +1,11 @@
 """ Module handles the heavy lifting, building the various site directories. """
-import git, shutil, os, yaml, tempfile, distutils.core, datetime, time, copy
+import git, shutil, os, yaml, tempfile, datetime, time, copy
 from drupdates.utils import Utils
 from drupdates.settings import Settings
 from drupdates.settings import DrupdatesError
 from drupdates.drush import Drush
 from drupdates.constructors.pmtools import Pmtools
+from drupdates.sitebuild import Sitebuild
 from git import Repo
 from git import Actor
 
@@ -18,6 +19,7 @@ class Siteupdate(object):
         self.settings = Settings()
         self.working_branch = self.settings.get('workingBranch')
         self._site_name = site_name
+        self.working_dir = working_dir
         self.site_dir = os.path.join(working_dir, self._site_name)
         self.ssh = ssh
         self.utilities = Utils()
@@ -97,14 +99,19 @@ class Siteupdate(object):
                 sites_copy.pop(site)
                 continue
             modules = copy.copy(data['modules'])
+            x = 0
             for project, descriptions in data['modules'].items():
                 if self.settings.get('useMakeFile'):
                     self.update_make_file(project, descriptions['current'], descriptions['candidate'])
                 if one_commit_per_project:
+                    if x:
+                        build = Sitebuild(self._site_name, self.ssh, self.working_dir)
+                        build.build()
                     self._update_code(site, [project])
                     modules.pop(project)
                     updates = self._build_commit_message(sites_copy, site, project)
                     self._cleanup_and_commit(updates)
+                x += 1
             if self.settings.get('buildSource') == 'make' and self.settings.get('useMakeFile'):
                 self.utilities.make_site(self._site_name, self.site_dir)
             elif len(modules):
@@ -347,10 +354,10 @@ class Siteupdate(object):
             shutil.rmtree(os.path.join(self.site_web_root, theme_dir))
         self.utilities.rm_common(self.site_web_root, os.path.join(temp_dir, add_dir))
         try:
-            distutils.dir_util.copy_tree(os.path.join(temp_dir, add_dir),
+            Utils.copytree(os.path.join(temp_dir, add_dir),
                                          self.site_web_root,
-                                         preserve_symlinks=1)
-        except (OSError, distutils.errors.DistutilsFileError) as copy_error:
+                                         symlinks=True)
+        except OSError as copy_error:
             raise DrupdatesUpdateError(20, copy_error)
         except IOError as error:
             msg = "Can't copy updates from: \n"
