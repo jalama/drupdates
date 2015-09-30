@@ -46,7 +46,6 @@ gitRepoName:
 drushSiFiles:
   value:
     - sites/default/settings.php
-    - sites/default/default.settings.php
     - sites/default
     - sites/default/files/.htaccess
     - sites/default/default.services.yml
