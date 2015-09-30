@@ -62,6 +62,9 @@ setting:
 - *Simple Settings commiting to feature branch:*  Commit changes to a feature branch in remote repo.
     - [Feature Branch settings](https://gist.github.com/jalama/dcc50959a4672e00144a)
 
+- *One commit per project:* Perform one commit for each Drupal project that needs updated.
+    - [One commit per project](https://gist.github.com/jalama/fdf41b4a8a4b4ef6e622)
+
 - *Basic Make file Settings:* use a make file to build the site,
 manual repo list, submit a deployment ticket to AtTask,
 print report to the terminal screen:
