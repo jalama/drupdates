@@ -1,10 +1,10 @@
-""" Test running Drupdates on one repo not needing updates and multisites that do. """
+""" Test running Drupdates on one repo, committing once per project. """
 
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestNoupdatesMultisites(object):
-    """ Test running Drupdates on one repo whose mutissites need updates. """
+class TestSimpleCommitPerProject(object):
+    """ Test running Drupdates on one repo. """
 
     @classmethod
     def setup_class(cls):
@@ -27,15 +27,15 @@ class TestNoupdatesMultisites(object):
 
     @staticmethod
     def test_repo_updated():
-        """ Test to ensure the repo didn't need updated. """
+        """ Test to ensure the repo was updated. """
 
         status = "The following updates were applied"
         report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status == status
 
     @staticmethod
-    def test_count_total_sites_updated():
-        """ Count to ensure 2 sites has updates installed. """
+    def test_repo_commit_count():
+        """ Test that the repo has 4 commits. """
 
-        count = BehavioralUtils.count_sites_updated('drupal', 'builds')
-        assert count == 2
+        commit_count = BehavioralUtils.count_commits('drupal', 'builds')
+        assert commit_count == 4

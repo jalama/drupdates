@@ -83,7 +83,7 @@ class Sitebuild(object):
         try:
             Drush.call(qd_cmds, self._site_name)
             sub_sites = Drush.get_sub_site_aliases(self._site_name)
-            for alias, data in  sub_sites.items():
+            for alias, data in sub_sites.items():
                 Drush.call(qd_cmds, alias)
                 # Add sub site settings.php to list of file_cleanup() files.
                 sub_site_st = Drush.call(['st'], alias, True)

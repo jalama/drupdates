@@ -24,13 +24,7 @@ class Reports(Plugin):
 
     def text(self, report, text=""):
         """ Format the report dictionary into a string. """
-        for line in report:
-            if isinstance(report[line], dict):
-                text += "{0} \n".format(line)
-                text = self.text(report[line], text)
-            else:
-                text += "\t{0} : {1} \n".format(line, report[line])
-        return text
+        return self.yaml(report)
 
     def send(self, report):
         """ Deliver the report. """

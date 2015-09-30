@@ -1,5 +1,5 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, subprocess, shutil, pip, sys
+import requests, os, subprocess, shutil, pip, sys, stat
 try:
     from urlparse import urlparse
 except ImportError:
@@ -267,3 +267,38 @@ class Utils(object):
         settings_file = os.path.join(dir, '.drupdates/settings.yaml')
         if os.path.isfile(settings_file):
             self.settings.add(settings_file, True)
+
+    @staticmethod
+    def copytree(src, dst, symlinks = False, ignore = None):
+        """ Recursively copy a directory tree from src to dst.
+
+        Taken from http://stackoverflow.com/a/22331852/1120125.
+
+        Needed because distutils.dir_util.copy_tree will only copy a given
+        directory one time.  Which is annoying!
+
+        """
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+            shutil.copystat(src, dst)
+        lst = os.listdir(src)
+        if ignore:
+            excl = ignore(src, lst)
+            lst = [x for x in lst if x not in excl]
+        for item in lst:
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if symlinks and os.path.islink(s):
+                if os.path.lexists(d):
+                    os.remove(d)
+                os.symlink(os.readlink(s), d)
+                try:
+                    st = os.lstat(s)
+                    mode = stat.S_IMODE(st.st_mode)
+                    os.lchmod(d, mode)
+                except:
+                    pass # lchmod not available
+            elif os.path.isdir(s):
+                Utils.copytree(s, d, symlinks, ignore)
+            else:
+                shutil.copy2(s, d)

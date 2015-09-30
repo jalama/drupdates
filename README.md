@@ -19,7 +19,7 @@ See the [documentation](docs/index.md) for installation and set-up instructions.
 
 Basic Requirements
 ============
-[Drush](http://drush.org) 7 (requires composer)
+[Drush](http://drush.org) 7+ (requires composer)
 
 Git 1.7+
 

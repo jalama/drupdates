@@ -12,7 +12,7 @@ This script performs 4 major functions (ie phases):
 
 System Requirements
 ============
-Drush 7
+[Drush](http://drush.org) Drush 7+ (requires composer)
 
 Git 1.7+
 
