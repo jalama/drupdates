@@ -197,3 +197,13 @@ class BehavioralUtils(object):
         folder = os.path.join(working_dir, settings['repoDict']['value'][site])
         repo = Repo(folder)
         return len(list(repo.iter_commits('dev')))
+
+    @staticmethod
+    def count_modified_files(site, working_directory):
+        """ Return a list of the modified files in the git index. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        folder = os.path.join(settings['workingDir']['value'][0], site)
+        repo = Repo(folder)
+        return len(list(repo.git.ls_files('--modified')))
