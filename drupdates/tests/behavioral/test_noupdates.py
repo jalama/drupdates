@@ -32,3 +32,10 @@ class TestNoupdates(object):
         status = "Did not have any updates to apply"
         report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status == status
+
+    @staticmethod
+    def test_files_modified():
+        """ Test to make sure no cached/indexed files were modified. """
+
+        modified_count = BehavioralUtils.count_modified_files('drupal', 'builds')
+        assert modified_count == 0
