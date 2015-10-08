@@ -82,6 +82,9 @@ class Updates(object):
         if self.single_site:
             sites = {self.single_site : sites[self.single_site]}
         for site_name, ssh in sites.items():
+            if self.settings.get('verbose'):
+                msg = "Drupdates is working on the site: {0} ...".format(site_name)
+                print(msg)
             report[site_name] = {}
             if site_name in blacklist:
                 continue

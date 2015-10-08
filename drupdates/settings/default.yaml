@@ -24,6 +24,9 @@ singleSite:
 debug:
   value: ""
   prompt: Create a dump of the system settings for debugging purposes
+verbose:
+  value: ""
+  prompt: Verbose mode
 # This setting determines what Drupdates will do
 # Change with care
 drupdatesPhases:
