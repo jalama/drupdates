@@ -1,11 +1,11 @@
 Make File
 ===========
 
-Make Files can be used to build the site.  The following settings will be
+Make files can be used to build the site.  The following settings will be
 required:
 
-- useMakeFile, needs to be set to a non "Falsey" value, ie "Yes".
-- webrootDir, needs to be set to a non "Falsey" value, ie webroot or html.
+- useMakeFile, needs to be set to a non "Falsey" value, ie "Yes" or "True".
+- webrootDir, needs to be set to a non "Falsey" value, ie "webroot" or "html".
 
 It's worth noting Drupdates can support two file structures with regards to make files.  The setting that controls this is "buildSource".
 
@@ -13,7 +13,7 @@ It's worth noting Drupdates can support two file structures with regards to make
 
   - buildSource: make
 
-2. Ship the make file along with a complete codebase in a webroot sub-folder.
+2. Ship the make file along with a complete codebase in a "webroot" sub-folder.  Note, as stated above the name of the web rrot folder whre the Drupal codebase is stored is declared in the webrootDir setting.
 
   - buildSource: git
 

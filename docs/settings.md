@@ -7,7 +7,7 @@ At see http://pyyaml.org/wiki/PyYAMLDocumentation for YAML basics.
 
 Here's how it works:
 
-Settings are built from either YAML files or options passed when run on CLI.
+Settings are built from either YAML files or options passed when Drupdats is run on CLI.
 
 -  Settings are loaded in this order:<a name="overrides"></a>
     -  Core settings file, ie drupdates/settings/default.yaml
@@ -18,13 +18,13 @@ Settings are built from either YAML files or options passed when run on CLI.
     -  Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
     -  Prompts to end user, only if required and not value found above
 
-Settings loaded later take precident over the same setting loaded earlier, i.e. if it's set at runtime it will overwrite anything set in the Core settings or local settings files.
+Settings loaded later take precedence over the same setting loaded earlier, i.e. if it's set as a CLI option it will overwrite anything set in the Core settings or local settings files.
 
 The Core settings file is [/drupdates/settings/default.yaml](https://github.com/jalama/drupdates/blob/master/drupdates/settings default.yaml). Additionally, each plugin ships with it's own default.yaml file in its respective settings directory.
 
 **Custom Settings file:**<a name="custom_settings"></a>
 
-You will need to overwirte settings file upon set-up.  To do this create a local settings file in $HOME/.drupdates/settings.yaml.  Sample settings files can be found below.
+You will need to overwrite settings file upon set-up.  To do this create a local settings file in $HOME/.drupdates/settings.yaml.  Sample settings files can be found below.
 
 Settings Format:
 
@@ -84,15 +84,15 @@ will run only on www.example.com:
 Working Directories
 ===========
 
-Drupdates builds and edits Drupal sites in what is known as the "Working Directory", which is controlled by the workingDir settting.  The default working directory setting is:
+Drupdates builds and edits Drupal sites in what is known as the "Working Directory", which is controlled by the workingDir setting.  The default working directory setting is:
 
 ```
 ~/.drupdates/builds
 ```
 
-As with any setting this can be overridden in the custom settings file.  Further, there are special qualities to note about the working directories.
+As with any settings this can be overridden in the custom settings file.  Further, there are special qualities to note about the working directories.
 
-- You can run Drupdates on only one site in a working directory using the singleSite setting. For exampple, say you have the following setting for repoDict (short for Repository Dictionary)
+- You can run Drupdates on only one site in a working directory using the singleSite setting. For example, say you have the following setting for repoDict (short for Repository Dictionary)
 
 ```
 repoDict:
@@ -102,7 +102,7 @@ repoDict:
 ```
 
 If you only wanted to run Drupdates on the "drupal" site above you would pass the following
-on the comand line.
+on the command line.
 
 ```
 $drupdates --singleSite=drupal
@@ -118,7 +118,7 @@ singleSite:
 Multiple Working Directories
 ===========
 
-- If you are maintaining sites with diffrent configurations, examples include:
+- If you are maintaining sites with different configurations, examples include:
   - Some use JIRA and others use AtTask
   - Some ship with make files and other don't etc...
 
@@ -133,8 +133,7 @@ $HOME/.drupdates/settings.yaml
 /opt/builds/.drupdates/settings/yaml
 ```
 
-The working directories only have to have setting relevant to those directories in their respective
- .drupdates directory
+The working directories only have to have settings relevant to those directories in their respective
+ .drupdates/settings.yaml files.  In other words they will inherit the settings in the $HOME/drupdates/settings.yaml file.
 
-Note: you still need the default custom settings file at $HOME/.drupdates/settings.yaml, mainly becuase
-this is where you set you working directories.  
+Note: you still need the default custom settings file at $HOME/.drupdates/settings.yaml, mainly because this is where you set you working directories.  

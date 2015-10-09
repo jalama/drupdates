@@ -1,13 +1,13 @@
-Drupdates
+Drupdates (Drupal + updates)
 ===========
-Script to maintain web sitescode bases, specifically Drupal, using [Drush](http://www.drush.org)
+A script to maintain Drupal web site(s) code base using [Drush](http://www.drush.org)
 
 This script performs 4 major functions (ie phases):
 
 1. Builds a site's directory from a Git repository.
 2. Updates the site using drush pm-update, defaults to security update(s) only.
-3. Submit a deployment ticket for the updated codebase.
-4. Report on the site(s) Drupdates attempted to update.
+3. Submits a deployment ticket for the updated codebase.
+4. Reports on the site(s) Drupdates attempted to update.
 
 
 System Requirements
@@ -56,7 +56,11 @@ it's configuration files.  Drupdates will need to store system user names
 and passwords in the $HOME/.drupdates directory.  This will mean that directory
  will need to be locked down.
 
+<<<<<<< Updated upstream
 - By default, [Make](make.md) file used to build a site will be named the same as the site folder.  This is configurable using the makeFileName [setting](settings.md).
+=======
+- By default, [Make](make.md) files used to build a site will be named the same as the site folder.  This is configurable using the makeFileName [setting](settings.md).
+>>>>>>> Stashed changes
 
 - Git is being used to track changes to the Drupal code base
 
@@ -68,7 +72,7 @@ with the Drupdates [settings](settings.md) system to complete the set-up
 to meet the needs of your Drupal site(s) and development system(s).
 
 Please note out of the box the following settings are assumed:
-- SQLite is the database storing your Drupal site
+- SQLite will use Drupdates to build your site, as it's easier and faster.  Keep in mind Drupdates only cares about your code and doesn't touch your content or your data.
 - Only Security updates are being run
 - You Drupal sites are being installed at $HOME/.drupdates/builds
 - sendmail will be used to email reports (other options are printing to the screen,
