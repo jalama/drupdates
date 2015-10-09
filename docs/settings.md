@@ -14,6 +14,7 @@ Settings are built from either YAML files or options passed when run on CLI.
     -  [Plugin](plugins.md) settings files, ie *plugin dir*/settings/default.yaml
     -  Local settings file in $HOME/.drupdates, ie $HOME/.drupdates/settings.yaml
     -  Local settings file in a working directory, ie <working directory>/.drupdates/settings.yaml
+    -  Local settings file in a Site Repo, ie <webroot>/.drupdates/settings.yaml
     -  Options passed at runtime, ie $python -m drupdates --workingDir=/opt/
     -  Prompts to end user, only if required and not value found above
 
@@ -57,6 +58,12 @@ setting:
 
 - *Basic Settings:* use a manual repo list, submit deployment ticket to AtTask, print report to the terminal screen:
     - [Basic Settings Gist](https://gist.github.com/jalama/c14c3e8880f7274dbb90)
+
+- *Simple Settings commiting to feature branch:*  Commit changes to a feature branch in remote repo.
+    - [Feature Branch settings](https://gist.github.com/jalama/dcc50959a4672e00144a)
+
+- *One commit per project:* Perform one commit for each Drupal project that needs updated.
+    - [One commit per project](https://gist.github.com/jalama/fdf41b4a8a4b4ef6e622)
 
 - *Basic Make file Settings:* use a make file to build the site,
 manual repo list, submit a deployment ticket to AtTask,

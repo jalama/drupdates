@@ -52,3 +52,14 @@ class Drush(object):
         else:
             ret = stdout.decode().split('\n')
         return ret
+
+    @staticmethod
+    def get_sub_site_aliases(base_dir=None, system='drupdates'):
+        aliases = {}
+        drupdates_aliases = Drush.call(['sa', '@' + system, '--with-db'], '', True)
+        for alias, data in drupdates_aliases.items():
+            if base_dir and alias.split('.')[1] != base_dir:
+                continue
+            if data['uri'] != 'default' and data['uri'] != 'all':
+                aliases[str(alias[10:])] = data
+        return aliases

@@ -8,11 +8,9 @@ class Reports(Plugin):
 
     def __init__(self):
         # load the Plugin _plugins property
-        Plugin.__init__(self)
-        plugins = self._plugins
         self.settings = Settings()
         tool = self.settings.get('reportingTool').title()
-        self._plugin = self.load_plugin(plugins[tool])
+        self._plugin = Plugin.load_plugin(tool)
         class_ = getattr(self._plugin, tool)
         self._instance = class_()
 
@@ -26,13 +24,7 @@ class Reports(Plugin):
 
     def text(self, report, text=""):
         """ Format the report dictionary into a string. """
-        for line in report:
-            if isinstance(report[line], dict):
-                text += "{0} \n".format(line)
-                text = self.text(report[line], text)
-            else:
-                text += "\t{0} : {1} \n".format(line, report[line])
-        return text
+        return self.yaml(report)
 
     def send(self, report):
         """ Deliver the report. """

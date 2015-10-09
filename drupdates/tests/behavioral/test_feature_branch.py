@@ -1,12 +1,12 @@
-""" Test running Drupdates on one repo. """
+""" Test running Drupdates and commit to feature branch in origin repo. """
 import os, yaml
 from git import Repo
 from os.path import expanduser
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestCustomWorkingSettings(object):
-    """ Test on one repo with custom settings file. """
+class TestFeatureBranch(object):
+    """ Test committing to feature branch in lieu of working branch. """
 
     @classmethod
     def setup_class(cls):
@@ -35,8 +35,8 @@ class TestCustomWorkingSettings(object):
         assert report_status == status
 
     @staticmethod
-    def test_git_commit_author():
-        """ Test to verify the name of the git commit is "Drupdates". """
+    def test_git_drupdates_branch():
+        """ Test to verify the name of the git commit is 'Security Updates'. """
 
-        devcommit = BehavioralUtils.get_dev_commit('drupal', 'builds')
-        assert devcommit.author.name == 'Drupdates'
+        commit = BehavioralUtils.get_drupdates_commit('drupal', 'builds')
+        assert commit.author.name == 'Security Updates'

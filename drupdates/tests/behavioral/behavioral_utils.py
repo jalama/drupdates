@@ -134,6 +134,8 @@ class BehavioralUtils(object):
         results = popen.communicate()
         return results
 
+    """ The following methods are used by test modules to analyze results."""
+
     @staticmethod
     def check_repo_updated(site, working_directory):
         """ Given a repo number check if it was updated. """
@@ -141,7 +143,7 @@ class BehavioralUtils(object):
         file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
         data = yaml.load(file_name)
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
-        result = data[build_dir][site]['Siteupdate']['status'][0:35].strip()
+        result = data[build_dir][site]['Siteupdate']['status']
         return result
 
     @staticmethod
@@ -152,3 +154,56 @@ class BehavioralUtils(object):
         data = yaml.load(file_name)
         build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
         return len(data[build_dir])
+
+    @staticmethod
+    def count_sites_updated(site, working_directory):
+        """ Count the number of sites that were updated in the repo. """
+
+        file_name = open(os.path.join(os.path.expanduser('~'), '.drupdates', 'report.yaml'))
+        data = yaml.load(file_name)
+        build_dir = os.path.join(os.path.expanduser('~'), '.drupdates', working_directory)
+        count = len(data[build_dir][site]['Siteupdate']['updates'])
+        return count
+
+    @staticmethod
+    def get_dev_commit(site, working_directory):
+        """ Return a git commit object. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        working_dir = os.path.join(expanduser('~'), '.drupdates', working_directory)
+        folder = os.path.join(working_dir, settings['repoDict']['value'][site])
+        repo = Repo(folder)
+        return repo.heads.dev.commit
+
+    @staticmethod
+    def get_drupdates_commit(site, working_directory):
+        """ Return a git commit object. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        working_dir = os.path.join(expanduser('~'), '.drupdates', working_directory)
+        folder = os.path.join(working_dir, settings['repoDict']['value'][site])
+        repo = Repo(folder)
+        return repo.heads.drupdates.commit
+
+    @staticmethod
+    def count_commits(site, working_directory):
+        """ Return number of commits in a repo. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        working_dir = os.path.join(expanduser('~'), '.drupdates', working_directory)
+        folder = os.path.join(working_dir, settings['repoDict']['value'][site])
+        repo = Repo(folder)
+        return len(list(repo.iter_commits('dev')))
+
+    @staticmethod
+    def count_modified_files(site, working_directory):
+        """ Return a list of the modified files in the git index. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        folder = os.path.join(settings['workingDir']['value'][0], site)
+        repo = Repo(folder)
+        return len(list(repo.git.ls_files('--modified')))

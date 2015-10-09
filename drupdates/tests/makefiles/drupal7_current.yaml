@@ -1,4 +1,4 @@
-core: 8.x
+core: 7.x
 
 api: 2
 
@@ -7,5 +7,6 @@ defaults:
     subdir: "contrib"
 
 projects:
-  drupal:
-    version: 8.0.0-beta7
+  - drupal
+  - views
+  - webform

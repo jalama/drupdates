@@ -1,12 +1,7 @@
-# Test successful if the Git Log shows the update committed by Drupdates
+# Test successful if Drupdates runs and one site is updated commit once per updatd project.
 working_dirs:
   builds:
     dir: builds
-    custom_settings:
-      commitAuthorName:
-        value: Drupdates
-      commitAuthorEmail:
-        value: Drupdates@example.com
 repo_dirs:
   drupal:
     base: drupal7_base
@@ -20,3 +15,5 @@ additional_settings:
     value: yaml
   fileName:
     value: report.yaml
+  oneCommitPerProject:
+    value: True

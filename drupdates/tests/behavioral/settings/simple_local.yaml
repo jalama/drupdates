@@ -1,15 +1,10 @@
-# Test successful if the Git Log shows the update committed by Drupdates
+# Test successful if Drupdates runs and one site is updated.
 working_dirs:
   builds:
     dir: builds
-    custom_settings:
-      commitAuthorName:
-        value: Drupdates
-      commitAuthorEmail:
-        value: Drupdates@example.com
 repo_dirs:
   drupal:
-    base: drupal7_base
+    base: drupal7_custom_settings
     working_directory: builds
 additional_settings:
   workingBranch:

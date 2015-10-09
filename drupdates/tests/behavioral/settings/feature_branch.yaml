@@ -2,11 +2,6 @@
 working_dirs:
   builds:
     dir: builds
-    custom_settings:
-      commitAuthorName:
-        value: Drupdates
-      commitAuthorEmail:
-        value: Drupdates@example.com
 repo_dirs:
   drupal:
     base: drupal7_base
@@ -20,3 +15,7 @@ additional_settings:
     value: yaml
   fileName:
     value: report.yaml
+  useFeatureBranch:
+    value: True
+  featureBranchName:
+    value: drupdates

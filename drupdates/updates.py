@@ -1,5 +1,5 @@
 """ Primary Drupdates Module. """
-import os, shutil, yaml, sys, pip
+import os, shutil, yaml, sys
 from os.path import expanduser
 from string import Template
 from drupdates.utils import Utils
@@ -14,6 +14,7 @@ class Updates(object):
     def __init__(self):
         self.settings = Settings()
         self.install()
+        self.utilities = Utils()
         self.working_dirs = self.settings.get('workingDir')
         self.single_site = ''
         self.alias_file = None
@@ -29,10 +30,10 @@ class Updates(object):
         backup_dir = self.settings.get('backupDir')
         dirs = [backup_dir, base_dir]
         for directory in dirs:
-            Updates.check_dir(directory)
+            Utils.check_dir(directory)
         current_dir = os.path.dirname(os.path.realpath(__file__))
         src = os.path.join(current_dir, "templates/settings.template")
-        settings_file = os.path.join(Updates.check_dir(base_dir), 'settings.yaml')
+        settings_file = os.path.join(Utils.check_dir(base_dir), 'settings.yaml')
         instructions_url = "http://drupdates.readthedocs.org/en/latest/setup/"
         if not os.path.isfile(settings_file):
             shutil.copy(src, settings_file)
@@ -51,13 +52,13 @@ class Updates(object):
     def run_updates(self):
         """ Drupdates main function. """
         if self.settings.get('debug'):
-            self.write_debug_file()
+            self.utilities.write_debug_file()
         report = {}
         for current_working_dir in self.working_dirs:
             try:
-                current_working_dir = Updates.check_dir(current_working_dir)
-                self.working_dir_settings(current_working_dir)
-                update = self.update_site(current_working_dir)
+                current_working_dir = Utils.check_dir(current_working_dir)
+                self.utilities.load_dir_settings(current_working_dir)
+                update = self.update_sites(current_working_dir)
                 report[current_working_dir] = update
             except DrupdatesError as update_error:
                 report[current_working_dir] = update_error.msg
@@ -65,11 +66,15 @@ class Updates(object):
                     break
                 else:
                     continue
-        reporting = Reports()
+        try:
+            reporting = Reports()
+        except DrupdatesError as reports_error:
+            print("Reporting error: \n {0}".format(reports_error.msg))
+            sys.exit(1)
         reporting.send(report)
 
-    def update_site(self, working_dir):
-        """ Run updates for an individual working directory. """
+    def update_sites(self, working_dir):
+        """ Run updates for a working directory's sites. """
         report = {}
         self.aliases(working_dir)
         blacklist = self.settings.get('blacklist')
@@ -77,9 +82,13 @@ class Updates(object):
         if self.single_site:
             sites = {self.single_site : sites[self.single_site]}
         for site_name, ssh in sites.items():
+            if self.settings.get('verbose'):
+                msg = "Drupdates is working on the site: {0} ...".format(site_name)
+                print(msg)
             report[site_name] = {}
             if site_name in blacklist:
                 continue
+            self.utilities.load_dir_settings(working_dir)
             for phase in self.settings.get("drupdatesPhases"):
                 mod = __import__('drupdates.' + phase['name'].lower(), fromlist=[phase])
                 class_ = getattr(mod, phase['name'])
@@ -97,37 +106,10 @@ class Updates(object):
                         raise DrupdatesError(error.level, msg)
                 finally:
                     report[site_name][phase['name']] = result
+            self.settings.reset()
 
-        self.settings.reset()
         self.delete_files()
         return report
-
-    @staticmethod
-    def check_dir(directory):
-        """ Ensure the directory is writable. """
-        directory = Utils.detect_home_dir(directory)
-        if not os.path.isdir(directory):
-            try:
-                os.makedirs(directory)
-            except OSError as error:
-                msg = 'Unable to create non-existant directory {0} \n'.format(directory)
-                msg += 'Error: {0}\n'.format(error.strerror)
-                msg += 'Moving to next working directory, if applicable'
-                raise DrupdatesError(20, msg)
-        filepath = os.path.join(directory, "text.txt")
-        try:
-            open(filepath, "w")
-        except IOError:
-            msg = 'Unable to write to directory {0} \n'.format(directory)
-            raise DrupdatesError(20, msg)
-        os.remove(filepath)
-        return directory
-
-    def working_dir_settings(self, working_dir):
-        """ Add custom settings for the working direcotry. """
-        working_settings = os.path.join(working_dir, '.drupdates/settings.yaml')
-        if os.path.isfile(working_settings):
-            self.settings.add(working_settings, True)
 
     def aliases(self, working_dir):
         """ Build a Drush alias file in $HOME/.drush, with alises to be used later.
@@ -159,12 +141,8 @@ class Updates(object):
             msg = "Could not create {0} file\n Error: {1}".format(self.alias_file, error.strerror)
             raise DrupdatesError(30, msg)
         webroot_dir = self.settings.get('webrootDir')
-        host_set = self.settings.get('datastoreHost')
-        driver_set = self.settings.get('datastoreDriver')
-        port_set = self.settings.get('datastorePort')
-        filepath.write(template.safe_substitute(host=host_set, driver=driver_set,
-                                                path=working_dir, webroot=webroot_dir,
-                                                port=port_set))
+        filepath.write(template.safe_substitute(path=working_dir,
+                                                webroot=webroot_dir))
 
         filepath.close()
 
@@ -178,29 +156,3 @@ class Updates(object):
                 msg += "Error: {1}".format(error.strerror)
                 print(msg)
         return True
-
-    def write_debug_file(self):
-        """ Write debug file for this run.
-
-        Write file containing your system settings to be used to record python
-        and Drupdates state at the time Drupdates was run.
-        """
-
-        base_dir = self.settings.get('baseDir')
-        directory = self.check_dir(base_dir)
-        debug_file_name = os.path.join(directory, 'drupdates.debug')
-        debug_file = open(debug_file_name, 'w')
-        debug_file.write("Python Version:\n")
-        python_version = "{0}\n\n".format(sys.version)
-        debug_file.write(python_version)
-        installed_packages = pip.get_installed_distributions()
-        if len(installed_packages):
-            debug_file.write("Installed Packages:\n\n")
-            for i in installed_packages:
-                package = "{0}\n".format(str(i))
-                debug_file.write(package)
-        settings = self.settings.list()
-        debug_file.write("\nDrupdates Settings:\n\n")
-        for name, setting in settings.items():
-            line = "{0} : {1}\n".format(name, str(setting['value']))
-            debug_file.write(line)

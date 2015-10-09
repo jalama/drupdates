@@ -1,5 +1,5 @@
 """ Utilities class providing useful functions and methods. """
-import requests, os, subprocess, shutil
+import requests, os, subprocess, shutil, pip, sys, stat
 try:
     from urlparse import urlparse
 except ImportError:
@@ -29,6 +29,27 @@ class Utils(object):
         return directory
 
     @staticmethod
+    def check_dir(directory):
+        """ Ensure the directory is writable. """
+        directory = Utils.detect_home_dir(directory)
+        if not os.path.isdir(directory):
+            try:
+                os.makedirs(directory)
+            except OSError as error:
+                msg = 'Unable to create non-existant directory {0} \n'.format(directory)
+                msg += 'Error: {0}\n'.format(error.strerror)
+                msg += 'Moving to next working directory, if applicable'
+                raise DrupdatesError(20, msg)
+        filepath = os.path.join(directory, "text.txt")
+        try:
+            open(filepath, "w")
+        except IOError:
+            msg = 'Unable to write to directory {0} \n'.format(directory)
+            raise DrupdatesError(20, msg)
+        os.remove(filepath)
+        return directory
+
+    @staticmethod
     def remove_dir(directory):
         """ Try and remove the directory. """
         if os.path.isdir(directory):
@@ -43,8 +64,12 @@ class Utils(object):
         """ Find the make file and test to ensure it exists. """
         make_format = self.settings.get('makeFormat')
         make_folder = self.settings.get('makeFolder')
+        file_name = self.settings.get('makeFileName')
         make_file = site_name + '.make'
-        make_file_short = site_name
+        if file_name:
+            make_file_short = file_name
+        else:
+            make_file_short = site_name
         if make_format == 'yaml':
             make_file += '.yaml'
             make_file_short += '.yaml'
@@ -196,3 +221,84 @@ class Utils(object):
             os.remove(dir_delete + '/' + file_name)
         for directory in dcmp.common_dirs:
             shutil.rmtree(dir_delete + '/' + directory)
+
+    def write_debug_file(self):
+        """ Write debug file for this run.
+
+        Write file containing your system settings to be used to record python
+        and Drupdates state at the time Drupdates was run.
+        """
+
+        base_dir = self.settings.get('baseDir')
+        directory = Utils.check_dir(base_dir)
+        debug_file_name = os.path.join(directory, 'drupdates.debug')
+        debug_file = open(debug_file_name, 'w')
+        debug_file.write("Python Version:\n")
+        python_version = "{0}\n\n".format(sys.version)
+        debug_file.write(python_version)
+        # Get version data for system dependancies
+        dependancies = ['sqlite3', 'drush', 'git', 'php']
+        for dependancy in dependancies:
+            commands = [dependancy, '--version']
+            popen = subprocess.Popen(commands,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            results = popen.communicate()
+            if popen.returncode != 0:
+                stdout = "Check returned error."
+            else:
+                stdout = results[0]
+            debug_file.write("{0} Version:\n".format(dependancy.title()))
+            debug_file.write("{0}\n".format(stdout.decode()))
+        installed_packages = pip.get_installed_distributions()
+        if len(installed_packages):
+            debug_file.write("Installed Packages:\n\n")
+            for i in installed_packages:
+                package = "{0}\n".format(str(i))
+                debug_file.write(package)
+        settings = self.settings.list()
+        debug_file.write("\nDrupdates Settings:\n\n")
+        for name, setting in settings.items():
+            line = "{0} : {1}\n".format(name, str(setting['value']))
+            debug_file.write(line)
+
+    def load_dir_settings(self, dir):
+        """ Add custom settings for the a given directory. """
+        settings_file = os.path.join(dir, '.drupdates/settings.yaml')
+        if os.path.isfile(settings_file):
+            self.settings.add(settings_file, True)
+
+    @staticmethod
+    def copytree(src, dst, symlinks = False, ignore = None):
+        """ Recursively copy a directory tree from src to dst.
+
+        Taken from http://stackoverflow.com/a/22331852/1120125.
+
+        Needed because distutils.dir_util.copy_tree will only copy a given
+        directory one time.  Which is annoying!
+
+        """
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+            shutil.copystat(src, dst)
+        lst = os.listdir(src)
+        if ignore:
+            excl = ignore(src, lst)
+            lst = [x for x in lst if x not in excl]
+        for item in lst:
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if symlinks and os.path.islink(s):
+                if os.path.lexists(d):
+                    os.remove(d)
+                os.symlink(os.readlink(s), d)
+                try:
+                    st = os.lstat(s)
+                    mode = stat.S_IMODE(st.st_mode)
+                    os.lchmod(d, mode)
+                except:
+                    pass # lchmod not available
+            elif os.path.isdir(s):
+                Utils.copytree(s, d, symlinks, ignore)
+            else:
+                shutil.copy2(s, d)

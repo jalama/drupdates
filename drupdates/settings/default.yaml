@@ -24,6 +24,9 @@ singleSite:
 debug:
   value: ""
   prompt: Create a dump of the system settings for debugging purposes
+verbose:
+  value: ""
+  prompt: Verbose mode
 # This setting determines what Drupdates will do
 # Change with care
 drupdatesPhases:
@@ -46,15 +49,17 @@ gitRepoName:
 drushSiFiles:
   value:
     - sites/default/settings.php
-    - sites/default/default.settings.php
     - sites/default
     - sites/default/files/.htaccess
     - sites/default/default.services.yml
     - sites/default/services.yml
   prompt: What files will drush si set to file mode 0444
-commitAuthor:
-  value: Security Updates <updates@drupdates.org>
-  prompt: What user/email should be used for commit messages (ex. Update <updates@example.com>)
+commitAuthorName:
+  value: Security Updates
+  prompt: What user name should be used for commit messages (ex. Security Update)
+commitAuthorEmail:
+  value: updates@drupdates.org
+  prompt: What email should be used for commit messages (ex. updates@example.com)
 commonIgnore:
   value:
     - .htaccess
@@ -64,6 +69,16 @@ commonIgnore:
   prompt: What files and folders that ship with core are unique to local install (separate with spaces)
 ignoreCustomModules:
   value: True
+  prompt: Ignore the custom folder under modules
+useFeatureBranch:
+  value: False
+  prompt: Use a feature branch in remote repo in lieu of pushing to working branch
+featureBranchName:
+  value: ""
+  prompt: Specify a feature branch name, defaults to "drupdates-<timestamp>"
+oneCommitPerProject:
+  value: ""
+  prompt: Perform a single commit per project (ie module, theme, core) updated
 # Project Management Settings
 submitDeployTicket:
   value: False
@@ -80,30 +95,31 @@ targetDate:
 # Drush related settings
 # Note: this is one of the more important settings regarding Drupates behavior
 # change it only if you understand its implications regarding how the
-# Drush pm-update (up) command will behave.
+# Drush pm-updatecode (upc) command will behave.
+# Note: do not use pm-update (up)!!!
 upCmds:
   value:
-    - upc
+    - pm-updatecode
     - -y
-    - --security-only
     - --check-disabled
   format: list
   prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
 upsCmds:
   value:
-    - ups
+    - pm-updatestatus
     - --security-only
     - --check-disabled
   format: list
   prompt: Arguments and options for drush pm-updatestatus (ups) cmd (separate with spaces)
 qdCmds:
   value:
-    - qd
+    - core-quick-drupal
     - --use-existing
     - --writable
     - -y
     - --no-server
     - --browser=none
+    - --profile=minimal
   format: list
   prompt: Arguments and options for drush core-quick-drupal (qd) cmd (separate with commas)
 drushAliasFile:
@@ -113,6 +129,9 @@ useMakeFile:
   value: ""
   prompt: Build the site using a make file (note the make file will be updated)
   requires: webrootDir
+makeFileName:
+  value: ""
+  prompt: What is the name of the make file, do not include extensions
 makeFormat:
   value: make
   prompt: What format and file extension will the make file be (ie .make or .yaml) (default make)

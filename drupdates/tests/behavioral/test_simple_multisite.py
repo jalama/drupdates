@@ -1,26 +1,25 @@
-""" Test running Drupdates on one repo. """
-import os, yaml
-from git import Repo
-from os.path import expanduser
+""" Test running Drupdates on one multisite repo with two multisites. """
+
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestCustomWorkingSettings(object):
-    """ Test on one repo with custom settings file. """
+class TestSimpleMultisite(object):
+    """ Test running Drupdates on one multisite repo. """
 
     @classmethod
     def setup_class(cls):
-        """ Setup the test class. """
+        """ Setup test class. """
         utils = BehavioralUtils()
         utils.build(__file__)
 
     def __init__(self):
         base = Setup()
         self.test_directory = base.test_dir
+        self.utils = BehavioralUtils()
 
     @staticmethod
     def test_repo_built():
-        """ Test to ensure one repos built successfully. """
+        """ Test to ensure one repo built successfully. """
 
         count = BehavioralUtils.count_repos_updated('builds')
         # If 1 repo Siteupdates in report repo built successfully.
@@ -35,8 +34,8 @@ class TestCustomWorkingSettings(object):
         assert report_status == status
 
     @staticmethod
-    def test_git_commit_author():
-        """ Test to verify the name of the git commit is "Drupdates". """
+    def test_count_total_sites_updated():
+        """ Count to ensure 3 sites has updates installed. """
 
-        devcommit = BehavioralUtils.get_dev_commit('drupal', 'builds')
-        assert devcommit.author.name == 'Drupdates'
+        count = BehavioralUtils.count_sites_updated('drupal', 'builds')
+        assert count == 3

@@ -11,12 +11,24 @@ dirs:
     make_file: dmake_webroot
     make_format: make
     subfolder: webroot
+  dmake_custom_settings:
+    version: 7
+    build: false
+    make_file: dmake
+    make_format: yaml
+    commands:
+      -
+        - mkdir
+        - .drupdates
+      -
+        - mv
+        - dmake.yaml
+        - drupdates.yaml
+    custom_settings:
+      makeFileName:
+        value: drupdates
   drupal7_base:
     version: 7
-    build: true
-    make_format: yaml
-  drupal8_base:
-    version: 8
     build: true
     make_format: yaml
   drupal7_base_symlinks:
@@ -32,3 +44,38 @@ dirs:
         - -s
         - sites/all/modules
         - sites/example.com/modules
+  drupal7_base_multisite:
+    version: 7
+    build: true
+    make_format: yaml
+    sites:
+      - sample
+      - sample2
+  drupal7_custom_settings:
+    version: 7
+    build: true
+    make_format: yaml
+    commands:
+      -
+        - mkdir
+        - .drupdates
+    custom_settings:
+      commitAuthorName:
+        value: Drupdates
+      commitAuthorEmail:
+        value: Drupdates@example.com
+  drupal7_current:
+    version: 7_current
+    build: true
+    make_format: yaml
+  drupal7_current_multisites:
+    version: 7_current
+    build: true
+    make_format: yaml
+    sites:
+      - sample
+      - sample2
+  # drupal8_base:
+  #   version: 8
+  #   build: true
+  #   make_format: yaml

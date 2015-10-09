@@ -1,0 +1,17 @@
+core: 7.x
+
+api: 2
+
+defaults:
+  projects:
+    subdir: "contrib"
+
+projects:
+  drupal:
+    version: 7.32
+
+  fieldable_panels_panes:
+    version: 1.6
+
+  ctools:
+    version: 1.7

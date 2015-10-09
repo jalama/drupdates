@@ -1,26 +1,25 @@
-""" Test running Drupdates on one repo. """
-import os, yaml
-from git import Repo
-from os.path import expanduser
+""" Test running Drupdates on one repo not needing updates. """
+
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestCustomWorkingSettings(object):
-    """ Test on one repo with custom settings file. """
+class TestNoupdates(object):
+    """ Test running Drupdates on one repo. """
 
     @classmethod
     def setup_class(cls):
-        """ Setup the test class. """
+        """ Setup test class. """
         utils = BehavioralUtils()
         utils.build(__file__)
 
     def __init__(self):
         base = Setup()
         self.test_directory = base.test_dir
+        self.utils = BehavioralUtils()
 
     @staticmethod
     def test_repo_built():
-        """ Test to ensure one repos built successfully. """
+        """ Test to ensure one repo built successfully. """
 
         count = BehavioralUtils.count_repos_updated('builds')
         # If 1 repo Siteupdates in report repo built successfully.
@@ -28,15 +27,15 @@ class TestCustomWorkingSettings(object):
 
     @staticmethod
     def test_repo_updated():
-        """ Test to ensure the repo was updated. """
+        """ Test to ensure the repo didn't need updated. """
 
-        status = "The following updates were applied"
+        status = "Did not have any updates to apply"
         report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status == status
 
     @staticmethod
-    def test_git_commit_author():
-        """ Test to verify the name of the git commit is "Drupdates". """
+    def test_files_modified():
+        """ Test to make sure no cached/indexed files were modified. """
 
-        devcommit = BehavioralUtils.get_dev_commit('drupal', 'builds')
-        assert devcommit.author.name == 'Drupdates'
+        modified_count = BehavioralUtils.count_modified_files('drupal', 'builds')
+        assert modified_count == 0

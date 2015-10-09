@@ -1,16 +1,13 @@
-""" Test running Drupdates on one repo. """
-import os, yaml
-from git import Repo
-from os.path import expanduser
+""" Test running Drupdates on one repo using make file name drupdates.make """
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
 
-class TestCustomWorkingSettings(object):
-    """ Test on one repo with custom settings file. """
+class TestDrushMakeCustom(object):
+    """ Test running Drupdates on one repo. """
 
     @classmethod
     def setup_class(cls):
-        """ Setup the test class. """
+        """ Setup class. """
         utils = BehavioralUtils()
         utils.build(__file__)
 
@@ -20,7 +17,7 @@ class TestCustomWorkingSettings(object):
 
     @staticmethod
     def test_repo_built():
-        """ Test to ensure one repos built successfully. """
+        """ Test to ensure one repo built successfully. """
 
         count = BehavioralUtils.count_repos_updated('builds')
         # If 1 repo Siteupdates in report repo built successfully.
@@ -31,12 +28,5 @@ class TestCustomWorkingSettings(object):
         """ Test to ensure the repo was updated. """
 
         status = "The following updates were applied"
-        report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
+        report_status = BehavioralUtils.check_repo_updated('dmake', 'builds')
         assert report_status == status
-
-    @staticmethod
-    def test_git_commit_author():
-        """ Test to verify the name of the git commit is "Drupdates". """
-
-        devcommit = BehavioralUtils.get_dev_commit('drupal', 'builds')
-        assert devcommit.author.name == 'Drupdates'
