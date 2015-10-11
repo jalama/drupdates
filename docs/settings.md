@@ -20,7 +20,7 @@ Settings are built from either YAML files or options passed when Drupdats is run
 
 Settings loaded later take precedence over the same setting loaded earlier, i.e. if it's set as a CLI option it will overwrite anything set in the Core settings or local settings files.
 
-The Core settings file is [/drupdates/settings/default.yaml](https://github.com/jalama/drupdates/blob/master/drupdates/settings default.yaml). Additionally, each plugin ships with it's own default.yaml file in its respective settings directory.
+The Core settings file is [/drupdates/settings/default.yaml](https://github.com/jalama/drupdates/blob/master/drupdates/settings/default.yaml). Additionally, each plugin ships with it's own default.yaml file in its respective settings directory.
 
 **Custom Settings file:**<a name="custom_settings"></a>
 
