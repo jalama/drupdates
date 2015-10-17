@@ -4,7 +4,7 @@ working_dirs:
     dir: builds
 repo_dirs:
   drupal:
-    base: drupal7_base
+    base: drupal8_base
     working_directory: builds
 additional_settings:
   workingBranch:
@@ -15,8 +15,7 @@ additional_settings:
     value: yaml
   fileName:
     value: report.yaml
-  upCmds:
+  upsCmds:
     value:
-      - upc
-      - -y
+      - pm-updatestatus
       - --check-disabled

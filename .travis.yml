@@ -32,7 +32,7 @@ install:
   - curl -sS https://getcomposer.org/installer | php
   - sudo mv composer.phar /usr/local/bin/composer
   # install drush globally
-  - composer global require drush/drush:7.*
+  - composer global require drush/drush:dev-master
   # add composer's global bin directory to the path
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
