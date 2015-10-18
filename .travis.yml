@@ -29,10 +29,10 @@ install:
   # install php packages required for running a web server from drush on php 5.3
   - sudo apt-get install software-properties-common -y
   - sudo add-apt-repository ppa:ondrej/php5-oldstable -y
-  - sudo apt-get update -y
-  - sudo apt-get upgrade -y --force-yes
-  - sudo apt-get install php5 -y --force-yes
-  - sudo apt-get install -y --force-yes php5-gd php5-cli php5-sqlite
+  - sudo apt-get update -y -qq
+  - sudo apt-get upgrade -y --force-yes -qq
+  - sudo apt-get install php5 -y --force-yes -qq
+  - sudo apt-get install -y --force-yes php5-gd php5-cli php5-sqlite -qq
   # install composer
   - curl -sS https://getcomposer.org/installer | php
   - sudo mv composer.phar /usr/local/bin/composer
