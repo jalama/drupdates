@@ -26,11 +26,14 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y -qq postfix
 install:
-  # install php packages required for running a web server from drush on php 5.3
+  # install php packages required for running a web server from drush on php 5.5+
   - sudo apt-get install software-properties-common -y
   - sudo add-apt-repository ppa:ondrej/php5-oldstable -y
   - sudo apt-get update -y -qq
-  - sudo apt-get upgrade -y --force-yes -qq
+  # Trying to get Ubuntu to allow non-interactive change to /etc/rsyslog.conf
+  # @see http://stackoverflow.com/questions/22957939/how-to-answer-an-apt-get-configuration-change-prompt-on-travis-ci-in-this-case?answertab=active#tab-top
+  - sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade -y --force-yes -qq
+  # - sudo apt-get upgrade -y --force-yes -qq
   - sudo apt-get install php5 -y --force-yes -qq
   - sudo apt-get install -y --force-yes php5-gd php5-cli php5-sqlite -qq
   # install composer
