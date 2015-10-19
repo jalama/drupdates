@@ -4,7 +4,8 @@ python:
   - "2.7"
   - "3.3"
   - "3.4"
-  - "3.5-dev"
+  - "3.5"
+  - "nightly"
 
 matrix:
   env:
@@ -15,7 +16,7 @@ matrix:
       - ES_GEOCLUSTER_FACET_VER=0.0.10
       - ES_WAIT_ON_MAPPING_CHANGE=true
   allow_failures:
-    - "3.5-dev"
+    - "nightly"
 
 before_install:
   - export UPDATE TRAVIS_BUILD_DIR
