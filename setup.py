@@ -11,7 +11,7 @@ setup(
     url='https://github.com/jalama/drupdates',
     download_url='https://github.com/jalama/drupdates',
     author_email='jalama@gmail.com',
-    version='1.5.0',
+    version='1.5.1',
     package_dir={'drupdates' : 'drupdates', 'drupdates.tests' : 'drupdates/tests'},
     include_package_data=True,
     install_requires=['nose', 'gitpython', 'requests', 'pyyaml'],
