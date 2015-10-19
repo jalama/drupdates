@@ -16,7 +16,7 @@ matrix:
       - ES_GEOCLUSTER_FACET_VER=0.0.10
       - ES_WAIT_ON_MAPPING_CHANGE=true
   allow_failures:
-    - "nightly"
+    - python: nightly
 
 before_install:
   - export UPDATE TRAVIS_BUILD_DIR
