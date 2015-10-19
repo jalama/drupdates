@@ -39,7 +39,7 @@ class BehavioralUtils(object):
         for directory, attributes in settings['working_dirs'].items():
             self.build_working_dir(directory, attributes, working)
         self.build_settings_file(settings)
-        return self.run(settings)
+        return settings
 
     def load_settings_files(self, test_file):
         """ Load the test's settings file. """

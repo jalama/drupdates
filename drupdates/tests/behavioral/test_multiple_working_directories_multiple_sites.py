@@ -13,7 +13,8 @@ class TestMultipleWorkingDirectoriesOneCustomSettings(object):
     def setup_class(cls):
         """ Setup test class. """
         utils = BehavioralUtils()
-        utils.build(__file__)
+        settings = utils.build(__file__)
+        utils.run(settings)
 
     def __init__(self):
         base = Setup()

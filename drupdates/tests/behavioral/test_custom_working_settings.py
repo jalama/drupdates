@@ -12,7 +12,8 @@ class TestCustomWorkingSettings(object):
     def setup_class(cls):
         """ Setup the test class. """
         utils = BehavioralUtils()
-        utils.build(__file__)
+        settings = utils.build(__file__)
+        utils.run(settings)
 
     def __init__(self):
         base = Setup()
