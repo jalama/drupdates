@@ -32,7 +32,7 @@ class Sitebuild(object):
         repository = Repo.init(self.site_dir)
         remote = git.Remote.create(repository, self._site_name, self.ssh)
         try:
-            remote.fetch(working_branch)
+            remote.fetch(working_branch, depth=1)
         except git.exc.GitCommandError as error:
             msg = "{0}: Could not checkout {1}. \n".format(self._site_name, working_branch)
             msg += "Error: {0}".format(error)
