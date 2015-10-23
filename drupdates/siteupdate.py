@@ -195,7 +195,7 @@ class Siteupdate(object):
 
         """
         up_cmds = copy.copy(self.settings.get('upCmds'))
-        up_cmds.append(" ".join(modules).encode())
+        up_cmds += modules
         try:
             Drush.call(up_cmds, site)
         except DrupdatesError as updates_error:
