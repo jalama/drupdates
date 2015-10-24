@@ -32,7 +32,7 @@ install:
   - sudo apt-get update -y -qq
   # Trying to get Ubuntu to allow non-interactive change to /etc/rsyslog.conf
   # @see http://stackoverflow.com/questions/22957939/how-to-answer-an-apt-get-configuration-change-prompt-on-travis-ci-in-this-case?answertab=active#tab-top
-  - sudo $BUILD_TOP/drupdates/tests/php55.sh
+  - sudo $BUILD_TOP/drupdates/drupdates/tests/php55.sh
   # - sudo apt-get upgrade -y --force-yes -qq
   - sudo apt-get install php5 -y --force-yes -qq
   - sudo apt-get install -y --force-yes php5-gd php5-cli php5-sqlite -qq
