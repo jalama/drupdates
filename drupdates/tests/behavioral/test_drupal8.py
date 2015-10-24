@@ -2,6 +2,7 @@
 
 from drupdates.tests.behavioral.behavioral_utils import BehavioralUtils
 from drupdates.tests import Setup
+from nose import SkipTest
 
 class TestSimple(object):
     """ Test running Drupdates on one repo. """
@@ -28,7 +29,7 @@ class TestSimple(object):
     @staticmethod
     def test_repo_updated():
         """ Test to ensure the repo was updated. """
-
+        raise SkipTest
         status = "The following updates were applied"
         report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status != status
