@@ -56,11 +56,7 @@ it's configuration files.  Drupdates will need to store system user names
 and passwords in the $HOME/.drupdates directory.  This will mean that directory
  will need to be locked down.
 
-<<<<<<< Updated upstream
 - By default, [Make](make.md) file used to build a site will be named the same as the site folder.  This is configurable using the makeFileName [setting](settings.md).
-=======
-- By default, [Make](make.md) files used to build a site will be named the same as the site folder.  This is configurable using the makeFileName [setting](settings.md).
->>>>>>> Stashed changes
 
 - Git is being used to track changes to the Drupal code base
 
