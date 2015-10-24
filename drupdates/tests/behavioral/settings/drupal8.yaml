@@ -1,0 +1,21 @@
+# Test successful if Drupdates runs and one site is updated.
+working_dirs:
+  builds:
+    dir: builds
+repo_dirs:
+  drupal:
+    base: drupal8_base
+    working_directory: builds
+additional_settings:
+  workingBranch:
+    value: dev
+  reportingTool:
+    value: file
+  reportingFormat:
+    value: yaml
+  fileName:
+    value: report.yaml
+  upsCmds:
+    value:
+      - pm-updatestatus
+      - --check-disabled

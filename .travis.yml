@@ -27,13 +27,17 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y -qq postfix
 install:
-  # install php packages required for running a web server from drush on php 5.3
-  - sudo apt-get install -y --force-yes php5 php5-gd php5-cli php5-sqlite
+  # install php packages required for running a web server from drush on php 5.5+
+  - sudo apt-get install software-properties-common -y
+  - sudo add-apt-repository ppa:ondrej/php5-oldstable -y
+  - sudo apt-get update -y -qq
+  - sudo apt-get install php5 -y --force-yes -qq
+  - sudo apt-get install -y --force-yes php5-gd php5-cli php5-sqlite -qq
   # install composer
   - curl -sS https://getcomposer.org/installer | php
   - sudo mv composer.phar /usr/local/bin/composer
   # install drush globally
-  - composer global require drush/drush:7.*
+  - composer global require drush/drush:dev-master
   # add composer's global bin directory to the path
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
