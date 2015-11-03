@@ -102,6 +102,8 @@ upCmds:
     - pm-updatecode
     - -y
     - --check-disabled
+    - --cache
+    - --check-updatedb=0
   format: list
   prompt: Arguments and options for drush pm-update (up) cmd (separate with spaces)
 upsCmds:
