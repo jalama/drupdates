@@ -199,7 +199,7 @@ class BehavioralUtils(object):
         return len(list(repo.iter_commits('dev')))
 
     @staticmethod
-    def count_modified_files(site, working_directory):
+    def count_modified_files(site):
         """ Return a list of the modified files in the git index. """
 
         file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
@@ -207,3 +207,13 @@ class BehavioralUtils(object):
         folder = os.path.join(settings['workingDir']['value'][0], site)
         repo = Repo(folder)
         return len(list(repo.git.ls_files('--modified')))
+
+    @staticmethod
+    def count_committed_files(site):
+        """ Return a list of the modified files in the git index. """
+
+        file_name = open(os.path.join(expanduser('~'), '.drupdates', 'settings.yaml'), 'r')
+        settings = yaml.load(file_name)
+        folder = os.path.join(settings['workingDir']['value'][0], site)
+        repo = Repo(folder)
+        return len(list(repo.git.show('--name-only')))

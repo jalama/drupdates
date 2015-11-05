@@ -38,5 +38,5 @@ class TestNoupdates(object):
     def test_files_modified():
         """ Test to make sure no cached/indexed files were modified. """
 
-        modified_count = BehavioralUtils.count_modified_files('drupal', 'builds')
+        modified_count = BehavioralUtils.count_modified_files('drupal')
         assert modified_count == 0

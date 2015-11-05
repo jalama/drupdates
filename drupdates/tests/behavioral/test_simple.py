@@ -33,3 +33,10 @@ class TestSimple(object):
         status = "The following updates were applied"
         report_status = BehavioralUtils.check_repo_updated('drupal', 'builds')
         assert report_status == status
+
+    @staticmethod
+    def test_files_commited():
+        """ Test to make sure at least 4 files were updated. """
+
+        modified_count = BehavioralUtils.count_committed_files('drupal')
+        assert modified_count >= 4
